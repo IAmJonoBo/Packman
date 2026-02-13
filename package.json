@@ -15,6 +15,8 @@
     "package:pyexe": "sh ./scripts/build-python-exe.sh",
     "package:executables": "sh ./scripts/build-executables.sh && sh ./scripts/build-python-exe.sh",
     "pack:planning:validate": "pnpm --filter packman-cli exec node dist/index.js validate ./Packs/copilot-project-management-planning-pack --strict --suite",
-    "pack:planning:e2e": "sh ./scripts/pack-planning-e2e.sh"
+    "pack:planning:e2e": "sh ./scripts/pack-planning-e2e.sh",
+    "governance:routes": "node ./scripts/check-route-ownership.mjs",
+    "governance:packs:e2e": "pnpm --filter packman-cli run build && pnpm --filter packman-cli exec node dist/index.js validate ./Packs --strict --suite"
   }
 }

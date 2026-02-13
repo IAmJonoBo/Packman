@@ -39,4 +39,24 @@ describe("normalizePack", () => {
 
     await rm(root, { recursive: true, force: true });
   });
+
+  it("does not warn for supported non-legacy prompt namespaces", async () => {
+    const root = await mkdtemp(path.join(tmpdir(), "packman-normalize-"));
+    await mkdir(path.join(root, ".github/prompts"), { recursive: true });
+    await writeFile(
+      path.join(root, ".github/prompts", "route.prompt.md"),
+      `---\nname: suite:route\ndescription: desc\n---\nBody\n`,
+      "utf8",
+    );
+
+    const result = await normalizePack(root, {
+      apply: false,
+      autoPrefixNamespaces: true,
+    });
+    expect(
+      result.issues.some((issue) => issue.code === "PROMPT_NAMESPACE"),
+    ).toBe(false);
+
+    await rm(root, { recursive: true, force: true });
+  });
 });

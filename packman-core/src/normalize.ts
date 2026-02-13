@@ -19,6 +19,14 @@ const PROMPT_NAMESPACES = [
   "qa:",
   "ops:",
   "ux:",
+  "gh:",
+  "gov:",
+  "rel:",
+  "scaffold:",
+  "suite:",
+  "ui:",
+  "polish:",
+  "obs:",
 ];
 
 const SUFFIXES = [".prompt.md", ".agent.md", ".instructions.md"];

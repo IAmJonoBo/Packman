@@ -1,8 +1,8 @@
 export interface ChatSettings {
-  "chat.promptFilesLocations"?: string[];
-  "chat.instructionsFilesLocations"?: string[];
-  "chat.agentFilesLocations"?: string[];
-  "chat.agentSkillsLocations"?: string[];
+  "chat.promptFilesLocations"?: string[] | Record<string, boolean>;
+  "chat.instructionsFilesLocations"?: string[] | Record<string, boolean>;
+  "chat.agentFilesLocations"?: string[] | Record<string, boolean>;
+  "chat.agentSkillsLocations"?: string[] | Record<string, boolean>;
   [key: string]: unknown;
 }
 
@@ -31,6 +31,37 @@ function uniqueStrings(values: unknown[]): string[] {
   return output;
 }
 
+function toObjectMap(values: string[]): Record<string, boolean> {
+  const map: Record<string, boolean> = {};
+  for (const value of values) {
+    map[value] = true;
+  }
+
+  return map;
+}
+
+function fromObjectMap(value: unknown): string[] {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return [];
+  }
+
+  return Object.entries(value)
+    .filter(([key, enabled]) => typeof key === "string" && Boolean(enabled))
+    .map(([key]) => key);
+}
+
+function extractLocations(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return uniqueStrings(value);
+  }
+
+  return uniqueStrings(fromObjectMap(value));
+}
+
+function isObjectMap(value: unknown): value is Record<string, boolean> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export function mergeSettings(
   base: ChatSettings,
   incoming: ChatSettings,
@@ -44,13 +75,12 @@ export function mergeSettings(
   }
 
   for (const key of CHAT_LOCATION_KEYS) {
-    const baseValue = Array.isArray(base[key]) ? (base[key] as unknown[]) : [];
-    const incomingValue = Array.isArray(incoming[key])
-      ? (incoming[key] as unknown[])
-      : [];
+    const baseValue = extractLocations(base[key]);
+    const incomingValue = extractLocations(incoming[key]);
     const union = uniqueStrings([...baseValue, ...incomingValue]);
     if (union.length > 0) {
-      merged[key] = union;
+      const preserveObjectMap = isObjectMap(base[key]);
+      merged[key] = preserveObjectMap ? toObjectMap(union) : union;
     }
   }
 
@@ -60,31 +90,21 @@ export function mergeSettings(
 export function minimalReadinessPatch(settings: ChatSettings): ChatSettings {
   const patch: ChatSettings = {};
 
-  if (
-    !Array.isArray(settings["chat.promptFilesLocations"]) ||
-    settings["chat.promptFilesLocations"]?.length === 0
-  ) {
+  if (extractLocations(settings["chat.promptFilesLocations"]).length === 0) {
     patch["chat.promptFilesLocations"] = [".github/prompts"];
   }
 
   if (
-    !Array.isArray(settings["chat.instructionsFilesLocations"]) ||
-    settings["chat.instructionsFilesLocations"]?.length === 0
+    extractLocations(settings["chat.instructionsFilesLocations"]).length === 0
   ) {
     patch["chat.instructionsFilesLocations"] = [".github/instructions"];
   }
 
-  if (
-    !Array.isArray(settings["chat.agentFilesLocations"]) ||
-    settings["chat.agentFilesLocations"]?.length === 0
-  ) {
+  if (extractLocations(settings["chat.agentFilesLocations"]).length === 0) {
     patch["chat.agentFilesLocations"] = [".github/agents"];
   }
 
-  if (
-    !Array.isArray(settings["chat.agentSkillsLocations"]) ||
-    settings["chat.agentSkillsLocations"]?.length === 0
-  ) {
+  if (extractLocations(settings["chat.agentSkillsLocations"]).length === 0) {
     patch["chat.agentSkillsLocations"] = [".github/skills"];
   }
 

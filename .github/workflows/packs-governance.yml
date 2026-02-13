@@ -1,0 +1,50 @@
+name: Packs governance
+
+on:
+  pull_request:
+    paths:
+      - "Packs/**"
+      - "packman-core/**"
+      - "packman-cli/**"
+      - "scripts/**"
+      - ".github/workflows/packs-governance.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Packs/**"
+      - "packman-core/**"
+      - "packman-cli/**"
+      - "scripts/**"
+      - ".github/workflows/packs-governance.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  governance-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.2
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Route ownership check
+        run: pnpm run governance:routes
+
+      - name: Build and strict suite validate packs
+        run: pnpm run governance:packs:e2e
+
+      - name: Planning pack E2E checks
+        run: pnpm run pack:planning:e2e
