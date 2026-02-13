@@ -1,0 +1,21 @@
+{
+  "id": "copilot-gold-standards-steward",
+  "name": "Gold Standards Steward",
+  "version": "0.1.0",
+  "intended_install": "solo|suite",
+  "orchestrator_agent": "gold-standards-steward",
+  "owned_paths": [
+    ".github/agents",
+    ".github/prompts",
+    ".github/skills",
+    ".github/instructions"
+  ],
+  "namespaces": ["gs:", "audit:", "uplift:", "gates:"],
+  "commands": [
+    "audit:gold-standard",
+    "uplift:plan",
+    "uplift:execute-slice",
+    "gates:setup",
+    "audit:doctor-report"
+  ]
+}

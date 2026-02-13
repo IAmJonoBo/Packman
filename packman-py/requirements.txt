@@ -1,2 +1,2 @@
-typer[all]
-rich
+typer[all]>=0.23.1
+rich>=14.3.2
