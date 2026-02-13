@@ -6,7 +6,8 @@
     "packman": "dist/index.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "package": "npm pack"
   },
   "dependencies": {
     "commander": "^12.1.0"
