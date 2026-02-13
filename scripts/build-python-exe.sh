@@ -28,7 +28,7 @@ if ! "$PYTHON_BIN" -c "import PyInstaller" >/dev/null 2>&1; then
 fi
 
 cd "$ROOT_DIR/packman-py"
-"$PYINSTALLER_BIN" --onefile --name packman-py -c packman_py/packman.py --distpath "$ROOT_DIR/packman-py/dist" --workpath "$ROOT_DIR/packman-py/build"
+"$PYINSTALLER_BIN" --onefile --name packman-py -c packman_py/packman.py --collect-all rich --collect-all typer --distpath "$ROOT_DIR/packman-py/dist" --workpath "$ROOT_DIR/packman-py/build"
 
 echo "Built executable in packman-py/dist (host-specific)"
 ls -al "$ROOT_DIR/packman-py/dist" || true

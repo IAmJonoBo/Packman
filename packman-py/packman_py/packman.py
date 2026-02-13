@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import os
 import shutil
-import subprocess
 from pathlib import Path
 
 import typer
@@ -28,10 +28,9 @@ def render_header() -> None:
 
 
 def run_checked(cmd: list[str]) -> None:
-    try:
-        subprocess.run(cmd, check=True)
-    except subprocess.CalledProcessError as err:
-        raise typer.Exit(code=err.returncode) from err
+    exit_code = os.spawnv(os.P_WAIT, cmd[0], cmd)
+    if exit_code != 0:
+        raise typer.Exit(code=exit_code)
 
 
 def resolve_node() -> str:
