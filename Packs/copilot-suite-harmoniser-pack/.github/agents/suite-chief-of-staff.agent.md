@@ -17,5 +17,6 @@ tools:
 ## Rules
 
 - Prefer namespaced commands: `sec:*`, `qa:*`, `ui:*`, `gh:*`, etc.
+- For project-planning and variance-governance requests, prioritize delegating to `Project Planning Lead` when installed.
 - Do not overwrite suite-owned files unless explicit.
 - If an orchestrator agent is missing, produce a plan and state what's missing.

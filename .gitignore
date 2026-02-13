@@ -23,6 +23,9 @@ packman-py/**/__pycache__/
 # packaged tarballs
 *.tgz
 
+# packman dry-run backups
+.packman-backup-*.zip
+
 # temp / logs
 *.log
 .tmp/
