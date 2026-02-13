@@ -1,22 +1,37 @@
-import type { Issue } from "@packman/core";
+import chalk from "chalk";
+import { Issue } from "@packman/core";
 
-export function printIssues(issues: Issue[]): void {
-  if (issues.length === 0) {
-    return;
-  }
+export const format = {
+  success: (msg: string) => console.log(`${chalk.green("✔")} ${msg}`),
+  error: (msg: string) => console.error(`${chalk.red("✖")} ${msg}`),
+  warning: (msg: string) => console.warn(`${chalk.yellow("⚠")} ${msg}`),
+  info: (msg: string) => console.log(`${chalk.blue("ℹ")} ${msg}`),
 
-  for (const issue of issues) {
-    const scope = issue.path ? ` (${issue.path})` : "";
-    console.log(
-      `- [${issue.severity}] ${issue.code}: ${issue.message}${scope}`,
-    );
-  }
-}
+  // Highlight variants
+  path: (p: string) => chalk.cyan.underline(p),
+  code: (c: string) => chalk.magenta(c),
+  bold: (t: string) => chalk.bold(t),
 
-export function printHeader(title: string): void {
-  console.log(`\n== ${title} ==`);
-}
+  // Issue formatter
+  issues: (issues: Issue[]) => {
+    if (issues.length === 0) return;
 
-export function printJson(payload: unknown): void {
-  console.log(JSON.stringify(payload, null, 2));
-}
+    console.log("");
+    issues.forEach((issue) => {
+      const icon =
+        issue.severity === "error" ? chalk.red("✖") : chalk.yellow("⚠");
+      const loc = issue.path ? ` ${chalk.cyan(issue.path)}` : "";
+      console.log(`  ${icon} ${issue.message}${loc}`);
+    });
+    console.log("");
+  },
+
+  // Header for sections
+  header: (title: string) => {
+    console.log(`\n${chalk.bold.underline(title)}\n`);
+  },
+
+  json: (data: unknown) => {
+    console.log(JSON.stringify(data, null, 2));
+  },
+};

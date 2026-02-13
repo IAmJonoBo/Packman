@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+set -eu
+
+SCRIPT_DIR="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)"
+ROOT_DIR="$SCRIPT_DIR"
+
+if [ -t 1 ] && command -v clear >/dev/null 2>&1; then
+	clear
+fi
+
+APP_BUNDLE="$ROOT_DIR/packman-app/src-tauri/target/release/bundle/macos/Packman.app"
+APP_BIN="$ROOT_DIR/packman-app/src-tauri/target/release/packman-app"
+
+if [ -d "$APP_BUNDLE" ]; then
+	echo "Launching Packman app bundle..."
+	exec open "$APP_BUNDLE"
+fi
+
+if [ -x "$APP_BIN" ]; then
+	echo "Launching Packman app binary..."
+	exec "$APP_BIN" "$@"
+fi
+
+echo "No built app found."
+echo "Run: pnpm --filter packman-app run tauri:build:safe"
+exit 1

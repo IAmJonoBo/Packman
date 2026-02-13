@@ -1,6 +1,7 @@
 import path from "node:path";
 import { promises as fs } from "node:fs";
 import os from "node:os";
+import fg from "fast-glob";
 import JSZip from "jszip";
 import { detectPack } from "./detect.js";
 
@@ -42,6 +43,70 @@ export interface ResolvedPackSource {
   sourcePath: string;
   roots: string[];
   cleanup: () => Promise<void>;
+}
+
+function sortRoots(roots: string[]): string[] {
+  return roots.sort((left, right) => {
+    const leftDepth = left.split(path.sep).length;
+    const rightDepth = right.split(path.sep).length;
+    if (leftDepth !== rightDepth) {
+      return leftDepth - rightDepth;
+    }
+
+    return left.localeCompare(right, undefined, { sensitivity: "base" });
+  });
+}
+
+function candidateRootFromArtifactPath(artifactPath: string): string {
+  const normalized = artifactPath.replaceAll("\\", "/");
+  const githubMarker = "/.github/";
+  const markerIndex = normalized.indexOf(githubMarker);
+  if (markerIndex >= 0) {
+    return normalized.slice(0, markerIndex);
+  }
+
+  if (normalized.endsWith("/PACK_MANIFEST.json")) {
+    return normalized.slice(0, -"/PACK_MANIFEST.json".length);
+  }
+
+  return path.posix.dirname(normalized);
+}
+
+async function discoverPackRootsRecursively(
+  rootPath: string,
+): Promise<string[]> {
+  const artifactMatches = await fg(
+    [
+      "**/PACK_MANIFEST.json",
+      "**/.github/prompts/**/*.prompt.md",
+      "**/.github/agents/**/*.agent.md",
+      "**/.github/instructions/**/*.instructions.md",
+      "**/.github/skills/**/SKILL.md",
+      "**/.github/copilot-instructions.md",
+    ],
+    {
+      cwd: rootPath,
+      onlyFiles: true,
+      dot: true,
+      unique: true,
+      ignore: ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/build/**"],
+    },
+  );
+
+  const candidateRoots = [
+    ...new Set(artifactMatches.map(candidateRootFromArtifactPath)),
+  ];
+  const verifiedRoots: string[] = [];
+
+  for (const candidate of candidateRoots) {
+    const absolute = path.resolve(rootPath, candidate);
+    const detected = await detectPack(absolute);
+    if (detected.isPack) {
+      verifiedRoots.push(absolute);
+    }
+  }
+
+  return sortRoots([...new Set(verifiedRoots)]);
 }
 
 export async function resolvePackSource(
@@ -87,9 +152,14 @@ export async function resolvePackSource(
     }
   }
 
+  if (roots.length === 0) {
+    const discoveredRoots = await discoverPackRootsRecursively(effectivePath);
+    roots.push(...discoveredRoots);
+  }
+
   return {
     sourcePath: effectivePath,
-    roots: roots.sort(),
+    roots: sortRoots([...new Set(roots)]),
     cleanup: async () => {
       if (tempPath) {
         await fs.rm(tempPath, { recursive: true, force: true });

@@ -1,12 +1,21 @@
 from __future__ import annotations
 
 import os
+import shlex
 import shutil
+import subprocess
+import sys
 from pathlib import Path
+
+try:
+    import termios
+    import tty
+except ImportError:
+    termios = None
+    tty = None
 
 import typer
 from rich.console import Console
-from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
@@ -18,14 +27,141 @@ PALETTE = {"accent": "#7ef9ff", "muted": "#a29bfe", "glow": "#ff7bd0", "bg": "#0
 BOLD_STYLE_PREFIX = "bold "
 
 
+def get_render_width() -> int:
+    # Use console width, max 100 for readability
+    return min(console.width, 100)
+
+
+def hard_clear() -> None:
+    console.clear()
+
+
 def render_header() -> None:
-    title = Text("PACKMAN", justify="center", style=BOLD_STYLE_PREFIX + PALETTE["glow"])
-    subtitle = Text(
-        "repository pack manager — pastel cyberpunk",
-        style=PALETTE["muted"],
-        justify="center",
+    width = get_render_width()
+    console.print("PACKMAN".center(width))
+    console.print("repository pack manager - pastel cyberpunk".center(width))
+    console.print("-" * width)
+
+
+def clip_text(value: str, width: int) -> str:
+    if width <= 1:
+        return ""
+    if len(value) <= width:
+        return value
+    if width == 2:
+        return value[:2]
+    return value[: width - 3] + "..."
+
+
+def ask_yes_no(prompt: str, default: bool = True) -> bool:
+    suffix = "[Y/n]" if default else "[y/N]"
+    value = console.input(f"{prompt} {suffix} ").strip().lower()
+    if value == "":
+        return default
+    return value in {"y", "yes"}
+
+
+def run_py_command(args: list[str]) -> None:
+    subprocess.run([sys.executable, "-m", "packman_py.packman", *args], check=False)
+
+
+def render_interactive_menu(selected_index: int) -> None:
+    hard_clear()
+    render_header()
+
+    menu = [
+        ("Validate Packs", "Validate pack structure with strict/suite options."),
+        ("Doctor Check", "Run local dependency and environment diagnostics."),
+        ("Info", "Show repository and CLI summary information."),
+        ("Package Artifacts", "Build node/python artifacts (node/py/pyexe/all)."),
+        (
+            "Run Node CLI Command",
+            "Execute raw Node CLI args for advanced packman operations.",
+        ),
+        ("Exit", "Close the launcher session."),
+    ]
+
+    terminal_width = get_render_width()
+
+    table = Table(
+        width=terminal_width,
+        box=None,
+        show_header=True,
+        header_style=BOLD_STYLE_PREFIX + PALETTE["accent"],
+        padding=(0, 1),
     )
-    console.print(Panel.fit(Text.assemble(title, "\n", subtitle), style="on #071223"))
+    table.add_column("", width=1)
+    table.add_column("#", width=2, justify="right")
+    table.add_column("Action", width=24)
+    table.add_column("Explainer", ratio=1)
+
+    for index, (action, explainer) in enumerate(menu):
+        marker = ">" if index == selected_index else " "
+        style = (
+            BOLD_STYLE_PREFIX + PALETTE["accent"] if index == selected_index else None
+        )
+
+        table.add_row(marker, str(index + 1), action, explainer, style=style)
+
+    console.print(table)
+    console.print("Use up/down or j/k to move, Enter to select, q to quit.")
+
+
+def read_menu_selection(count: int, initial_index: int = 0) -> int:
+    if termios is None or tty is None or not sys.stdin.isatty():
+        render_interactive_menu(initial_index)
+        value = console.input(f"Select action number (1-{count}): ").strip()
+        if value.lower() in {"q", "quit", "exit"}:
+            return count - 1
+        if value.isdigit():
+            index = int(value) - 1
+            if 0 <= index < count:
+                return index
+        return initial_index
+
+    selected_index = initial_index
+    try:
+        stdin_fd = sys.stdin.fileno()
+        previous_state = termios.tcgetattr(stdin_fd)
+    except OSError:
+        render_interactive_menu(initial_index)
+        value = console.input(f"Select action number (1-{count}): ").strip()
+        if value.lower() in {"q", "quit", "exit"}:
+            return count - 1
+        if value.isdigit():
+            index = int(value) - 1
+            if 0 <= index < count:
+                return index
+        return initial_index
+
+    try:
+        tty.setcbreak(stdin_fd)
+        while True:
+            render_interactive_menu(selected_index)
+            key = os.read(stdin_fd, 1)
+
+            if key in {b"\r", b"\n"}:
+                return selected_index
+
+            if key in {b"q", b"Q", b"\x03"}:
+                return count - 1
+
+            if key in {b"k", b"K"}:
+                selected_index = (selected_index - 1) % count
+                continue
+
+            if key in {b"j", b"J"}:
+                selected_index = (selected_index + 1) % count
+                continue
+
+            if key == b"\x1b":
+                next_two = os.read(stdin_fd, 2)
+                if next_two == b"[A":
+                    selected_index = (selected_index - 1) % count
+                elif next_two == b"[B":
+                    selected_index = (selected_index + 1) % count
+    finally:
+        termios.tcsetattr(stdin_fd, termios.TCSADRAIN, previous_state)
 
 
 def run_checked(cmd: list[str]) -> None:
@@ -37,7 +173,7 @@ def run_checked(cmd: list[str]) -> None:
 def resolve_node() -> str:
     node_path = shutil.which("node")
     if not node_path:
-        console.print(Panel(Text("Node.js not found in PATH."), style="red"))
+        console.print(Text("Node.js not found in PATH.", style="red"))
         raise typer.Exit(code=2)
     return node_path
 
@@ -46,10 +182,8 @@ def resolve_packman_cli() -> str:
     cli_path = Path("./packman-cli/dist/index.js").resolve()
     if not cli_path.exists():
         console.print(
-            Panel(
-                Text(
-                    "packman-cli is not built. Run: pnpm --filter packman-cli -w run build"
-                ),
+            Text(
+                "packman-cli is not built. Run: pnpm --filter packman-cli -w run build",
                 style="red",
             )
         )
@@ -89,11 +223,7 @@ def info(verbose: bool = typer.Option(False, "--verbose", "-v")) -> None:
 
     if verbose:
         console.print(
-            Panel(
-                Text("Verbose diagnostics would appear here."),
-                title="Diagnostics",
-                style=PALETTE["accent"],
-            )
+            Text("Diagnostics: verbose output placeholder.", style=PALETTE["accent"])
         )
 
 
@@ -111,20 +241,12 @@ def validate(
     """Run the pack validator (shells out to packman-cli)."""
     if not json_output:
         render_header()
-        console.print(
-            Panel(
-                Text.from_markup(f"Running validator on [bold]{path}[/bold]..."),
-                style=PALETTE["muted"],
-            )
-        )
+        console.print(Text.from_markup(f"Running validator on [bold]{path}[/bold]..."))
 
     p = Path(path)
     if not (p.exists() and p.is_dir()):
         console.print(
-            Panel(
-                Text(f"Invalid path: {path} (must be an existing directory)"),
-                style="red",
-            )
+            Text(f"Invalid path: {path} (must be an existing directory)", style="red")
         )
         raise typer.Exit(code=3)
 
@@ -137,7 +259,7 @@ def validate(
         cmd.append("--json")
     run_checked(cmd)
     if not json_output:
-        console.print(Panel(Text("Validation completed."), style=PALETTE["accent"]))
+        console.print(Text("Validation completed.", style=PALETTE["accent"]))
 
 
 @app.command()
@@ -149,10 +271,8 @@ def package(
     allowed = {"node", "py", "pyexe", "all"}
     if target not in allowed:
         console.print(
-            Panel(
-                Text(
-                    f"Invalid target '{target}'. Choose one of: {', '.join(sorted(allowed))}"
-                ),
+            Text(
+                f"Invalid target '{target}'. Choose one of: {', '.join(sorted(allowed))}",
                 style="red",
             )
         )
@@ -169,17 +289,97 @@ def package(
         )
 
     for label, cmd in steps:
-        console.print(Panel(Text(f"Running: {label}"), style=PALETTE["muted"]))
+        console.print(Text(f"Running: {label}", style=PALETTE["muted"]))
         run_checked(cmd)
 
     console.print(
-        Panel(
-            Text(
-                "Packaging complete. Artifacts are in packman-cli/dist/bin and packman-py/dist."
-            ),
+        Text(
+            "Packaging complete. Artifacts are in packman-cli/dist/bin and packman-py/dist.",
             style=PALETTE["accent"],
         )
     )
+
+
+@app.command()
+def interactive() -> None:
+    """Open an interactive Packman home screen with arrow-key navigation."""
+    options = [
+        "Validate Packs",
+        "Doctor Check",
+        "Info",
+        "Package Artifacts",
+        "Run Node CLI Command",
+        "Exit",
+    ]
+    selected_index = 0
+    while True:
+        selected_index = read_menu_selection(len(options), selected_index)
+        choice = options[selected_index]
+
+        if choice == "Exit":
+            console.clear()
+            render_header()
+            console.print(Text("Goodbye.", style=PALETTE["muted"]))
+            raise typer.Exit(code=0)
+
+        if choice == "Validate Packs":
+            console.clear()
+            render_header()
+            path_input = console.input("Pack path [./Packs]: ").strip() or "./Packs"
+            strict = ask_yes_no("Enable strict mode?", default=True)
+            suite = ask_yes_no("Enable suite mode?", default=True)
+
+            args = ["validate", path_input]
+            if strict:
+                args.append("--strict")
+            if suite:
+                args.append("--suite")
+            run_py_command(args)
+            console.input("\nPress Enter to return to menu...")
+            continue
+
+        if choice == "Doctor Check":
+            console.clear()
+            run_py_command(["doctor"])
+            console.input("\nPress Enter to return to menu...")
+            continue
+
+        if choice == "Info":
+            console.clear()
+            run_py_command(["info"])
+            console.input("\nPress Enter to return to menu...")
+            continue
+
+        if choice == "Package Artifacts":
+            console.clear()
+            render_header()
+            target = (
+                console.input("Package target [all|node|py|pyexe] (default all): ")
+                .strip()
+                .lower()
+                or "all"
+            )
+            run_py_command(["package", "--target", target])
+            console.input("\nPress Enter to return to menu...")
+            continue
+
+        if choice == "Run Node CLI Command":
+            console.clear()
+            render_header()
+            command_line = console.input(
+                "Node CLI args (example: validate ./Packs --strict --suite): "
+            ).strip()
+
+            if not command_line:
+                continue
+
+            node_args = shlex.split(command_line)
+            subprocess.run(
+                [resolve_node(), resolve_packman_cli(), *node_args],
+                check=False,
+            )
+            console.input("\nPress Enter to return to menu...")
+            continue
 
 
 if __name__ == "__main__":

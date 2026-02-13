@@ -14,21 +14,44 @@ Monorepo for Packman (core library, CLI, and Tauri app) and the canonical pack c
 
 - Install deps: `pnpm install`
 - Build all: `pnpm build`
+- Generate root launchers only: `pnpm run launchers`
 - Run tests: `pnpm test`
 - CLI validate: `pnpm --filter packman-cli exec node dist/index.js validate ./Packs --strict`
 - CLI validate zip with auto-clean: `pnpm --filter packman-cli exec node dist/index.js validate ./pack.zip --strict --auto-clean`
 - CLI normalize: `pnpm --filter packman-cli exec node dist/index.js normalize ./Packs --apply`
-- CLI install dry-run: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --target workspace --path /path/to/repo --suite --dry-run --on-collision fail`
-- CLI install with skip collisions: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --target workspace --path /path/to/repo --on-collision skip`
-- CLI install with rename collisions: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --target workspace --path /path/to/repo --on-collision rename`
-- CLI install with per-file decisions (inline): `pnpm --filter packman-cli exec node dist/index.js install ./Packs --target workspace --path /path/to/repo --on-collision fail --collision-decisions-json '{".github/prompts/foo.prompt.md":"rename"}'`
-- CLI install with per-file decisions (file): `pnpm --filter packman-cli exec node dist/index.js install ./Packs --target workspace --path /path/to/repo --collision-decisions ./decisions.json`
-- CLI export install plan JSON: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --target workspace --path /path/to/repo --dry-run --plan-out ./artifacts/install-plan.json`
+- CLI install dry-run: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --to /path/to/repo --mode fail --dry-run --json`
+- CLI install with skip collisions: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --to /path/to/repo --mode skip --json`
+- CLI install with rename collisions: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --to /path/to/repo --mode rename --json`
+- Suite-owned paths (`.github/copilot-instructions.md`, `.vscode/settings.json`) are auto-handled during validate/install; no extra flag required for standard flows.
 - CLI doctor: `pnpm --filter packman-cli exec node dist/index.js doctor /path/to/repo`
 - CLI readiness: `pnpm --filter packman-cli exec node dist/index.js readiness /path/to/repo`
 - Tauri dev: `pnpm --filter packman-app tauri dev`
-- Tauri release build: `pnpm --filter packman-app tauri build`
-- Tauri release build (safe DMG cleanup): `pnpm --filter packman-app run tauri:build:safe`
+- Tauri release build (recommended): `pnpm --filter packman-app run tauri:build:safe`
+- Tauri release build (raw): `pnpm --filter packman-app tauri build`
+- App UI E2E smoke (Playwright): `pnpm --filter packman-app run test:e2e`
+
+## App workflow highlights
+
+- Use **Workspace Manager** to create `packman-trial-*` workspaces before import/install.
+- Select a trial workspace as target, then move to **Import** for validate → plan → install.
+- Cleanup of trial workspaces is guarded and confirmation-based in-app.
+
+## Root launchers (generated on build)
+
+After `pnpm build`, root launchers are generated for faster access:
+
+- `./packman-rich` → Python Typer + Rich CLI (`packman-py`)
+- `./packman-cli-launch` → Node CLI (`packman-cli/dist/index.js`)
+- `./packman-app-launch` → opens/runs built desktop app if present
+
+Launcher behavior notes:
+
+- Terminal is cleared on startup when attached to a TTY.
+- `./packman-rich` and `./packman-cli-launch` open the Typer/Rich interactive screen (arrow-key menu) when run without arguments.
+- The interactive loop binds to `/dev/tty` so it still works when launch wrappers provide non-interactive stdin.
+- If no terminal device is available, pass explicit arguments (for example `./packman-rich --help`).
+- The home screen uses a two-column layout (`Action` + `Explainer`) for each option.
+- Choosing `Exit` returns control to the launcher shell; if launched with `... ; exit;`, the terminal window closes automatically.
 
 ## Pack catalog
 

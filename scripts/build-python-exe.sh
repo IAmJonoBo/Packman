@@ -7,24 +7,24 @@ PYTHON_BIN="python"
 PYINSTALLER_BIN="pyinstaller"
 
 if [ -x "$ROOT_DIR/packman-py/.venv/bin/python" ]; then
-  PYTHON_BIN="$ROOT_DIR/packman-py/.venv/bin/python"
+	PYTHON_BIN="$ROOT_DIR/packman-py/.venv/bin/python"
 fi
 if [ -x "$ROOT_DIR/packman-py/.venv/bin/pyinstaller" ]; then
-  PYINSTALLER_BIN="$ROOT_DIR/packman-py/.venv/bin/pyinstaller"
+	PYINSTALLER_BIN="$ROOT_DIR/packman-py/.venv/bin/pyinstaller"
 fi
 
 echo "Building local Python executable using PyInstaller (host OS)"
 
 if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
-  echo "Python not found"
-  exit 1
+	echo "Python not found"
+	exit 1
 fi
 
 if ! "$PYTHON_BIN" -c "import PyInstaller" >/dev/null 2>&1; then
-  echo "PyInstaller not available in this Python environment."
-  echo "Please create and activate a virtual environment and install PyInstaller:"
-  echo "  python -m venv .venv && source .venv/bin/activate && python -m pip install pyinstaller"
-  exit 1
+	echo "PyInstaller not available in this Python environment."
+	echo "Please create and activate a virtual environment and install PyInstaller:"
+	echo "  python -m venv .venv && source .venv/bin/activate && python -m pip install pyinstaller"
+	exit 1
 fi
 
 cd "$ROOT_DIR/packman-py"

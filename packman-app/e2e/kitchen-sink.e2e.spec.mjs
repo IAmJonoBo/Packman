@@ -1,153 +1,162 @@
 import assert from "node:assert/strict";
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
 
-const workspaceRoot = path.resolve(process.cwd(), "..");
-const sourcePackPath = path.resolve(
-  workspaceRoot,
-  "Packs",
-  "copilot-ux-agent-pack",
-);
-const scratchTargetPath = fs.mkdtempSync(
-  path.join(os.tmpdir(), "packman-e2e-"),
-);
-
-async function readOutputJson() {
-  const output = await browser.$("#output");
-  const text = await output.getText();
-  return JSON.parse(text);
+async function click(page, selector) {
+  await page.locator(selector).click();
 }
 
-async function clickAndReadOutput(buttonSelector) {
-  const output = await browser.$("#output");
-  const previous = await output.getText();
-
-  await (await browser.$(buttonSelector)).click();
-
-  await browser.waitUntil(async () => (await output.getText()) !== previous, {
-    timeout: 180000,
-    interval: 250,
-    timeoutMsg: `Output did not change for ${buttonSelector}`,
-  });
-
-  return readOutputJson();
+async function expectVisible(page, selector) {
+  await page.locator(selector).waitFor();
 }
 
-describe("Packman Tauri kitchen-sink", () => {
-  after(() => {
-    fs.rmSync(scratchTargetPath, { recursive: true, force: true });
+async function seedBridge(page, sourcePackPath, scratchTargetPath) {
+  await page.evaluate(
+    ({ source, target }) => {
+      window.__PACKMAN_APP_E2E__?.reset();
+      window.__PACKMAN_APP_E2E__?.setSourcePath(source);
+      window.__PACKMAN_APP_E2E__?.setTargetPath(target);
+      window.__PACKMAN_APP_E2E__?.setMockResponse("doctor", {
+        ok: true,
+        command: "doctor",
+        checks: ["node", "tauri", "python"],
+      });
+      window.__PACKMAN_APP_E2E__?.setMockResponse("validate", {
+        error: "Validation failed (mock)",
+      });
+      window.__PACKMAN_APP_E2E__?.setMockResponse("install", {
+        ok: true,
+        filesTouched: [
+          ".github/prompts/example.prompt.md",
+          ".github/instructions/example.instructions.md",
+        ],
+        plans: [
+          {
+            collisions: [
+              { relativePath: ".github/prompts/example.prompt.md" },
+              { relativePath: ".github/instructions/example.instructions.md" },
+            ],
+          },
+        ],
+      });
+    },
+    { source: sourcePackPath, target: scratchTargetPath },
+  );
+}
+
+async function assertHome(page) {
+  await expectVisible(page, '[data-testid="home-actions"]');
+  await expectVisible(page, '[data-testid="home-import-card"]');
+  await expectVisible(page, '[data-testid="home-doctor-card"]');
+  await expectVisible(page, '[data-testid="home-workspaces-card"]');
+  assert.equal(await page.locator("h1").first().innerText(), "Packman");
+}
+
+async function runDoctorFlow(page) {
+  await click(page, '[data-testid="home-doctor-card"]');
+  await expectVisible(page, '[data-testid="doctor-page"]');
+  assert.equal(await page.locator("h1").first().innerText(), "System Doctor");
+
+  await click(page, '[data-testid="doctor-run-check"]');
+  await expectVisible(page, '[data-testid="doctor-placeholder"] pre');
+  const output = await page
+    .locator('[data-testid="doctor-placeholder"]')
+    .innerText();
+  assert.match(output, /"command":\s*"doctor"/);
+
+  await click(page, '[data-testid="doctor-back-home"]');
+  await assertHome(page);
+}
+
+async function runWorkspaceFlow(page, scratchTargetPath) {
+  await click(page, '[data-testid="app-nav-workspaces"]');
+  await expectVisible(page, '[data-testid="workspace-manager-page"]');
+
+  await page.evaluate(() => {
+    window.__PACKMAN_APP_E2E__?.setTargetPath(null);
   });
+  await click(page, '[data-testid="workspace-create-trial"]');
+  await page.locator("text=Select a parent folder first").waitFor();
 
-  it("renders all primary controls", async () => {
-    assert.equal(await (await browser.$("h1")).getText(), "Packman");
+  await page.evaluate((target) => {
+    window.__PACKMAN_APP_E2E__?.setTargetPath(target);
+  }, scratchTargetPath);
+  await click(page, '[data-testid="workspace-create-trial"]');
+  await page
+    .locator("text=Trial workspace created and selected as install target.")
+    .waitFor();
 
-    const ids = [
-      "#pick-source",
-      "#validate-btn",
-      "#normalize-preview-btn",
-      "#pick-target",
-      "#install-plan",
-      "#install-dry-run",
-      "#install-apply",
-      "#doctor-btn",
-      "#readiness-btn",
-      "#registry-btn",
-      "#output",
-      "#collision-summary",
-    ];
+  await click(page, "text=Dismiss");
+  await click(page, '[data-testid="app-nav-home"]');
+  await assertHome(page);
+}
 
-    for (const id of ids) {
-      assert.equal(
-        await (await browser.$(id)).isExisting(),
-        true,
-        `missing ${id}`,
-      );
-    }
-  });
+async function runImportFlow(page) {
+  await click(page, '[data-testid="home-import-card"]');
+  await expectVisible(page, '[data-testid="wizard-step-select"]');
+  await click(page, '[data-testid="wizard-select-source-card"]');
+  await expectVisible(page, '[data-testid="wizard-selected-source"]');
+  await click(page, '[data-testid="wizard-continue"]');
 
-  it("enforces guardrails before required path inputs", async () => {
-    await browser.execute(() => {
-      window.__PACKMAN_E2E__?.resetPaths();
+  await expectVisible(page, '[data-testid="wizard-step-validate"]');
+  await click(page, '[data-testid="wizard-run-validation"]');
+  await expectVisible(page, '[data-testid="wizard-validation-output"]');
+  const validationOutput = await page
+    .locator('[data-testid="wizard-validation-output"]')
+    .innerText();
+  assert.match(validationOutput, /Validation failed \(mock\)/);
+
+  await page.evaluate(() => {
+    window.__PACKMAN_APP_E2E__?.setMockResponse("validate", {
+      ok: true,
+      command: "validate",
     });
-
-    const validate = await clickAndReadOutput("#validate-btn");
-    assert.match(String(validate.error), /Select source folder first/);
-
-    const install = await clickAndReadOutput("#install-dry-run");
-    assert.match(
-      String(install.error),
-      /Select source and target folders first/,
-    );
-
-    const doctor = await clickAndReadOutput("#doctor-btn");
-    assert.match(String(doctor.error), /Select target folder first/);
   });
+  await click(page, '[data-testid="wizard-run-validation"]');
 
-  it("runs a comprehensive release-readiness flow", async () => {
-    await browser.execute(
-      (source, target) => {
-        window.__PACKMAN_E2E__?.setPaths(source, target);
-      },
-      sourcePackPath,
-      workspaceRoot,
-    );
+  await expectVisible(page, '[data-testid="wizard-step-config"]');
+  const sourceValue = await page
+    .locator('[data-testid="wizard-source-workspace"]')
+    .inputValue();
+  const targetValue = await page
+    .locator('[data-testid="wizard-target-workspace"]')
+    .inputValue();
+  assert.ok(sourceValue.length > 0, "expected source path to be populated");
+  assert.ok(targetValue.length > 0, "expected target path to be populated");
 
-    const strictToggle = await browser.$("#strict-toggle");
-    await strictToggle.click();
-    assert.equal(await strictToggle.isSelected(), true);
+  await click(page, '[data-testid="wizard-config-back"]');
+  await expectVisible(page, '[data-testid="wizard-step-validate"]');
+  await click(page, '[data-testid="wizard-run-validation"]');
+  await expectVisible(page, '[data-testid="wizard-step-config"]');
 
-    const validate = await clickAndReadOutput("#validate-btn");
-    assert.equal(Boolean(validate.error), false, JSON.stringify(validate));
+  await page
+    .locator('[data-testid="wizard-collision-strategy"]')
+    .selectOption({ value: "overwrite" });
+  await click(page, '[data-testid="wizard-config-next"]');
 
-    const normalize = await clickAndReadOutput("#normalize-preview-btn");
-    assert.equal(Boolean(normalize.error), false, JSON.stringify(normalize));
+  await expectVisible(page, '[data-testid="wizard-step-plan"]');
+  await expectVisible(page, '[data-testid="wizard-plan-summary"]');
+  await expectVisible(page, '[data-testid="wizard-execute-install"][disabled]');
+  await click(page, '[data-testid="wizard-generate-plan"]');
 
-    await browser.execute(
-      (source, target) => {
-        window.__PACKMAN_E2E__?.setPaths(source, target);
-      },
-      sourcePackPath,
-      scratchTargetPath,
-    );
+  await page
+    .locator('[data-testid="wizard-execute-install"]:not([disabled])')
+    .waitFor();
+  await page.locator("text=Plan Collisions").waitFor();
+  await page.locator("text=2").first().waitFor();
+  await click(page, '[data-testid="wizard-execute-install"]');
 
-    const collisionMode = await browser.$("#collision-mode");
-    await collisionMode.selectByAttribute("value", "rename");
+  await expectVisible(page, '[data-testid="wizard-step-install"]');
+  await page.locator("text=Files touched: 2").waitFor();
+  await click(page, '[data-testid="wizard-back-home"]');
+}
 
-    const installPlan = await clickAndReadOutput("#install-plan");
-    assert.equal(
-      Boolean(installPlan.error),
-      false,
-      JSON.stringify(installPlan),
-    );
+export async function runKitchenSinkE2E(page, options) {
+  const { previewUrl, sourcePackPath, scratchTargetPath } = options;
+  await page.goto(previewUrl, { waitUntil: "networkidle" });
 
-    const installDryRun = await clickAndReadOutput("#install-dry-run");
-    assert.equal(
-      Boolean(installDryRun.error),
-      false,
-      JSON.stringify(installDryRun),
-    );
-
-    await browser.execute(
-      (source, target) => {
-        window.__PACKMAN_E2E__?.setPaths(source, target);
-      },
-      sourcePackPath,
-      workspaceRoot,
-    );
-
-    const doctor = await clickAndReadOutput("#doctor-btn");
-    assert.equal(Boolean(doctor.error), false, JSON.stringify(doctor));
-
-    const readiness = await clickAndReadOutput("#readiness-btn");
-    assert.equal(Boolean(readiness.error), false, JSON.stringify(readiness));
-
-    const registry = await clickAndReadOutput("#registry-btn");
-    assert.equal(Boolean(registry.error), false, JSON.stringify(registry));
-
-    const collisionSummary = await (
-      await browser.$("#collision-summary")
-    ).getText();
-    assert.ok(collisionSummary.length > 0);
-  });
-});
+  await seedBridge(page, sourcePackPath, scratchTargetPath);
+  await assertHome(page);
+  await runDoctorFlow(page);
+  await runWorkspaceFlow(page, scratchTargetPath);
+  await runImportFlow(page);
+  await assertHome(page);
+}

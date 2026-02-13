@@ -11,12 +11,12 @@ DEVICES=$(hdiutil info | awk '
 ' | sort -u)
 
 if [ -n "${DEVICES}" ]; then
-  for dev in ${DEVICES}; do
-    echo "Detaching stale device: ${dev}"
-    hdiutil detach "${dev}" || hdiutil detach -force "${dev}" || true
-  done
+	for dev in ${DEVICES}; do
+		echo "Detaching stale device: ${dev}"
+		hdiutil detach "${dev}" || hdiutil detach -force "${dev}" || true
+	done
 else
-  echo "No stale mounted DMGs found."
+	echo "No stale mounted DMGs found."
 fi
 
 echo "Cleaning stale intermediate DMG files..."

@@ -1,26 +1,26 @@
-# Tauri E2E (WebdriverIO + tauri-driver)
+# App E2E (Playwright + Vite Preview)
 
-This project uses **official Tauri WebDriver automation** with:
+This project uses a **Playwright browser smoke flow** with:
 
-- `tauri-driver`
-- `WebdriverIO`
+- `playwright`
+- `vite preview`
 
 ## What is covered
 
-`e2e/kitchen-sink.e2e.spec.mjs` validates release-readiness by covering:
+`e2e/kitchen-sink.e2e.spec.mjs` validates the app shell and multi-page UI flow by covering:
 
-- UI shell/control presence checks
-- guardrail error paths (missing required source/target inputs)
-- end-to-end command flow with realistic paths:
-  - validate
-  - normalize preview
-  - install plan (dry-run)
-  - install dry-run
-  - doctor
-  - readiness
-  - registry
-- output JSON health checks (no `error` payloads)
-- collision summary rendering presence
+- home screen rendering and primary action cards
+- doctor page run-check output rendering and return-to-home behavior
+- workspace manager create-trial success and guarded error behavior
+- full import wizard progression across all steps:
+  - select
+  - validate (error + success)
+  - config
+  - plan
+  - install
+- step back/forward controls, disabled install gating, and completion return-to-home verification
+
+For deterministic E2E behavior, the suite uses an app-internal `window.__PACKMAN_APP_E2E__` bridge to inject source path and mock validation responses.
 
 ## Run locally
 
@@ -32,12 +32,15 @@ pnpm run test:e2e
 
 This command:
 
-1. ensures `tauri-driver` is installed,
-2. builds the debug Tauri app binary,
-3. starts `tauri-driver` on port `4444`,
-4. runs `wdio` against the app binary.
+1. builds the app,
+2. starts `vite preview` on `127.0.0.1:4173`,
+3. launches headless Chromium via Playwright,
+4. runs the kitchen-sink UI smoke flow.
 
-## Platform caveat
+## Browser prerequisite
 
-If `tauri-driver` prints `not supported on this platform`, the suite cannot execute on that host.
-Run the same command on a supported local/CI runner.
+If Playwright browsers are not installed yet, run:
+
+```bash
+pnpm exec playwright install chromium
+```

@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+set -eu
+
+SCRIPT_DIR="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)"
+ROOT_DIR="$SCRIPT_DIR"
+
+if [ -t 1 ] && command -v clear >/dev/null 2>&1; then
+	clear
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+	echo "Node.js is required to run packman-js."
+	exit 1
+fi
+
+if [ ! -f "$ROOT_DIR/packman-cli/dist/index.js" ]; then
+	echo "packman-cli is not built yet."
+	echo "Run: pnpm --filter packman-cli run build"
+	exit 2
+fi
+
+if [ "$#" -gt 0 ]; then
+	exec node "$ROOT_DIR/packman-cli/dist/index.js" "$@"
+fi
+
+TTY_DEVICE="/dev/tty"
+if [ ! -r "$TTY_DEVICE" ] || [ ! -w "$TTY_DEVICE" ]; then
+	echo "No interactive terminal available for packman-cli-launch."
+	echo "Run with explicit arguments, e.g. './packman-cli-launch --help'."
+	exit 1
+fi
+
+exec "$ROOT_DIR/packman-rich" interactive

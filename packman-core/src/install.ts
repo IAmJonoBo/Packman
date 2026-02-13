@@ -178,10 +178,15 @@ export async function installPack(
   const collisionStrategy = options.collisionStrategy ?? "fail";
   const collisionDecisions = options.collisionDecisions ?? {};
   const plan = await buildInstallPlan(sourcePath, options.targetPath);
+  const hasSuiteOwnedFiles = plan.operations.some(
+    (operation) =>
+      operation.relativePath === ".github/copilot-instructions.md" ||
+      operation.relativePath === ".vscode/settings.json",
+  );
+  const effectiveSuite = options.suite ?? hasSuiteOwnedFiles;
 
   const validation = await validatePack(sourcePath, {
-    targetPathForCollisionScan: options.targetPath,
-    suiteMode: options.suite,
+    suiteMode: effectiveSuite,
   });
 
   if (!validation.ok) {
@@ -233,7 +238,7 @@ export async function installPack(
     if (
       (relativePath === ".github/copilot-instructions.md" ||
         relativePath === ".vscode/settings.json") &&
-      !options.suite
+      !effectiveSuite
     ) {
       issues.push({
         severity: "error",
@@ -359,7 +364,11 @@ export async function installPacks(
   }
 
   const suiteOwners: string[] = [];
-  const promptNames = new Map<string, string>();
+  const detectedRoots: Array<{ root: string; ownsSuiteFile: boolean }> = [];
+  const promptSources = new Map<
+    string,
+    Array<{ ownerRoot: string; relativePath: string }>
+  >();
 
   for (const packRoot of packRoots) {
     const detection = await detectPack(packRoot);
@@ -367,14 +376,20 @@ export async function installPacks(
       (artifact) =>
         artifact.type === "copilotInstructions" || artifact.type === "settings",
     );
+    detectedRoots.push({ root: packRoot, ownsSuiteFile });
     if (ownsSuiteFile) {
       suiteOwners.push(packRoot);
     }
+  }
 
+  const effectiveSuite =
+    options.suite ?? (packRoots.length > 1 || suiteOwners.length > 0);
+
+  for (const { root: packRoot } of detectedRoots) {
     const validation = await validatePack(packRoot, {
       strict: true,
       targetPathForCollisionScan: options.targetPath,
-      suiteMode: options.suite,
+      suiteMode: effectiveSuite,
     });
 
     issues.push(...validation.issues);
@@ -389,17 +404,74 @@ export async function installPacks(
         continue;
       }
 
-      const previousOwner = promptNames.get(name);
-      if (previousOwner && previousOwner !== packRoot) {
-        issues.push({
-          severity: "error",
-          code: "PROMPT_NAME_DUPLICATE_SOURCE_SET",
-          message: `Duplicate prompt name across source packs: ${name}`,
-          details: { previousOwner, currentOwner: packRoot },
-        });
-      } else {
-        promptNames.set(name, packRoot);
-      }
+      const existing = promptSources.get(name) ?? [];
+      existing.push({
+        ownerRoot: packRoot,
+        relativePath: artifact.relativePath,
+      });
+      promptSources.set(name, existing);
+    }
+  }
+
+  const autoCollisionDecisionsByRoot = new Map<
+    string,
+    Record<string, "skip" | "overwrite">
+  >();
+
+  const preferOwner = (sources: Array<{ ownerRoot: string }>): string => {
+    const harmoniser = sources.find(({ ownerRoot }) =>
+      path.basename(ownerRoot).includes("suite-harmoniser"),
+    );
+    if (harmoniser) {
+      return harmoniser.ownerRoot;
+    }
+
+    return [...sources].sort((left, right) =>
+      left.ownerRoot.localeCompare(right.ownerRoot),
+    )[0].ownerRoot;
+  };
+
+  for (const [name, sources] of promptSources.entries()) {
+    const distinctOwners = [
+      ...new Set(sources.map((source) => source.ownerRoot)),
+    ];
+    if (distinctOwners.length <= 1) {
+      continue;
+    }
+
+    const preferredOwner = preferOwner(sources);
+    const hasHarmoniserOwner = distinctOwners.some((ownerRoot) =>
+      path.basename(ownerRoot).includes("suite-harmoniser"),
+    );
+
+    if (!hasHarmoniserOwner) {
+      issues.push({
+        severity: "error",
+        code: "PROMPT_NAME_DUPLICATE_SOURCE_SET",
+        message: `Duplicate prompt name across source packs: ${name}`,
+        details: {
+          owners: distinctOwners,
+        },
+      });
+      continue;
+    }
+
+    issues.push({
+      severity: "warning",
+      code: "PROMPT_NAME_DUPLICATE_AUTO_RESOLVED",
+      message: `Duplicate prompt name '${name}' auto-resolved in favor of ${path.basename(preferredOwner)}`,
+      details: {
+        owners: distinctOwners,
+        preferredOwner,
+      },
+    });
+
+    for (const source of sources) {
+      const decisions =
+        autoCollisionDecisionsByRoot.get(source.ownerRoot) ?? {};
+      decisions[source.relativePath] =
+        source.ownerRoot === preferredOwner ? "overwrite" : "skip";
+      autoCollisionDecisionsByRoot.set(source.ownerRoot, decisions);
     }
   }
 
@@ -407,7 +479,7 @@ export async function installPacks(
     const hasHarmoniser = packRoots.some((packRoot) =>
       path.basename(packRoot).includes("suite-harmoniser"),
     );
-    if (!options.suite || !hasHarmoniser) {
+    if (!effectiveSuite || !hasHarmoniser) {
       issues.push({
         severity: "error",
         code: "SUITE_OWNER_COLLISION",
@@ -429,7 +501,16 @@ export async function installPacks(
 
   try {
     for (const packRoot of packRoots) {
-      const result = await installPack(packRoot, options);
+      const autoDecisions = autoCollisionDecisionsByRoot.get(packRoot) ?? {};
+      const mergedCollisionDecisions = {
+        ...autoDecisions,
+        ...(options.collisionDecisions ?? {}),
+      };
+      const result = await installPack(packRoot, {
+        ...options,
+        suite: effectiveSuite,
+        collisionDecisions: mergedCollisionDecisions,
+      });
       issues.push(...result.issues);
       filesTouched.push(
         ...result.filesTouched.map(

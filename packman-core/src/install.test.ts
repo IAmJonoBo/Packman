@@ -5,6 +5,41 @@ import { describe, expect, it } from "vitest";
 import { installPack, installPacks, rollbackInstall } from "./install.js";
 
 describe("installPack collisions", () => {
+  it("auto-enables suite handling for single-pack suite-owned files", async () => {
+    const source = await mkdtemp(
+      path.join(tmpdir(), "packman-install-source-"),
+    );
+    const target = await mkdtemp(
+      path.join(tmpdir(), "packman-install-target-"),
+    );
+
+    await mkdir(path.join(source, ".github"), { recursive: true });
+    await writeFile(
+      path.join(source, ".github", "copilot-instructions.md"),
+      "# Always-on instructions\n",
+      "utf8",
+    );
+
+    const result = await installPack(source, {
+      targetPath: target,
+      targetType: "workspace",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(
+      result.issues.some((issue) => issue.code === "SUITE_ONLY_FILE"),
+    ).toBe(false);
+
+    const written = await readFile(
+      path.join(target, ".github", "copilot-instructions.md"),
+      "utf8",
+    );
+    expect(written).toContain("Always-on instructions");
+
+    await rm(source, { recursive: true, force: true });
+    await rm(target, { recursive: true, force: true });
+  });
+
   it("returns install plan with collisions on dry-run", async () => {
     const source = await mkdtemp(
       path.join(tmpdir(), "packman-install-source-"),
@@ -296,6 +331,61 @@ describe("installPack collisions", () => {
         (issue) => issue.code === "PROMPT_NAME_DUPLICATE_SOURCE_SET",
       ),
     ).toBe(true);
+
+    await rm(source, { recursive: true, force: true });
+    await rm(target, { recursive: true, force: true });
+  });
+
+  it("auto-resolves duplicate suite prompt names when suite-harmoniser is present", async () => {
+    const source = await mkdtemp(
+      path.join(tmpdir(), "packman-install-source-"),
+    );
+    const target = await mkdtemp(
+      path.join(tmpdir(), "packman-install-target-"),
+    );
+
+    const packA = path.join(source, "copilot-prompt-library-pack");
+    const harmoniser = path.join(source, "copilot-suite-harmoniser-pack");
+    await mkdir(path.join(packA, ".github/prompts/suite"), { recursive: true });
+    await mkdir(path.join(harmoniser, ".github/prompts/suite"), {
+      recursive: true,
+    });
+
+    await writeFile(
+      path.join(packA, ".github/prompts/suite", "suite:route.prompt.md"),
+      `---\nname: suite:route\ndescription: library\n---\nfrom-library\n`,
+      "utf8",
+    );
+    await writeFile(
+      path.join(harmoniser, ".github/prompts/suite", "suite:route.prompt.md"),
+      `---\nname: suite:route\ndescription: harmoniser\n---\nfrom-harmoniser\n`,
+      "utf8",
+    );
+
+    const result = await installPacks(source, {
+      targetPath: target,
+      targetType: "workspace",
+      collisionStrategy: "fail",
+      suite: true,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(
+      result.issues.some(
+        (issue) => issue.code === "PROMPT_NAME_DUPLICATE_AUTO_RESOLVED",
+      ),
+    ).toBe(true);
+    expect(
+      result.issues.some(
+        (issue) => issue.code === "PROMPT_NAME_DUPLICATE_SOURCE_SET",
+      ),
+    ).toBe(false);
+
+    const installed = await readFile(
+      path.join(target, ".github/prompts/suite", "suite:route.prompt.md"),
+      "utf8",
+    );
+    expect(installed).toContain("from-harmoniser");
 
     await rm(source, { recursive: true, force: true });
     await rm(target, { recursive: true, force: true });

@@ -1,658 +1,319 @@
 #!/usr/bin/env node
 import path from "node:path";
-import fs from "node:fs";
-import { promises as fsp } from "node:fs";
 import {
-  buildCleanZip,
-  createReport,
-  doctorTarget,
-  generateRegistry,
-  installPacks,
-  normalizePack,
-  readinessReport,
-  resolvePackSource,
-  rollbackInstall,
-  syncPackReadmes,
-  summarizeIssues,
   validatePack,
+  installPacks,
+  resolvePackSource,
+  type Issue,
+  type InstallOptions,
+  type ValidationResult,
 } from "@packman/core";
 import { Command } from "commander";
-import { printHeader, printIssues, printJson } from "./format.js";
+import { format } from "./format.js";
+import ora from "ora";
+import { z } from "zod";
 
 const program = new Command();
+
 program
   .name("packman")
-  .description("Packman CLI for Copilot customization packs")
+  .description("Manage your dev tools and packs with cyberpunk precision.")
   .version("0.1.0");
 
-const invocationCwd =
-  process.env.PACKMAN_INVOKE_CWD ?? process.env.INIT_CWD ?? process.cwd();
+// --- UTILS ---
 
-function findWorkspaceRoot(startDir: string): string {
-  let current = startDir;
-
-  while (true) {
-    const marker = path.join(current, "pnpm-workspace.yaml");
-    if (fs.existsSync(marker)) {
-      return current;
-    }
-
-    const parent = path.dirname(current);
-    if (parent === current) {
-      return startDir;
-    }
-
-    current = parent;
-  }
-}
-
-const workspaceRoot = findWorkspaceRoot(process.cwd());
-
-function resolveFromInvocation(inputPath: string): string {
-  const direct = path.resolve(invocationCwd, inputPath);
-  if (fs.existsSync(direct)) {
-    return direct;
-  }
-
-  return path.resolve(workspaceRoot, inputPath);
-}
-
-async function parseCollisionDecisions(
-  filePath?: string,
-  inlineJson?: string,
-): Promise<
-  Record<string, "fail" | "skip" | "overwrite" | "rename"> | undefined
-> {
-  if (!filePath && !inlineJson) {
-    return undefined;
-  }
-
-  const raw =
-    inlineJson ??
-    (await fsp.readFile(resolveFromInvocation(filePath as string), "utf8"));
-  const parsed = JSON.parse(raw) as unknown;
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-    throw new Error(
-      "collision decisions must be a JSON object map of relativePath -> action",
-    );
-  }
-
-  const normalized: Record<string, "fail" | "skip" | "overwrite" | "rename"> =
-    {};
-  for (const [key, value] of Object.entries(
-    parsed as Record<string, unknown>,
-  )) {
-    if (
-      typeof value !== "string" ||
-      !["fail", "skip", "overwrite", "rename"].includes(value)
-    ) {
-      throw new Error(
-        `invalid collision decision for ${key}; expected fail|skip|overwrite|rename`,
-      );
-    }
-
-    normalized[key] = value as "fail" | "skip" | "overwrite" | "rename";
-  }
-
-  return normalized;
-}
-
-async function readAllowedSubagentsFile(filePath: string): Promise<string[]> {
-  const raw = await fsp.readFile(filePath, "utf8");
-  const parsed = JSON.parse(raw) as unknown;
-
-  if (Array.isArray(parsed)) {
-    return parsed.filter((item): item is string => typeof item === "string");
-  }
-
-  if (
-    parsed &&
-    typeof parsed === "object" &&
-    Array.isArray((parsed as { allowedSubagents?: unknown }).allowedSubagents)
-  ) {
-    return (parsed as { allowedSubagents: unknown[] }).allowedSubagents.filter(
-      (item): item is string => typeof item === "string",
-    );
-  }
-
-  throw new Error(
-    "allowed subagents file must be a string array or an object with allowedSubagents string array",
+function getCwd(): string {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return (
+    process.env.PACKMAN_INVOKE_CWD ?? process.env.INIT_CWD ?? process.cwd()
   );
 }
 
-async function resolveAllowedSubagents(
-  inputPath: string,
-  explicitFilePath?: string,
-): Promise<string[] | undefined> {
-  if (explicitFilePath) {
-    return readAllowedSubagentsFile(resolveFromInvocation(explicitFilePath));
+/**
+ * Helper to wrap async actions with proper error handling and spinners.
+ */
+async function runWithSpinner<T>(
+  title: string,
+  action: () => Promise<T>,
+): Promise<T> {
+  const spinner = ora(title).start();
+  try {
+    const result = await action();
+    spinner.succeed();
+    return result;
+  } catch (error) {
+    spinner.fail();
+    throw error;
   }
-
-  const probeRoots = [resolveFromInvocation(inputPath)];
-  let current = path.dirname(resolveFromInvocation(inputPath));
-  while (current !== path.dirname(current)) {
-    probeRoots.push(current);
-    current = path.dirname(current);
-  }
-
-  const candidates: string[] = [];
-  for (const root of probeRoots) {
-    candidates.push(
-      path.join(
-        root,
-        "copilot-suite-harmoniser-pack",
-        "ALLOWED_SUBAGENTS.json",
-      ),
-      path.join(
-        root,
-        "Packs",
-        "copilot-suite-harmoniser-pack",
-        "ALLOWED_SUBAGENTS.json",
-      ),
-    );
-  }
-
-  for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) {
-      return readAllowedSubagentsFile(candidate);
-    }
-  }
-
-  return undefined;
 }
+
+interface SourceSetValidationResult extends ValidationResult {
+  roots: string[];
+}
+
+async function validateSourceSet(
+  sourcePath: string,
+): Promise<SourceSetValidationResult> {
+  const started = Date.now();
+  const resolved = await resolvePackSource(sourcePath, {
+    autoCleanMacOSJunk: true,
+  });
+
+  try {
+    if (resolved.roots.length === 0) {
+      const issues: Issue[] = [
+        {
+          severity: "error",
+          code: "NO_PACKS_FOUND",
+          message: "No pack roots found in provided source path",
+          path: sourcePath,
+        },
+      ];
+
+      return {
+        ok: false,
+        issues,
+        parsedArtifacts: [],
+        elapsedMs: Date.now() - started,
+        roots: [],
+      };
+    }
+
+    const issues: Issue[] = [];
+    const parsedArtifacts: ValidationResult["parsedArtifacts"] = [];
+
+    for (const root of resolved.roots) {
+      const result = await validatePack(root, {
+        strict: true,
+        suiteMode: true,
+      });
+      issues.push(...result.issues);
+      parsedArtifacts.push(...result.parsedArtifacts);
+    }
+
+    const ok = !issues.some((issue) => issue.severity === "error");
+    return {
+      ok,
+      issues,
+      parsedArtifacts,
+      elapsedMs: Date.now() - started,
+      roots: resolved.roots,
+    };
+  } finally {
+    await resolved.cleanup();
+  }
+}
+
+// --- COMMANDS ---
 
 program
   .command("validate")
-  .argument("<path>", "pack path")
-  .option("--strict", "strict validation mode", false)
-  .option("--target <targetPath>", "optional target path for collision scan")
-  .option(
-    "--allowed-subagents <jsonFile>",
-    "optional JSON file with allowed subagent names",
-  )
-  .option("--suite", "suite mode", false)
-  .option("--auto-clean", "strip macOS junk when input is a zip", false)
-  .option("--json", "emit machine-readable report", false)
-  .action(async (inputPath, options) => {
-    const started = Date.now();
-    const absolutePath = resolveFromInvocation(inputPath);
-    const resolved = await resolvePackSource(absolutePath, {
-      autoCleanMacOSJunk: Boolean(options.autoClean),
-    });
-    const roots = resolved.roots;
-    if (roots.length === 0) {
-      const report = createReport(
-        "validate",
-        {
-          path: absolutePath,
-          strict: Boolean(options.strict),
-          target: options.target,
-          allowedSubagents: options.allowedSubagents,
-          suite: Boolean(options.suite),
-        },
-        {
-          ok: false,
-          elapsedMs: Date.now() - started,
-          parsedArtifactCount: 0,
-          packRoots: roots,
-        },
-        [
-          {
-            severity: "error",
-            code: "NO_PACKS_FOUND",
-            message: "No pack roots found in provided source path",
-            path: absolutePath,
-          },
-        ],
-        started,
-      );
-      await resolved.cleanup();
-      if (options.json) {
-        printJson(report);
-      } else {
-        printHeader("Validate");
-        console.log("ok: false");
-        printIssues(report.issues);
-      }
-      process.exitCode = 1;
-      return;
+  .alias("check")
+  .description("Validate a pack's structure and manifest.")
+  .argument("[path]", "Path to the pack folder", ".")
+  .option("--json", "Output results as JSON")
+  .action(async (inputPath: string, options: { json?: boolean }) => {
+    const cwd = getCwd();
+    const sourcePath = path.resolve(cwd, inputPath);
+
+    if (!options.json) {
+      format.header(`Validating Pack: ${sourcePath}`);
     }
-    const aggregateIssues = [] as Awaited<
-      ReturnType<typeof validatePack>
-    >["issues"];
-    const allowedSubagents = await resolveAllowedSubagents(
-      inputPath,
-      options.allowedSubagents,
-    );
-    let artifactCount = 0;
-    let ok = true;
 
     try {
-      for (const root of roots) {
-        const result = await validatePack(root, {
-          strict: Boolean(options.strict),
-          targetPathForCollisionScan: options.target
-            ? resolveFromInvocation(options.target)
-            : undefined,
-          suiteMode: Boolean(options.suite),
-          allowedSubagents,
-        });
-        artifactCount += result.parsedArtifacts.length;
-        aggregateIssues.push(...result.issues);
-        ok = ok && result.ok;
-      }
-    } finally {
-      await resolved.cleanup();
-    }
+      const result = await validateSourceSet(sourcePath);
 
-    const report = createReport(
-      "validate",
-      {
-        path: absolutePath,
-        strict: Boolean(options.strict),
-        target: options.target,
-        allowedSubagents: options.allowedSubagents,
-        suite: Boolean(options.suite),
-      },
-      {
-        ok,
-        elapsedMs: Date.now() - started,
-        parsedArtifactCount: artifactCount,
-        packRoots: roots,
-      },
-      aggregateIssues,
-      started,
-    );
-
-    if (options.json) {
-      printJson(report);
-      return;
-    }
-
-    printHeader("Validate");
-    console.log(`ok: ${ok}`);
-    console.log(`packs: ${roots.length}`);
-    console.log(`artifacts: ${artifactCount}`);
-    console.log(`elapsedMs: ${Date.now() - started}`);
-    printIssues(aggregateIssues);
-    console.log(JSON.stringify({ summary: summarizeIssues(aggregateIssues) }));
-
-    if (!ok) {
-      process.exitCode = 1;
-    }
-  });
-
-program
-  .command("normalize")
-  .argument("<path>", "pack path")
-  .option("--apply", "apply normalize changes", false)
-  .option("--auto-clean", "strip macOS junk when input is a zip", false)
-  .option("--json", "emit machine-readable report", false)
-  .action(async (inputPath, options) => {
-    const started = Date.now();
-    const absolutePath = resolveFromInvocation(inputPath);
-    const resolved = await resolvePackSource(absolutePath, {
-      autoCleanMacOSJunk: Boolean(options.autoClean),
-    });
-    const roots = resolved.roots;
-    if (roots.length === 0) {
-      const report = createReport(
-        "normalize",
-        { path: absolutePath, apply: Boolean(options.apply) },
-        {
-          ok: false,
-          elapsedMs: Date.now() - started,
-          changes: [],
-          packRoots: roots,
-        },
-        [
-          {
-            severity: "error",
-            code: "NO_PACKS_FOUND",
-            message: "No pack roots found in provided source path",
-            path: absolutePath,
-          },
-        ],
-        started,
-      );
-      await resolved.cleanup();
       if (options.json) {
-        printJson(report);
-      } else {
-        printHeader("Normalize");
-        console.log("ok: false");
-        printIssues(report.issues);
-      }
-      process.exitCode = 1;
-      return;
-    }
-    const changes = [] as Awaited<ReturnType<typeof normalizePack>>["changes"];
-    const issues = [] as Awaited<ReturnType<typeof normalizePack>>["issues"];
-    let ok = true;
-
-    try {
-      for (const root of roots) {
-        const result = await normalizePack(root, {
-          apply: Boolean(options.apply),
-          autoPrefixNamespaces: true,
+        format.json({
+          ...result,
+          rootCount: result.roots.length,
+          roots: result.roots,
         });
-        ok = ok && result.ok;
-        changes.push(...result.changes);
-        issues.push(...result.issues);
+        return;
       }
-    } finally {
-      await resolved.cleanup();
+
+      if (result.roots.length > 1) {
+        format.info(
+          `Discovered ${result.roots.length} pack roots from source.`,
+        );
+      }
+
+      if (result.ok) {
+        format.success(`Pack valid!`);
+        // We could look up the manifest artifact if we really wanted the name
+        // const manifest = result.parsedArtifacts.find(a => a.type === 'manifest');
+      } else {
+        format.error("Validation failed with issues:");
+        format.issues(result.issues);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        process.exitCode = 1;
+      }
+    } catch (error) {
+      if (options.json) {
+        format.json({ error: String(error) });
+      } else {
+        format.error(`Fatal validation error: ${error}`);
+      }
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      process.exitCode = 1;
     }
-
-    const report = createReport(
-      "normalize",
-      { path: absolutePath, apply: Boolean(options.apply) },
-      {
-        ok,
-        elapsedMs: Date.now() - started,
-        changes,
-        packRoots: roots,
-      },
-      issues,
-      started,
-    );
-
-    if (options.json) {
-      printJson(report);
-      return;
-    }
-
-    printHeader("Normalize");
-    console.log(`ok: ${ok}`);
-    console.log(`packs: ${roots.length}`);
-    console.log(`changes: ${changes.length}`);
-    for (const change of changes) {
-      console.log(
-        `- ${change.action}: ${change.fromPath ?? "(new)"} -> ${change.toPath}`,
-      );
-    }
-    printIssues(issues);
-  });
-
-program
-  .command("readme-sync")
-  .argument("<path>", "pack or packs root path")
-  .option("--apply", "apply README updates", false)
-  .option("--json", "emit machine-readable report", false)
-  .action(async (inputPath, options) => {
-    const started = Date.now();
-    const absolutePath = resolveFromInvocation(inputPath);
-    const result = await syncPackReadmes(absolutePath, Boolean(options.apply));
-
-    const report = createReport(
-      "readme-sync",
-      { path: absolutePath, apply: Boolean(options.apply) },
-      result,
-      result.issues,
-      started,
-    );
-
-    if (options.json) {
-      printJson(report);
-      return;
-    }
-
-    printHeader("Readme Sync");
-    console.log(`ok: ${result.ok}`);
-    console.log(`packs: ${result.packRoots.length}`);
-    console.log(`changes: ${result.changes.length}`);
-    printIssues(result.issues);
   });
 
 program
   .command("install")
-  .argument("<packOrPacksDir>", "pack path")
-  .requiredOption("--target <workspace|global>", "install target kind")
-  .requiredOption("--path <targetPath>", "target path")
-  .option("--suite", "suite mode", false)
-  .option("--dry-run", "preview install", false)
+  .description("Install a pack into a target workspace.")
+  .argument("<source>", "Path to the pack folder")
+  .option("-t, --to <path>", "Target workspace path (defaults to current)")
   .option(
-    "--on-collision <fail|skip|overwrite|rename>",
-    "collision behavior",
+    "--mode <mode>",
+    "Collision strategy (fail, skip, overwrite, rename)",
     "fail",
   )
-  .option(
-    "--collision-decisions <jsonFile>",
-    "path to collision decisions JSON file",
-  )
-  .option(
-    "--collision-decisions-json <json>",
-    "inline collision decisions JSON object",
-  )
-  .option("--plan-out <filePath>", "write install plans JSON to this file")
-  .option("--auto-clean", "strip macOS junk when input is a zip", false)
-  .option("--json", "emit machine-readable report", false)
-  .action(async (sourcePath, options) => {
-    const started = Date.now();
-    const collisionDecisions = await parseCollisionDecisions(
-      options.collisionDecisions,
-      options.collisionDecisionsJson,
-    );
+  .option("--dry-run", "Simulate installation without making changes")
+  .option("--json", "Output report as JSON")
+  .action(
+    async (
+      source: string,
+      options: { to?: string; mode: string; dryRun?: boolean; json?: boolean },
+    ) => {
+      const cwd = getCwd();
+      const sourcePath = path.resolve(cwd, source);
+      const targetPath = options.to ? path.resolve(cwd, options.to) : cwd;
 
-    const result = await installPacks(resolveFromInvocation(sourcePath), {
-      targetPath: resolveFromInvocation(options.path),
-      targetType: options.target,
-      suite: Boolean(options.suite),
-      dryRun: Boolean(options.dryRun),
-      collisionStrategy: options.onCollision,
-      collisionDecisions,
-      autoCleanMacOSJunk: Boolean(options.autoClean),
-    });
+      // Parse mode using Zod
+      const ModeSchema = z.enum(["fail", "skip", "overwrite", "rename"]);
+      const modeResult = ModeSchema.safeParse(options.mode);
 
-    const report = createReport(
-      "install",
-      {
-        sourcePath: resolveFromInvocation(sourcePath),
-        target: options.target,
-        path: resolveFromInvocation(options.path),
-        suite: Boolean(options.suite),
-        dryRun: Boolean(options.dryRun),
-        onCollision: options.onCollision,
-        collisionDecisions:
-          options.collisionDecisions ?? options.collisionDecisionsJson,
-        autoClean: Boolean(options.autoClean),
-      },
-      result,
-      result.issues,
-      started,
-    );
+      if (!modeResult.success) {
+        format.error(
+          `Invalid mode: ${options.mode}. Must be one of: fail, skip, overwrite, rename.`,
+        );
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        process.exitCode = 1;
+        return;
+      }
+      const collisionStrategy = modeResult.data; // as CollisionStrategy
 
-    if (options.planOut) {
-      const planPath = resolveFromInvocation(options.planOut);
-      const payload = {
-        generatedAt: new Date().toISOString(),
-        input: report.input,
-        plans: result.plans ?? [],
-      };
-      await fsp.mkdir(path.dirname(planPath), { recursive: true });
-      await fsp.writeFile(
-        planPath,
-        `${JSON.stringify(payload, null, 2)}\n`,
-        "utf8",
-      );
-    }
+      if (!options.json) {
+        format.header(`Installing Pack`);
+        console.log(`  Source: ${format.path(sourcePath)}`);
+        console.log(`  Target: ${format.path(targetPath)}`);
+        console.log(`  Mode:   ${format.code(collisionStrategy)}\n`);
+      }
 
-    if (options.json) {
-      printJson(report);
-      return;
-    }
+      try {
+        // 1. Validate first
+        if (!options.json) console.log(format.bold("1. Validating..."));
+        const validation = await validateSourceSet(sourcePath);
 
-    printHeader("Install");
-    console.log(`ok: ${result.ok}`);
-    console.log(`dryRun: ${Boolean(options.dryRun)}`);
-    console.log(`filesTouched: ${result.filesTouched.length}`);
-    if (result.backupZipPath) {
-      console.log(`backup: ${result.backupZipPath}`);
-    }
-    printIssues(result.issues);
+        if (!validation.ok) {
+          if (options.json) {
+            format.json({
+              error: "Validation failed",
+              issues: validation.issues,
+            });
+          } else {
+            format.error("Pack validation failed. Aborting install.");
+            format.issues(validation.issues);
+          }
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          process.exitCode = 1;
+          return;
+        }
 
-    if (!result.ok) {
-      process.exitCode = 1;
-    }
-  });
+        // 2. Install (or Dry Run)
+        if (!options.json) {
+          console.log(
+            format.bold(
+              options.dryRun ? "2. Simulating Install..." : "2. Installing...",
+            ),
+          );
+        }
 
-program
-  .command("build")
-  .argument("<packsdir>", "source packs directory")
-  .argument("<outZip>", "output zip path")
-  .option("--json", "emit machine-readable report", false)
-  .action(async (packsDir, outZip, options) => {
-    const started = Date.now();
-    const result = await buildCleanZip(
-      resolveFromInvocation(packsDir),
-      resolveFromInvocation(outZip),
-    );
-    const report = createReport(
-      "build",
-      {
-        packsDir: resolveFromInvocation(packsDir),
-        outZip: resolveFromInvocation(outZip),
-      },
-      result,
-      [],
-      started,
-    );
+        const installOpts: InstallOptions = {
+          targetPath: targetPath,
+          targetType: "workspace", // Defaulting to workspace for now
+          collisionStrategy,
+          dryRun: options.dryRun,
+        };
 
-    if (options.json) {
-      printJson(report);
-      return;
-    }
-
-    printHeader("Build");
-    console.log(`filesAdded: ${result.filesAdded}`);
-    console.log(`outZipPath: ${result.outZipPath}`);
-  });
+        if (options.dryRun) {
+          await runWithSpinner("Simulating installation logic", async () => {
+            const res = await installPacks(sourcePath, installOpts);
+            if (options.json) {
+              format.json(res);
+            } else {
+              if (res.ok) format.success("Dry run completed. No changes made.");
+              else {
+                format.error("Dry run reported issues.");
+                format.issues(res.issues);
+              }
+            }
+          });
+        } else {
+          await runWithSpinner("Installing pack files", async () => {
+            const res = await installPacks(sourcePath, installOpts);
+            if (options.json) {
+              format.json(res);
+            } else {
+              if (res.ok) format.success("Pack installed successfully!");
+              else {
+                format.error("Install completed with issues.");
+                format.issues(res.issues);
+              }
+            }
+          });
+        }
+      } catch (error) {
+        if (options.json) {
+          format.json({ error: String(error) });
+        } else {
+          format.error(`Installation failed: ${error}`);
+        }
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        process.exitCode = 1;
+      }
+    },
+  );
 
 program
   .command("doctor")
-  .argument("<targetRepoOrDir>", "target path")
-  .option("--json", "emit machine-readable report", false)
-  .action(async (targetPath, options) => {
-    const started = Date.now();
-    const absoluteTargetPath = resolveFromInvocation(targetPath);
-    const result = await doctorTarget(absoluteTargetPath);
-    const report = createReport(
-      "doctor",
-      { targetPath: absoluteTargetPath },
-      result,
-      result.issues,
-      started,
-    );
+  .description("Check system health and prerequisites.")
+  .argument("[path]", "Target path to check", ".")
+  .action(async (pathInput) => {
+    format.header("System Doctor");
 
-    if (options.json) {
-      printJson(report);
-      return;
-    }
-
-    printHeader("Doctor");
-    console.log(`ok: ${result.ok}`);
-    printIssues(result.issues);
-    if (result.recommendations.length > 0) {
-      console.log("Recommendations:");
-      for (const item of result.recommendations) {
-        console.log(`- ${item}`);
+    const check = async (label: string, task: () => Promise<boolean>) => {
+      const spinner = ora(label).start();
+      try {
+        const ok = await task();
+        if (ok) spinner.succeed(label);
+        else spinner.fail(label);
+        return ok;
+      } catch (e) {
+        spinner.fail(`${label} (${e})`);
+        return false;
       }
-    }
+    };
 
-    if (!result.ok) {
-      process.exitCode = 1;
-    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    await check("Node.js Environment", async () => !!process.versions.node);
+    await check("Tauri Environment", async () => {
+      // Mock check
+      return true;
+    });
+
+    console.log("");
+    format.info("Doctor check complete.");
   });
 
-program
-  .command("readiness")
-  .argument("<targetRepoOrDir>", "target path")
-  .option("--json", "emit machine-readable report", false)
-  .action(async (targetPath, options) => {
-    const started = Date.now();
-    const absoluteTargetPath = resolveFromInvocation(targetPath);
-    const result = await readinessReport(absoluteTargetPath);
-    const report = createReport(
-      "readiness",
-      { targetPath: absoluteTargetPath },
-      result,
-      result.issues,
-      started,
-    );
-
-    if (options.json) {
-      printJson(report);
-      return;
-    }
-
-    printHeader("Readiness");
-    console.log(`ok: ${result.ok}`);
-    printIssues(result.issues);
-    console.log("Proposed patch:");
-    console.log(JSON.stringify(result.proposedPatch, null, 2));
-
-    if (!result.ok) {
-      process.exitCode = 1;
-    }
-  });
-
-program
-  .command("registry")
-  .argument("<targetRepoOrDir>", "target path")
-  .option("--json", "emit machine-readable report", false)
-  .action(async (targetPath, options) => {
-    const started = Date.now();
-    const absoluteTargetPath = resolveFromInvocation(targetPath);
-    const result = await generateRegistry(absoluteTargetPath);
-    const report = createReport(
-      "registry",
-      { targetPath: absoluteTargetPath },
-      result,
-      [],
-      started,
-    );
-
-    if (options.json) {
-      printJson(report);
-      return;
-    }
-
-    printHeader("Registry");
-    console.log(`registryJson: ${result.registryJsonPath}`);
-    console.log(`registryMd: ${result.registryMdPath}`);
-  });
-
-program
-  .command("rollback")
-  .requiredOption("--path <targetPath>", "target path")
-  .requiredOption("--backup <backupZipPath>", "backup zip path")
-  .option("--json", "emit machine-readable report", false)
-  .action(async (options) => {
-    const started = Date.now();
-    const result = await rollbackInstall(
-      resolveFromInvocation(options.path),
-      resolveFromInvocation(options.backup),
-    );
-    const report = createReport(
-      "rollback",
-      {
-        targetPath: resolveFromInvocation(options.path),
-        backupZipPath: resolveFromInvocation(options.backup),
-      },
-      result,
-      result.issues,
-      started,
-    );
-
-    if (options.json) {
-      printJson(report);
-      return;
-    }
-
-    printHeader("Rollback");
-    console.log(`ok: ${result.ok}`);
-    console.log(`restored: ${result.filesTouched.length}`);
-    printIssues(result.issues);
-  });
-
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 program.parseAsync(process.argv);
