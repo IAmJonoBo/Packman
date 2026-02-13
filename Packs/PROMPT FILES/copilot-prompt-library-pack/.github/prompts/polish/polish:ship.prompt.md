@@ -1,7 +1,7 @@
 ---
 name: polish:ship
-description: Polish pass: nits that matter → safe refactors → consistency → gate review.
-agent: 'Polish & Tightening Engineer'
+description: "Polish pass: nits that matter → safe refactors → consistency → gate review."
+agent: "Polish & Tightening Engineer"
 ---
 
 Scope: ${selection}

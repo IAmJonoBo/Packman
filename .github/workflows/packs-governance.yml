@@ -43,6 +43,9 @@ jobs:
       - name: Route ownership check
         run: pnpm run governance:routes
 
+      - name: Mirror drift check
+        run: pnpm run governance:mirrors
+
       - name: Build and strict suite validate packs
         run: pnpm run governance:packs:e2e
 

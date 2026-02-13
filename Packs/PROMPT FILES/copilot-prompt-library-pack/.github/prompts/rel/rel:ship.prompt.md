@@ -1,7 +1,7 @@
 ---
 name: rel:ship
-description: Release & supply chain pass: SBOM/provenance/verification and release hygiene.
-agent: 'Release & Supply Chain Engineer'
+description: "Release & supply chain pass: SBOM/provenance/verification and release hygiene."
+agent: "Release & Supply Chain Engineer"
 ---
 
 Scope: ${selection}

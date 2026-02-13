@@ -1,7 +1,7 @@
 ---
 name: audit:security-basics
-description: Audit for common security footguns: secrets, auth, input validation, unsafe defaults.
-agent: 'ask'
+description: "Audit for common security footguns: secrets, auth, input validation, unsafe defaults."
+agent: "ask"
 ---
 
 Scan the selected code for:

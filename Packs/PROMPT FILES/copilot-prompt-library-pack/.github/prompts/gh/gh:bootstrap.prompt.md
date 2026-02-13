@@ -1,7 +1,7 @@
 ---
 name: gh:bootstrap
-description: Bootstrap GitHub hygiene: issue forms, PR template, CODEOWNERS, SECURITY, community health.
-agent: 'GitHub Bootstrap Engineer'
+description: "Bootstrap GitHub hygiene: issue forms, PR template, CODEOWNERS, SECURITY, community health."
+agent: "GitHub Bootstrap Engineer"
 ---
 
 Scope: ${selection}

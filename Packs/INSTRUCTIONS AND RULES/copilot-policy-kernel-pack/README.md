@@ -1,47 +1,41 @@
-# Copilot Policy Kernel Pack (Instructions & Rules)
+# Policy Kernel (copilot-policy-kernel-pack)
 
-This pack implements **latest VS Code guidance** by splitting:
+## Purpose
 
-- **Always-on instructions**: `.github/copilot-instructions.md`
-- **File-based instructions**: `.github/instructions/*.instructions.md` with YAML frontmatter (`name`, `description`, `applyTo`)
+Describe the purpose of this pack.
 
-VS Code loads instruction files from `.github/instructions` by default via `chat.instructionsFilesLocations`.
+## Install mode
 
-## What you get
+suite
 
-- A minimal, enforceable repo-wide policy kernel.
-- File-based rules for TS/Python/Rust, UI areas, docs areas, review and release hygiene.
-- Validator script: `tools/validate-instructions.py`
+## Key prompts
 
-## How to use
+- None detected
 
-- Add/adjust instruction files in `.github/instructions/`.
-- Keep rules short and testable.
-- Use VS Code “Configure Chat → Chat Instructions” to manage instruction files if preferred.
+## Key agents
 
-## References (source-of-truth)
+- None detected
 
-- VS Code custom instructions + instruction files and locations.
-- VS Code settings for instruction files (`chat.instructionsFilesLocations`, `applyTo`).
-- VS Code customization overview (always-on vs file-based instructions).
-
-## Directory layout
+## Directory tree
 
 ```text
-├── .github/
-│   ├── copilot-instructions.md
-│   └── instructions/
-│       ├── 00-repo-core.instructions.md
-│       ├── 10-typescript.instructions.md
-│       ├── 11-python.instructions.md
-│       ├── 12-rust.instructions.md
-│       ├── 20-ui.instructions.md
-│       ├── 30-docs.instructions.md
-│       ├── 40-code-review.instructions.md
-│       └── 50-release.instructions.md
-├── .vscode/
-│   └── settings.json
-├── AGENTS.md
-└── tools/
-    └── validate-instructions.py
+copilot-policy-kernel-pack/
+  .github/
+    copilot-instructions.md
+    instructions/
+      00-repo-core.instructions.md
+  .vscode/
+    settings.json
+  PACK_MANIFEST.json
+  README.md
+  tools/
+    validate-instructions.py
 ```
+
+## Post-install checklist
+
+- Run `packman validate <pack> --strict`
+- Run `packman normalize <pack>` and review changes
+- Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`
+- Run `packman doctor <target>`
+- Run `packman readiness <target>`
