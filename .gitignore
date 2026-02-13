@@ -8,6 +8,7 @@ coverage/
 
 # tauri / rust target
 packman-app/src-tauri/target/
+packman-app/src-tauri/gen/
 
 # CLI native binaries
 packman-cli/dist/bin/
@@ -25,6 +26,12 @@ packman-py/**/__pycache__/
 
 # packman dry-run backups
 .packman-backup-*.zip
+
+# generated registry artifacts
+registry.json
+registry.md
+Packs/registry.json
+Packs/registry.md
 
 # temp / logs
 *.log

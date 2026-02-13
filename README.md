@@ -28,6 +28,7 @@ Monorepo for Packman (core library, CLI, and Tauri app) and the canonical pack c
 - CLI readiness: `pnpm --filter packman-cli exec node dist/index.js readiness /path/to/repo`
 - Tauri dev: `pnpm --filter packman-app tauri dev`
 - Tauri release build: `pnpm --filter packman-app tauri build`
+- Tauri release build (safe DMG cleanup): `pnpm --filter packman-app run tauri:build:safe`
 
 ## Pack catalog
 
