@@ -15,7 +15,7 @@ python -m pip install --user build >/dev/null 2>&1 || true
 if ! python -c "import build" >/dev/null 2>&1; then
   echo "The 'build' package is not available in this Python environment."
   echo "This environment may be managed by the OS (PEP 668)."
-  echo "Please create and activate a virtual environment, then install the 'build' package:" 
+  echo "Please create and activate a virtual environment, then install the 'build' package:"
   echo "  python -m venv .venv && source .venv/bin/activate && python -m pip install build"
   exit 1
 fi

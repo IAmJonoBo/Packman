@@ -2,7 +2,7 @@
 name = "packman-py"
 version = "0.1.0"
 description = "Packman Python CLI using Typer + Rich"
-authors = ["Packman <devnull@example.com>"]
+authors = [{ name = "Packman", email = "devnull@example.com" }]
 requires-python = ">=3.10"
 
 [project.scripts]

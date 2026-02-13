@@ -10,7 +10,7 @@ fi
 
 if ! python -c "import PyInstaller" >/dev/null 2>&1; then
   echo "PyInstaller not available in this Python environment."
-  echo "Please create and activate a virtual environment and install PyInstaller:" 
+  echo "Please create and activate a virtual environment and install PyInstaller:"
   echo "  python -m venv .venv && source .venv/bin/activate && python -m pip install pyinstaller"
   exit 1
 fi

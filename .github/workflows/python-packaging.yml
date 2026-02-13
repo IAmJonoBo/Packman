@@ -1,0 +1,38 @@
+name: Python packaging
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install build deps
+        run: |
+          python -m pip install --upgrade pip build pyinstaller
+
+      - name: Build wheel and sdist
+        working-directory: packman-py
+        run: |
+          python -m build
+
+      - name: Build PyInstaller onefile
+        working-directory: packman-py
+        run: |
+          pyinstaller --onefile --name packman-py -c packman_py/packman.py
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packman-py-artifacts
+          path: |
+            packman-py/dist/*
