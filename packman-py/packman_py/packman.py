@@ -51,14 +51,44 @@ def validate(path: str = typer.Argument("./Packs")) -> None:
             style=PALETTE["muted"],
         )
     )
+    import shutil
     import subprocess
+    from pathlib import Path
+
+    # Resolve node executable explicitly to avoid partial paths
+    node_path = shutil.which("node")
+    if not node_path:
+        console.print(Panel(Text("Node.js not found in PATH."), style="red"))
+        raise typer.Exit(code=2)
+
+    # Sanitize/validate path argument: allow relative or absolute existing dirs only
+    p = Path(path)
+    if not (p.exists() and p.is_dir()):
+        console.print(
+            Panel(
+                Text(f"Invalid path: {path} (must be an existing directory)"),
+                style="red",
+            )
+        )
+        raise typer.Exit(code=3)
+
+    cmd = [
+        node_path,
+        str(Path("./packman-cli/dist/index.js").resolve()),
+        "validate",
+        str(p),
+    ]
 
     try:
-        subprocess.run(
-            ["node", "./packman-cli/dist/index.js", "validate", path], check=True
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        console.print(
+            Panel(Text(f"Validator failed (exit {e.returncode})"), style="red")
         )
+        raise typer.Exit(code=e.returncode)
     except Exception as e:
         console.print(Panel(Text(str(e)), style="red"))
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":
