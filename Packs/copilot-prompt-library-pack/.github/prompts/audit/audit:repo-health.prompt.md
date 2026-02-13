@@ -1,7 +1,7 @@
 ---
 name: audit:repo-health
-description: Audit a repo for basic health: scripts, docs, CI, hygiene, and drift.
-agent: 'ask'
+description: "Audit a repo for basic health: scripts, docs, CI, hygiene, and drift."
+agent: "ask"
 ---
 
 Audit the selected repo area for:

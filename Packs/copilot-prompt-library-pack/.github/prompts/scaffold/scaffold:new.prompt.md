@@ -1,7 +1,7 @@
 ---
 name: scaffold:new
-description: End-to-end scaffolding: brief → profile selection → RepoSpec → scaffold.
-agent: 'Project Scaffolding Architect'
+description: "End-to-end scaffolding: brief → profile selection → RepoSpec → scaffold."
+agent: "Project Scaffolding Architect"
 ---
 
 Scope: ${selection}

@@ -1,6 +1,6 @@
 ---
 name: incident-triage-and-timeline
-description: Standardise incident response: roles, comms, triage checklist, and real-time timeline capture.
+description: "Standardise incident response: roles, comms, triage checklist, and real-time timeline capture."
 ---
 
 # Incident Triage + Timeline

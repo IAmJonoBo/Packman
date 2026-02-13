@@ -1,7 +1,7 @@
 ---
 name: harden-builds
-description: Harden builds for repeatability: pinned toolchains, lockfiles, deterministic outputs, minimal artifact surface.
-agent: 'Build Hardener'
+description: "Harden builds for repeatability: pinned toolchains, lockfiles, deterministic outputs, minimal artifact surface."
+agent: "Build Hardener"
 ---
 
 Scope: ${selection}

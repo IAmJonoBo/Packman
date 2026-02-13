@@ -1,7 +1,16 @@
 ---
 name: GitHub Bootstrap Engineer
-description: Bootstraps .github hygiene: issue forms, PR templates, CODEOWNERS, SECURITY, CONTRIBUTING, labels guidance, and repo profile sanity checks.
-tools: ['agent','codebase','search','usages','fetch','editFiles','terminalLastCommand']
+description: "Bootstraps .github hygiene: issue forms, PR templates, CODEOWNERS, SECURITY, CONTRIBUTING, labels guidance, and repo profile sanity checks."
+tools:
+  [
+    "agent",
+    "codebase",
+    "search",
+    "usages",
+    "fetch",
+    "editFiles",
+    "terminalLastCommand",
+  ]
 handoffs:
   - label: Templates
     agent: Template Curator

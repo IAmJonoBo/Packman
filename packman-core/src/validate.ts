@@ -7,12 +7,21 @@ import { parseArtifacts } from "./parse.js";
 import { hasErrors } from "./report.js";
 import type {
   Issue,
+  FrontmatterData,
   ParsedArtifact,
   ValidationOptions,
   ValidationResult,
 } from "./types.js";
 
 const REQUIRED_NAME_DESC = ["name", "description"] as const;
+const ALLOWED_PROMPT_FRONTMATTER_KEYS = new Set([
+  "agent",
+  "argument-hint",
+  "description",
+  "model",
+  "name",
+  "tools",
+]);
 
 export const DEFAULT_ALLOWED_SUBAGENTS = [
   "agent",
@@ -91,13 +100,100 @@ function extractHandoffAgents(frontmatter: Record<string, unknown>): string[] {
       continue;
     }
 
-    const candidate = (item as Record<string, unknown>).agent;
+    const entry = item as Record<string, unknown>;
+    const candidate =
+      typeof entry.agent === "string"
+        ? entry.agent
+        : typeof entry.target === "string"
+          ? entry.target
+          : undefined;
     if (typeof candidate === "string" && candidate.trim().length > 0) {
       agents.push(candidate.trim());
     }
   }
 
   return agents;
+}
+
+function normalizeAgentRef(value: string): string[] {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return [];
+  }
+
+  const noSpaces = trimmed.replace(/\s+/g, "");
+  const canonical = trimmed.replace(/[^a-zA-Z0-9]+/g, "");
+  return Array.from(
+    new Set([
+      trimmed,
+      trimmed.toLowerCase(),
+      noSpaces,
+      noSpaces.toLowerCase(),
+      canonical,
+      canonical.toLowerCase(),
+    ]),
+  );
+}
+
+function collectPackLocalAgentRefs(
+  parsedArtifacts: ParsedArtifact[],
+): Set<string> {
+  const refs = new Set<string>();
+
+  for (const artifact of parsedArtifacts) {
+    if (artifact.type !== "agent") {
+      continue;
+    }
+
+    const frontmatterName = artifact.frontmatter?.name;
+    if (typeof frontmatterName === "string") {
+      for (const alias of normalizeAgentRef(frontmatterName)) {
+        refs.add(alias);
+      }
+    }
+
+    const fileName = path.basename(artifact.relativePath, ".agent.md");
+    for (const alias of normalizeAgentRef(fileName)) {
+      refs.add(alias);
+    }
+  }
+
+  return refs;
+}
+
+function isToolListOrCsv(value: unknown): boolean {
+  if (isStringArray(value)) {
+    return true;
+  }
+
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  const tokens = value
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+  return tokens.length > 0;
+}
+
+function validatePromptFrontmatterKeys(
+  frontmatter: FrontmatterData,
+  filePath: string,
+  issues: Issue[],
+): void {
+  for (const key of Object.keys(frontmatter)) {
+    if (ALLOWED_PROMPT_FRONTMATTER_KEYS.has(key)) {
+      continue;
+    }
+
+    issues.push({
+      severity: "warning",
+      code: "PROMPT_FRONTMATTER_UNKNOWN_KEY",
+      message: `Prompt frontmatter key '${key}' is not in the supported set`,
+      path: filePath,
+    });
+  }
 }
 
 async function findTargetPromptNameCollisions(
@@ -137,9 +233,15 @@ export async function validatePack(
 
   const detection = await detectPack(rootPath);
   const parsedArtifacts = await parseArtifacts(detection.artifacts);
-  const allowedSubagents = new Set(
-    options.allowedSubagents ?? DEFAULT_ALLOWED_SUBAGENTS,
-  );
+  const allowedHandoffAgents = new Set<string>();
+  for (const item of options.allowedSubagents ?? DEFAULT_ALLOWED_SUBAGENTS) {
+    for (const alias of normalizeAgentRef(item)) {
+      allowedHandoffAgents.add(alias);
+    }
+  }
+  for (const item of collectPackLocalAgentRefs(parsedArtifacts)) {
+    allowedHandoffAgents.add(item);
+  }
 
   const junk = await detectMacOsJunk(rootPath);
   if (junk.length > 0) {
@@ -179,14 +281,16 @@ export async function validatePack(
 
     if (artifact.type === "prompt") {
       validateNameDesc(frontmatter, artifact.relativePath, issues);
+      validatePromptFrontmatterKeys(frontmatter, artifact.relativePath, issues);
       if (
         frontmatter.tools !== undefined &&
-        !isStringArray(frontmatter.tools)
+        !isToolListOrCsv(frontmatter.tools)
       ) {
         issues.push({
           severity: "error",
           code: "PROMPT_TOOLS_TYPE",
-          message: "Prompt frontmatter tools must be a list of strings",
+          message:
+            "Prompt frontmatter tools must be a list of strings or a comma-separated string",
           path: artifact.relativePath,
         });
       }
@@ -232,26 +336,31 @@ export async function validatePack(
       validateNameDesc(frontmatter, artifact.relativePath, issues);
       if (
         frontmatter.tools !== undefined &&
-        !isStringArray(frontmatter.tools)
+        !isToolListOrCsv(frontmatter.tools)
       ) {
         issues.push({
           severity: "error",
           code: "AGENT_TOOLS_TYPE",
-          message: "Agent tools frontmatter field must be a list of strings",
+          message:
+            "Agent tools frontmatter field must be a list of strings or a comma-separated string",
           path: artifact.relativePath,
         });
       }
 
       if (options.strict) {
         for (const handoffAgent of extractHandoffAgents(frontmatter)) {
-          if (!allowedSubagents.has(handoffAgent)) {
+          const variants = normalizeAgentRef(handoffAgent);
+          const isKnown = variants.some((variant) =>
+            allowedHandoffAgents.has(variant),
+          );
+          if (!isKnown) {
             issues.push({
               severity: "error",
               code: "AGENT_HANDOFF_UNKNOWN",
               message: `Unknown handoff agent '${handoffAgent}'`,
               path: artifact.relativePath,
               details: {
-                allowedSubagents: [...allowedSubagents],
+                allowedSubagents: [...allowedHandoffAgents],
               },
             });
           }

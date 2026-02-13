@@ -1,6 +1,6 @@
 ---
 name: docs-sanity-check
-description: A sanity-check workflow to keep documentation current: validate commands, versions, paths, behaviour, and link integrity.
+description: "A sanity-check workflow to keep documentation current: validate commands, versions, paths, behaviour, and link integrity."
 ---
 
 # Docs Sanity Check

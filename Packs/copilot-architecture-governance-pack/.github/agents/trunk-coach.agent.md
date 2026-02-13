@@ -1,7 +1,7 @@
 ---
 name: Trunk Coach
-description: Enforces trunk-based development discipline: small merges, short-lived branches, feature flags, and always releasable trunk.
-tools: ['codebase', 'search', 'fetch']
+description: "Enforces trunk-based development discipline: small merges, short-lived branches, feature flags, and always releasable trunk."
+tools: ["codebase", "search", "fetch"]
 ---
 
 ## Rules

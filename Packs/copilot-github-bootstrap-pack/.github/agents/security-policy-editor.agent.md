@@ -1,7 +1,7 @@
 ---
 name: Security Policy Editor
-description: Writes/updates SECURITY.md: how to report vulns, response expectations, supported versions, and disclosure rules.
-tools: ['editFiles','codebase','search','fetch']
+description: "Writes/updates SECURITY.md: how to report vulns, response expectations, supported versions, and disclosure rules."
+tools: ["editFiles", "codebase", "search", "fetch"]
 ---
 
 ## Rules

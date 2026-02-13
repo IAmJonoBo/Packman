@@ -1,6 +1,6 @@
 ---
 name: layout-composition-grid
-description: Grid and composition rules for pixel-perfect layouts: columns, gutters, margins, spacing rhythm, optical alignment.
+description: "Grid and composition rules for pixel-perfect layouts: columns, gutters, margins, spacing rhythm, optical alignment."
 ---
 
 # Layout + Composition Grid

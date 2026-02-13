@@ -1,7 +1,7 @@
 ---
 name: observability-ship
-description: End-to-end observability + incident readiness: brief → instrument → SLOs/alerts → playbooks → postmortems → DORA.
-agent: 'Observability Lead'
+description: "End-to-end observability + incident readiness: brief → instrument → SLOs/alerts → playbooks → postmortems → DORA."
+agent: "Observability Lead"
 ---
 
 Scope: ${selection}

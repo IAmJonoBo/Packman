@@ -61,4 +61,17 @@ describe("validatePack", () => {
       result.issues.some((issue) => issue.code === "AGENT_HANDOFF_UNKNOWN"),
     ).toBe(false);
   });
+
+  it("accepts pack-local handoff agent references", async () => {
+    const result = await validatePack(
+      path.resolve(process.cwd(), "..", "Packs", "copilot-ux-agent-pack"),
+      {
+        strict: true,
+        suiteMode: true,
+      },
+    );
+    expect(
+      result.issues.some((issue) => issue.code === "AGENT_HANDOFF_UNKNOWN"),
+    ).toBe(false);
+  });
 });

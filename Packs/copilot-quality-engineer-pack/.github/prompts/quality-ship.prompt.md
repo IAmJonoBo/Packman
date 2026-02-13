@@ -1,7 +1,7 @@
 ---
 name: quality-ship
-description: End-to-end quality pass: brief → plan → implement → de-flake → review.
-agent: 'Quality Engineer'
+description: "End-to-end quality pass: brief → plan → implement → de-flake → review."
+agent: "Quality Engineer"
 ---
 
 Scope: ${selection}

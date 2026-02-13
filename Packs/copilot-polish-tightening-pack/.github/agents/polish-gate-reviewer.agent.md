@@ -1,7 +1,7 @@
 ---
 name: Polish Gate Reviewer
-description: Reviews for value and risk: ensure improvements justify the diff, refactors are safe, and no details are missed.
-tools: ['codebase','search','usages','fetch']
+description: "Reviews for value and risk: ensure improvements justify the diff, refactors are safe, and no details are missed."
+tools: ["codebase", "search", "usages", "fetch"]
 ---
 
 ## Checklist

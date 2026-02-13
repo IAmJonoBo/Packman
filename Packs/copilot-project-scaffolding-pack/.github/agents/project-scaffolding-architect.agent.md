@@ -1,7 +1,16 @@
 ---
 name: Project Scaffolding Architect
 description: Classifies project type, produces a RepoSpec, and scaffolds a correct-by-default repo (prefer definition-as-code via projen).
-tools: ['agent','codebase','search','usages','fetch','editFiles','terminalLastCommand']
+tools:
+  [
+    "agent",
+    "codebase",
+    "search",
+    "usages",
+    "fetch",
+    "editFiles",
+    "terminalLastCommand",
+  ]
 handoffs:
   - label: Profile selection
     agent: Scaffold Profile Selector
@@ -17,7 +26,7 @@ handoffs:
     send: false
   - label: Audit
     agent: Scaffold Auditor
-    prompt: Audit scaffold for completeness: run commands, pinning, docs skeleton, CI entry points, and consistency.
+    prompt: "Audit scaffold for completeness: run commands, pinning, docs skeleton, CI entry points, and consistency."
     send: false
 ---
 

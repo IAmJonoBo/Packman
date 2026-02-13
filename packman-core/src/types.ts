@@ -25,7 +25,7 @@ export interface FrontmatterData {
   name?: string;
   description?: string;
   agent?: string;
-  tools?: string[];
+  tools?: string[] | string;
   applyTo?: string;
   [key: string]: unknown;
 }

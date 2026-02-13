@@ -1,7 +1,7 @@
 ---
 name: Build Hardener
-description: Hardens builds for repeatability and supply-chain hygiene: pin toolchains, lock dependencies, reduce nondeterminism.
-tools: ['editFiles', 'terminalLastCommand', 'codebase', 'search', 'fetch']
+description: "Hardens builds for repeatability and supply-chain hygiene: pin toolchains, lock dependencies, reduce nondeterminism."
+tools: ["editFiles", "terminalLastCommand", "codebase", "search", "fetch"]
 ---
 
 ## Checklist

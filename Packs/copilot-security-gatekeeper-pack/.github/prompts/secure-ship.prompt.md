@@ -1,7 +1,7 @@
 ---
 name: secure-ship
-description: End-to-end secure shipping: brief → threat model → ASVS mapping → implement mitigations → verify.
-agent: 'Security Gatekeeper'
+description: "End-to-end secure shipping: brief → threat model → ASVS mapping → implement mitigations → verify."
+agent: "Security Gatekeeper"
 ---
 
 Scope: ${selection}

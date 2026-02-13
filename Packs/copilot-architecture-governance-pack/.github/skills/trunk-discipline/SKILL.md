@@ -1,6 +1,6 @@
 ---
 name: trunk-discipline
-description: Apply trunk-based development discipline: small merges, short-lived branches, feature flags, and always releasable main.
+description: "Apply trunk-based development discipline: small merges, short-lived branches, feature flags, and always releasable main."
 ---
 
 # Trunk Discipline

@@ -1,6 +1,6 @@
 ---
 name: review-gates-google-standard
-description: Apply high-signal review gates aligned to Google's code review standard: code health over time, readability, correctness, and maintainability.
+description: "Apply high-signal review gates aligned to Google's code review standard: code health over time, readability, correctness, and maintainability."
 ---
 
 # Review Gates (Google-standard inspired)

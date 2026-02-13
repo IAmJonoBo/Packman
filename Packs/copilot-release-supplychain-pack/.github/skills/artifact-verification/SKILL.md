@@ -1,6 +1,6 @@
 ---
 name: artifact-verification
-description: Document and implement verification steps for released artifacts: attestations, checksums/digests, and SBOM presence.
+description: "Document and implement verification steps for released artifacts: attestations, checksums/digests, and SBOM presence."
 ---
 
 # Artifact Verification

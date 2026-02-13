@@ -1,7 +1,7 @@
 ---
 name: github-bootstrap
-description: End-to-end GitHub bootstrap: templates → CODEOWNERS → SECURITY → community health → dependabot (optional).
-agent: 'GitHub Bootstrap Engineer'
+description: "End-to-end GitHub bootstrap: templates → CODEOWNERS → SECURITY → community health → dependabot (optional)."
+agent: "GitHub Bootstrap Engineer"
 ---
 
 Scope: ${selection}

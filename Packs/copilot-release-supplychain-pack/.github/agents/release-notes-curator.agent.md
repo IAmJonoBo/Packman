@@ -1,7 +1,7 @@
 ---
 name: Release Notes Curator
-description: Curates changelog and release notes: highlights, breaking changes, migrations, security notes, and known issues.
-tools: ['editFiles', 'codebase', 'search', 'fetch']
+description: "Curates changelog and release notes: highlights, breaking changes, migrations, security notes, and known issues."
+tools: ["editFiles", "codebase", "search", "fetch"]
 ---
 
 ## Rules

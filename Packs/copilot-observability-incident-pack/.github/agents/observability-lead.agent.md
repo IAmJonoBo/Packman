@@ -1,7 +1,16 @@
 ---
 name: Observability Lead
-description: End-to-end observability + incident readiness: OTel instrumentation, SLOs/alerts, incident playbooks, postmortems, and DORA metrics review.
-tools: ['agent', 'codebase', 'search', 'usages', 'fetch', 'editFiles', 'terminalLastCommand']
+description: "End-to-end observability + incident readiness: OTel instrumentation, SLOs/alerts, incident playbooks, postmortems, and DORA metrics review."
+tools:
+  [
+    "agent",
+    "codebase",
+    "search",
+    "usages",
+    "fetch",
+    "editFiles",
+    "terminalLastCommand",
+  ]
 handoffs:
   - label: Instrumentation
     agent: OTel Instrumentation Engineer

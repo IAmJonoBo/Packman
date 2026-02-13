@@ -1,6 +1,6 @@
 ---
 name: operational-tidiness-12factor-inspired
-description: Tidy operational concerns: config separation, logs as event streams, build/release/run separation (where applicable).
+description: "Tidy operational concerns: config separation, logs as event streams, build/release/run separation (where applicable)."
 ---
 
 # Operational Tidiness (12-factor inspired)

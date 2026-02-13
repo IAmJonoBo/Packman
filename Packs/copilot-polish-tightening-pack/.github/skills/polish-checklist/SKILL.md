@@ -1,6 +1,6 @@
 ---
 name: polish-checklist
-description: A high-impact polish checklist for overlooked details: errors, defaults, docs, observability hooks, accessibility, and ergonomics.
+description: "A high-impact polish checklist for overlooked details: errors, defaults, docs, observability hooks, accessibility, and ergonomics."
 ---
 
 # Polish Checklist

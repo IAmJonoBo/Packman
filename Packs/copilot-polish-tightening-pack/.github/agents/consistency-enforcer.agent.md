@@ -1,7 +1,7 @@
 ---
 name: Consistency Enforcer
-description: Enforces consistency in a scoped area: naming, error model, configuration, logging, and structure.
-tools: ['editFiles','codebase','search','fetch']
+description: "Enforces consistency in a scoped area: naming, error model, configuration, logging, and structure."
+tools: ["editFiles", "codebase", "search", "fetch"]
 ---
 
 ## Rules

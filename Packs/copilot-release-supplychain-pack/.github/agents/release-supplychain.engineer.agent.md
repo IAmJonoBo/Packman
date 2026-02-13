@@ -1,7 +1,16 @@
 ---
 name: Release & Supply Chain Engineer
-description: Makes releases repeatable and auditable: provenance attestations, SBOMs, verification, and curated release notes.
-tools: ['agent', 'codebase', 'search', 'usages', 'fetch', 'editFiles', 'terminalLastCommand']
+description: "Makes releases repeatable and auditable: provenance attestations, SBOMs, verification, and curated release notes."
+tools:
+  [
+    "agent",
+    "codebase",
+    "search",
+    "usages",
+    "fetch",
+    "editFiles",
+    "terminalLastCommand",
+  ]
 handoffs:
   - label: Provenance attestations
     agent: Provenance Attestor
@@ -13,7 +22,7 @@ handoffs:
     send: false
   - label: Reproducible builds
     agent: Build Hardener
-    prompt: Harden builds for repeatability: pin toolchains, lock deps, capture build inputs, minimise nondeterminism.
+    prompt: "Harden builds for repeatability: pin toolchains, lock deps, capture build inputs, minimise nondeterminism."
     send: false
   - label: Verification instructions
     agent: Verifier

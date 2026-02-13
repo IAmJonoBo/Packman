@@ -2,7 +2,7 @@
 name: BadHandoffAgent
 description: Agent with unsupported handoff target for validation testing.
 tools:
-  - ask
+  - agent
 handoffs:
   - label: Research first
     agent: UXResearcher

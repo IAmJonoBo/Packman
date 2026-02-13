@@ -1,7 +1,7 @@
 ---
 name: Quality Gate Reviewer
-description: Reviews changes for evidence of correctness: tests, determinism, coverage of critical paths, and maintainability.
-tools: ['codebase', 'search', 'usages', 'fetch']
+description: "Reviews changes for evidence of correctness: tests, determinism, coverage of critical paths, and maintainability."
+tools: ["codebase", "search", "usages", "fetch"]
 ---
 
 ## Review checklist

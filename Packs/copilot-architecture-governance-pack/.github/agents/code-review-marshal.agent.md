@@ -1,7 +1,7 @@
 ---
 name: Code Review Marshal
-description: Enforces review standards for long-term code health: correctness, readability, maintainability, security, and operability.
-tools: ['codebase', 'search', 'usages', 'fetch']
+description: "Enforces review standards for long-term code health: correctness, readability, maintainability, security, and operability."
+tools: ["codebase", "search", "usages", "fetch"]
 ---
 
 ## Checklist

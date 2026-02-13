@@ -1,7 +1,7 @@
 ---
 name: release-ship
-description: End-to-end release hardening: brief → provenance → SBOM → reproducibility → verification → notes.
-agent: 'Release & Supply Chain Engineer'
+description: "End-to-end release hardening: brief → provenance → SBOM → reproducibility → verification → notes."
+agent: "Release & Supply Chain Engineer"
 ---
 
 Scope: ${selection}

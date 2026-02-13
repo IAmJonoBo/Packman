@@ -1,6 +1,6 @@
 ---
 name: reproducible-build-hardening
-description: Harden builds for repeatability: pinned toolchains, deterministic archives, controlled env/time, minimal artifact surface.
+description: "Harden builds for repeatability: pinned toolchains, deterministic archives, controlled env/time, minimal artifact surface."
 ---
 
 # Reproducible Build Hardening

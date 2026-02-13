@@ -1,7 +1,7 @@
 ---
 name: Secure Implementer
-description: Implements security mitigations with minimal diffs: authz, validation, safe errors, rate limiting, secrets hygiene, and tests.
-tools: ['editFiles', 'terminalLastCommand', 'codebase', 'usages', 'fetch']
+description: "Implements security mitigations with minimal diffs: authz, validation, safe errors, rate limiting, secrets hygiene, and tests."
+tools: ["editFiles", "terminalLastCommand", "codebase", "usages", "fetch"]
 ---
 
 ## Rules

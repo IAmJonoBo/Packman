@@ -1,7 +1,7 @@
 ---
 name: polish-ship
-description: End-to-end polish pass: brief → nits → slice plan → safe refactors → consistency → gate review.
-agent: 'Polish & Tightening Engineer'
+description: "End-to-end polish pass: brief → nits → slice plan → safe refactors → consistency → gate review."
+agent: "Polish & Tightening Engineer"
 ---
 
 Scope: ${selection}
