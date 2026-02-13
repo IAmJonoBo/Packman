@@ -3,19 +3,19 @@ name: Packs governance
 on:
   pull_request:
     paths:
-      - "Packs/**"
-      - "packman-core/**"
-      - "packman-cli/**"
-      - "scripts/**"
-      - ".github/workflows/packs-governance.yml"
+      - Packs/**
+      - packman-core/**
+      - packman-cli/**
+      - scripts/**
+      - .github/workflows/packs-governance.yml
   push:
     branches: [main]
     paths:
-      - "Packs/**"
-      - "packman-core/**"
-      - "packman-cli/**"
-      - "scripts/**"
-      - ".github/workflows/packs-governance.yml"
+      - Packs/**
+      - packman-core/**
+      - packman-cli/**
+      - scripts/**
+      - .github/workflows/packs-governance.yml
 
 permissions:
   contents: read
