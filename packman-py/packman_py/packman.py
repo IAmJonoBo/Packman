@@ -98,15 +98,25 @@ def info(verbose: bool = typer.Option(False, "--verbose", "-v")) -> None:
 
 
 @app.command()
-def validate(path: str = typer.Argument("./Packs")) -> None:
+def validate(
+    path: str = typer.Argument("./Packs"),
+    strict: bool = typer.Option(
+        False, "--strict", help="Enable strict validation mode."
+    ),
+    suite: bool = typer.Option(False, "--suite", help="Enable suite validation mode."),
+    json_output: bool = typer.Option(
+        False, "--json", help="Emit JSON output from packman-cli."
+    ),
+) -> None:
     """Run the pack validator (shells out to packman-cli)."""
-    render_header()
-    console.print(
-        Panel(
-            Text.from_markup(f"Running validator on [bold]{path}[/bold]..."),
-            style=PALETTE["muted"],
+    if not json_output:
+        render_header()
+        console.print(
+            Panel(
+                Text.from_markup(f"Running validator on [bold]{path}[/bold]..."),
+                style=PALETTE["muted"],
+            )
         )
-    )
 
     p = Path(path)
     if not (p.exists() and p.is_dir()):
@@ -119,8 +129,15 @@ def validate(path: str = typer.Argument("./Packs")) -> None:
         raise typer.Exit(code=3)
 
     cmd = [resolve_node(), resolve_packman_cli(), "validate", str(p)]
+    if strict:
+        cmd.append("--strict")
+    if suite:
+        cmd.append("--suite")
+    if json_output:
+        cmd.append("--json")
     run_checked(cmd)
-    console.print(Panel(Text("Validation completed."), style=PALETTE["accent"]))
+    if not json_output:
+        console.print(Panel(Text("Validation completed."), style=PALETTE["accent"]))
 
 
 @app.command()

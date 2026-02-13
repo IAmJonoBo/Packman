@@ -19,6 +19,16 @@ const collisionSummary =
 let sourcePath = "";
 let targetPath = "";
 
+declare global {
+  interface Window {
+    __PACKMAN_E2E__?: {
+      setPaths: (source: string, target: string) => void;
+      getPaths: () => { sourcePath: string; targetPath: string };
+      resetPaths: () => void;
+    };
+  }
+}
+
 interface CollisionRow {
   relativePath: string;
   availableActions: string[];
@@ -102,6 +112,16 @@ function setOutput(payload: unknown): void {
   renderCollisionSummary(payload);
 }
 
+function syncPathLabels(): void {
+  if (sourcePathLabel) {
+    sourcePathLabel.textContent = sourcePath || "No source selected";
+  }
+
+  if (targetPathLabel) {
+    targetPathLabel.textContent = targetPath || "No target selected";
+  }
+}
+
 async function pickDirectory(kind: "source" | "target"): Promise<void> {
   const selection = await open({
     directory: true,
@@ -118,15 +138,11 @@ async function pickDirectory(kind: "source" | "target"): Promise<void> {
 
   if (kind === "source") {
     sourcePath = selection;
-    if (sourcePathLabel) {
-      sourcePathLabel.textContent = sourcePath;
-    }
   } else {
     targetPath = selection;
-    if (targetPathLabel) {
-      targetPathLabel.textContent = targetPath;
-    }
   }
+
+  syncPathLabels();
 }
 
 async function runGuarded<T>(operation: () => Promise<T>): Promise<void> {
@@ -384,3 +400,19 @@ document
 void invoke("set_persist_scopes", { enabled: false }).catch(() => {
   // no-op for first load if backend not ready
 });
+
+window.__PACKMAN_E2E__ = {
+  setPaths: (source: string, target: string) => {
+    sourcePath = source;
+    targetPath = target;
+    syncPathLabels();
+  },
+  getPaths: () => ({ sourcePath, targetPath }),
+  resetPaths: () => {
+    sourcePath = "";
+    targetPath = "";
+    syncPathLabels();
+  },
+};
+
+syncPathLabels();
