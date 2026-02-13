@@ -6,6 +6,8 @@ description: >-
 agent: Project Planning Lead
 ---
 
+# planning-brief
+
 Scope: ${selection}
 
 Do:

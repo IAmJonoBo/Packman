@@ -4,6 +4,8 @@ description: Performs pre-execution gate review to ensure plan feasibility, owne
 tools: ["codebase", "search", "editFiles"]
 ---
 
+# Execution Gate Reviewer
+
 ## Output format
 
 - Pass or fail gate status

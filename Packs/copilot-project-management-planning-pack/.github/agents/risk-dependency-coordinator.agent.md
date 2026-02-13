@@ -4,6 +4,8 @@ description: Maintains risk register, dependency map, and variance impact analys
 tools: ["codebase", "search", "fetch", "editFiles"]
 ---
 
+# Risk Dependency Coordinator
+
 ## Output format
 
 - Risk register with likelihood and impact

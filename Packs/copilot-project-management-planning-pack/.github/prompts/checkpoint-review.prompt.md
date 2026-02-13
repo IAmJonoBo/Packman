@@ -6,6 +6,8 @@ description: >-
 agent: Execution Gate Reviewer
 ---
 
+# checkpoint-review
+
 Scope: ${selection}
 
 Do:

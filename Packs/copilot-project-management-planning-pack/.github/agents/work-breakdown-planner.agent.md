@@ -4,6 +4,8 @@ description: Produces WBS, milestone sequencing, and thin-slice execution plans 
 tools: ["codebase", "search", "editFiles"]
 ---
 
+# Work Breakdown Planner
+
 ## Output format
 
 - Work breakdown structure

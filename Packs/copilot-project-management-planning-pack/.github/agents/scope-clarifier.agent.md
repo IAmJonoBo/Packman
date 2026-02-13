@@ -4,6 +4,8 @@ description: Turns ambiguous goals into explicit scope, constraints, assumptions
 tools: ["codebase", "search", "fetch", "editFiles"]
 ---
 
+# Scope Clarifier
+
 ## Output format
 
 - Objectives and non-goals
