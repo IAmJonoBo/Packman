@@ -15,6 +15,12 @@ packman-cli/dist/bin/
 # Python venvs and build outputs for packman-py
 packman-py/.venv/
 packman-py/dist/
+packman-py/build/
+packman-py/*.spec
+packman-py/*.egg-info
+
+# packaged tarballs
+*.tgz
 
 # temp / logs
 *.log

@@ -15,19 +15,19 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-2. Install build tools:
+1. Install build tools:
 
 ```sh
 python -m pip install --upgrade pip build pyinstaller
 ```
 
-3. Build wheel + sdist:
+1. Build wheel + sdist:
 
 ```sh
 sh ../scripts/build-python-dist.sh
 ```
 
-4. Build a host one-file executable (PyInstaller):
+1. Build a host one-file executable (PyInstaller):
 
 ```sh
 sh ../scripts/build-python-exe.sh
