@@ -2,8 +2,10 @@
 name = "packman-py"
 version = "0.1.0"
 description = "Packman Python CLI using Typer + Rich"
+readme = "README.md"
 authors = [{ name = "Packman", email = "devnull@example.com" }]
 requires-python = ">=3.10"
+dependencies = ["typer[all]", "rich"]
 
 [project.scripts]
 packman-py = "packman_py.packman:app"

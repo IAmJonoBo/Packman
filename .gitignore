@@ -18,6 +18,7 @@ packman-py/dist/
 packman-py/build/
 packman-py/*.spec
 packman-py/*.egg-info
+packman-py/**/__pycache__/
 
 # packaged tarballs
 *.tgz

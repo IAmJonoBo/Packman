@@ -10,8 +10,9 @@
     "preflight": "sh ./scripts/preflight.sh",
     "package:all": "pnpm -r pack",
     "build:exe": "sh ./scripts/build-executables.sh",
-    "cli:py": "python -m packman_py.packman",
+    "cli:py": "PYTHONPATH=./packman-py python -m packman_py.packman",
     "package:py": "sh ./scripts/build-python-dist.sh",
-    "package:pyexe": "sh ./scripts/build-python-exe.sh"
+    "package:pyexe": "sh ./scripts/build-python-exe.sh",
+    "package:executables": "sh ./scripts/build-executables.sh && sh ./scripts/build-python-exe.sh"
   }
 }

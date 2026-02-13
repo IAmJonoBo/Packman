@@ -36,6 +36,19 @@ sh ../scripts/build-python-exe.sh
 Artifacts will appear in `packman-py/dist`. This repo intentionally ignores
 `packman-py/.venv` and `packman-py/dist` so built artifacts are not committed.
 
+From repository root, you can also run:
+
+```sh
+pnpm run package:py
+pnpm run package:pyexe
+pnpm run package:executables
+```
+
+- `package:py` builds wheel/sdist into `packman-py/dist`
+- `package:pyexe` builds host executable into `packman-py/dist`
+- `package:executables` builds Node CLI executables into `packman-cli/dist/bin`
+  and Python executable into `packman-py/dist`
+
 ## CI packaging
 
 The repository includes a GitHub Actions workflow that will build the wheel and
@@ -47,8 +60,15 @@ This ensures packaging is done in a clean, reproducible environment.
 Run the Python CLI locally without installing:
 
 ```sh
+PYTHONPATH=./packman-py python -m packman_py.packman info
+PYTHONPATH=./packman-py python -m packman_py.packman validate ./Packs
+```
+
+Or from inside `packman-py`:
+
+```sh
 python -m packman_py.packman info
-python -m packman_py.packman validate ./Packs
+python -m packman_py.packman validate ../Packs
 ```
 
 Or install the wheel into a venv:
