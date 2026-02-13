@@ -1,0 +1,14 @@
+{
+  "id": "copilot-project-management-planning",
+  "name": "Copilot Project Management & Planning Pack",
+  "version": "0.1.0",
+  "intended_install": "suite",
+  "orchestrator_agent": "Project Planning Lead",
+  "owned_paths": [
+    ".github/copilot-instructions.md",
+    ".vscode/settings.json",
+    ".github/agents",
+    ".github/prompts"
+  ],
+  "commands": ["planning-brief", "planning-ship", "planning-replan"]
+}
