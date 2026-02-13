@@ -34,6 +34,7 @@ export interface ParsedArtifact extends Artifact {
   frontmatter?: FrontmatterData;
   body?: string;
   raw?: string;
+  parseError?: string;
 }
 
 export interface PackDetection {
@@ -47,6 +48,7 @@ export interface ValidationOptions {
   strict?: boolean;
   targetPathForCollisionScan?: string;
   suiteMode?: boolean;
+  allowedSubagents?: string[];
 }
 
 export interface ValidationResult {

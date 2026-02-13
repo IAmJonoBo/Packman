@@ -30,6 +30,7 @@ copilot-suite-harmoniser-pack/
   .vscode/
     settings.json
   AGENTS.md
+  ALLOWED_SUBAGENTS.json
   PACK_MANIFEST.json
   README.md
 ```

@@ -36,4 +36,29 @@ describe("validatePack", () => {
       ),
     ).toBe(true);
   });
+
+  it("fails strict validation for unknown handoff agent", async () => {
+    const result = await validatePack(
+      path.join(fixturesRoot, "bad-unknown-subagent"),
+      { strict: true },
+    );
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some((issue) => issue.code === "AGENT_HANDOFF_UNKNOWN"),
+    ).toBe(true);
+  });
+
+  it("allows unknown handoff when explicitly allowlisted", async () => {
+    const result = await validatePack(
+      path.join(fixturesRoot, "bad-unknown-subagent"),
+      {
+        strict: true,
+        allowedSubagents: ["UXResearcher"],
+      },
+    );
+    expect(result.ok).toBe(true);
+    expect(
+      result.issues.some((issue) => issue.code === "AGENT_HANDOFF_UNKNOWN"),
+    ).toBe(false);
+  });
 });

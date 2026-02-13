@@ -1,7 +1,15 @@
 ---
 name: UX Implementer
 description: Implement UX changes with minimal diffs; cover states and accessibility; keep consistency.
-tools: ["editFiles", "terminalLastCommand", "codebase", "usages", "fetch"]
+tools:
+  [
+    "edit/editFiles",
+    "read/terminalLastCommand",
+    "search/codebase",
+    "search/usages",
+    "com.atlassian/atlassian-mcp-server/fetch",
+    "web/fetch",
+  ]
 ---
 
 # Implementation instructions

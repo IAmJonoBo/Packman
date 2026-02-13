@@ -28,6 +28,7 @@ export async function parseArtifacts(
       frontmatter: fm.frontmatter,
       body: fm.body,
       raw: fm.raw,
+      parseError: fm.parseError,
     });
   }
 

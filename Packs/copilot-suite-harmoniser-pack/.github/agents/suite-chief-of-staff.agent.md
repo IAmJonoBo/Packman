@@ -4,12 +4,13 @@ description: Routes work across installed packs, enforces namespacing, and avoid
 tools:
   [
     "agent",
-    "codebase",
-    "search",
-    "usages",
-    "fetch",
-    "editFiles",
-    "terminalLastCommand",
+    "search/codebase",
+    "com.atlassian/atlassian-mcp-server/search",
+    "search/usages",
+    "com.atlassian/atlassian-mcp-server/fetch",
+    "web/fetch",
+    "edit/editFiles",
+    "read/terminalLastCommand",
   ]
 ---
 

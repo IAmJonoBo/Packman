@@ -14,6 +14,16 @@ import type {
 
 const REQUIRED_NAME_DESC = ["name", "description"] as const;
 
+export const DEFAULT_ALLOWED_SUBAGENTS = [
+  "agent",
+  "ask",
+  "edit",
+  "Ask",
+  "Plan",
+  "AIAgentExpert",
+  "DataAnalysisExpert",
+] as const;
+
 function hasField(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
@@ -69,6 +79,27 @@ function findPromptNames(
   return map;
 }
 
+function extractHandoffAgents(frontmatter: Record<string, unknown>): string[] {
+  const handoffs = frontmatter.handoffs;
+  if (!Array.isArray(handoffs)) {
+    return [];
+  }
+
+  const agents: string[] = [];
+  for (const item of handoffs) {
+    if (!item || typeof item !== "object") {
+      continue;
+    }
+
+    const candidate = (item as Record<string, unknown>).agent;
+    if (typeof candidate === "string" && candidate.trim().length > 0) {
+      agents.push(candidate.trim());
+    }
+  }
+
+  return agents;
+}
+
 async function findTargetPromptNameCollisions(
   targetPath: string,
   sourcePromptNames: Set<string>,
@@ -106,6 +137,9 @@ export async function validatePack(
 
   const detection = await detectPack(rootPath);
   const parsedArtifacts = await parseArtifacts(detection.artifacts);
+  const allowedSubagents = new Set(
+    options.allowedSubagents ?? DEFAULT_ALLOWED_SUBAGENTS,
+  );
 
   const junk = await detectMacOsJunk(rootPath);
   if (junk.length > 0) {
@@ -131,6 +165,16 @@ export async function validatePack(
   let hasSuiteOwner = false;
 
   for (const artifact of parsedArtifacts) {
+    if (artifact.parseError) {
+      issues.push({
+        severity: "error",
+        code: "FRONTMATTER_PARSE",
+        message: `Invalid frontmatter: ${artifact.parseError}`,
+        path: artifact.relativePath,
+      });
+      continue;
+    }
+
     const frontmatter = artifact.frontmatter ?? {};
 
     if (artifact.type === "prompt") {
@@ -196,6 +240,22 @@ export async function validatePack(
           message: "Agent tools frontmatter field must be a list of strings",
           path: artifact.relativePath,
         });
+      }
+
+      if (options.strict) {
+        for (const handoffAgent of extractHandoffAgents(frontmatter)) {
+          if (!allowedSubagents.has(handoffAgent)) {
+            issues.push({
+              severity: "error",
+              code: "AGENT_HANDOFF_UNKNOWN",
+              message: `Unknown handoff agent '${handoffAgent}'`,
+              path: artifact.relativePath,
+              details: {
+                allowedSubagents: [...allowedSubagents],
+              },
+            });
+          }
+        }
       }
     }
 

@@ -1,0 +1,11 @@
+{
+  "allowedSubagents": [
+    "agent",
+    "ask",
+    "edit",
+    "Ask",
+    "Plan",
+    "AIAgentExpert",
+    "DataAnalysisExpert"
+  ]
+}

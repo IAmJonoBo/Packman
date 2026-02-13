@@ -97,11 +97,79 @@ async function parseCollisionDecisions(
   return normalized;
 }
 
+async function readAllowedSubagentsFile(filePath: string): Promise<string[]> {
+  const raw = await fsp.readFile(filePath, "utf8");
+  const parsed = JSON.parse(raw) as unknown;
+
+  if (Array.isArray(parsed)) {
+    return parsed.filter((item): item is string => typeof item === "string");
+  }
+
+  if (
+    parsed &&
+    typeof parsed === "object" &&
+    Array.isArray((parsed as { allowedSubagents?: unknown }).allowedSubagents)
+  ) {
+    return (parsed as { allowedSubagents: unknown[] }).allowedSubagents.filter(
+      (item): item is string => typeof item === "string",
+    );
+  }
+
+  throw new Error(
+    "allowed subagents file must be a string array or an object with allowedSubagents string array",
+  );
+}
+
+async function resolveAllowedSubagents(
+  inputPath: string,
+  explicitFilePath?: string,
+): Promise<string[] | undefined> {
+  if (explicitFilePath) {
+    return readAllowedSubagentsFile(resolveFromInvocation(explicitFilePath));
+  }
+
+  const probeRoots = [resolveFromInvocation(inputPath)];
+  let current = path.dirname(resolveFromInvocation(inputPath));
+  while (current !== path.dirname(current)) {
+    probeRoots.push(current);
+    current = path.dirname(current);
+  }
+
+  const candidates: string[] = [];
+  for (const root of probeRoots) {
+    candidates.push(
+      path.join(
+        root,
+        "copilot-suite-harmoniser-pack",
+        "ALLOWED_SUBAGENTS.json",
+      ),
+      path.join(
+        root,
+        "Packs",
+        "copilot-suite-harmoniser-pack",
+        "ALLOWED_SUBAGENTS.json",
+      ),
+    );
+  }
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return readAllowedSubagentsFile(candidate);
+    }
+  }
+
+  return undefined;
+}
+
 program
   .command("validate")
   .argument("<path>", "pack path")
   .option("--strict", "strict validation mode", false)
   .option("--target <targetPath>", "optional target path for collision scan")
+  .option(
+    "--allowed-subagents <jsonFile>",
+    "optional JSON file with allowed subagent names",
+  )
   .option("--suite", "suite mode", false)
   .option("--auto-clean", "strip macOS junk when input is a zip", false)
   .option("--json", "emit machine-readable report", false)
@@ -119,6 +187,7 @@ program
           path: absolutePath,
           strict: Boolean(options.strict),
           target: options.target,
+          allowedSubagents: options.allowedSubagents,
           suite: Boolean(options.suite),
         },
         {
@@ -151,6 +220,10 @@ program
     const aggregateIssues = [] as Awaited<
       ReturnType<typeof validatePack>
     >["issues"];
+    const allowedSubagents = await resolveAllowedSubagents(
+      inputPath,
+      options.allowedSubagents,
+    );
     let artifactCount = 0;
     let ok = true;
 
@@ -162,6 +235,7 @@ program
             ? resolveFromInvocation(options.target)
             : undefined,
           suiteMode: Boolean(options.suite),
+          allowedSubagents,
         });
         artifactCount += result.parsedArtifacts.length;
         aggregateIssues.push(...result.issues);
@@ -177,6 +251,7 @@ program
         path: absolutePath,
         strict: Boolean(options.strict),
         target: options.target,
+        allowedSubagents: options.allowedSubagents,
         suite: Boolean(options.suite),
       },
       {

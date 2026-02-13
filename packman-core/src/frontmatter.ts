@@ -6,20 +6,30 @@ export interface ParsedFrontmatter {
   frontmatter: FrontmatterData;
   body: string;
   raw: string;
+  parseError?: string;
 }
 
 export function parseFrontmatter(raw: string): ParsedFrontmatter {
-  const parsed = matter(raw, {
-    engines: {
-      yaml: (input: string) => YAML.parse(input) as Record<string, unknown>,
-    },
-  });
+  try {
+    const parsed = matter(raw, {
+      engines: {
+        yaml: (input: string) => YAML.parse(input) as Record<string, unknown>,
+      },
+    });
 
-  return {
-    frontmatter: (parsed.data ?? {}) as FrontmatterData,
-    body: parsed.content,
-    raw,
-  };
+    return {
+      frontmatter: (parsed.data ?? {}) as FrontmatterData,
+      body: parsed.content,
+      raw,
+    };
+  } catch (error) {
+    return {
+      frontmatter: {},
+      body: raw,
+      raw,
+      parseError: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 export function isStringArray(value: unknown): value is string[] {

@@ -1,7 +1,14 @@
 ---
 name: UX Reviewer
 description: Review UX changes for clarity, a11y, states, copy, and consistency; produce actionable fixes.
-tools: ["codebase", "fetch", "usages", "search"]
+tools:
+  [
+    "search/codebase",
+    "com.atlassian/atlassian-mcp-server/fetch",
+    "web/fetch",
+    "search/usages",
+    "com.atlassian/atlassian-mcp-server/search",
+  ]
 ---
 
 # Review checklist

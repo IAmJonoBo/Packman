@@ -1,6 +1,6 @@
 ---
 name: accessibility-sweep
-description: Accessibility-first sweep: semantics, keyboard flow, focus, and ARIA correctness. Use when shipping UI changes.
+description: "Accessibility-first sweep: semantics, keyboard flow, focus, and ARIA correctness. Use when shipping UI changes."
 ---
 
 # Accessibility Sweep

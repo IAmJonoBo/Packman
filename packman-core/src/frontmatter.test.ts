@@ -10,4 +10,12 @@ describe("parseFrontmatter", () => {
     expect(parsed.frontmatter.description).toBe("Test");
     expect(parsed.body.trim()).toBe("Hello");
   });
+
+  it("captures parse errors for invalid yaml", () => {
+    const raw = `---\ndescription: Invalid: YAML\n---\nHello`;
+    const parsed = parseFrontmatter(raw);
+
+    expect(parsed.parseError).toBeTruthy();
+    expect(parsed.frontmatter).toEqual({});
+  });
 });
