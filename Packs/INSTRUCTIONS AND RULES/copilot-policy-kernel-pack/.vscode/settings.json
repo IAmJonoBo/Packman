@@ -1,0 +1,19 @@
+{
+  "chat.instructionsFilesLocations": {
+    ".github/instructions": true
+  },
+  "chat.promptFilesLocations": [
+    ".github/prompts"
+  ],
+  "chat.agentSkillsLocations": [
+    ".github/skills"
+  ],
+  "chat.agentFilesLocations": [
+    ".github/agents"
+  ],
+  "chat.includeApplyingInstructions": true,
+  "chat.includeReferencedInstructions": false,
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  "github.copilot.chat.organizationInstructions.enabled": true,
+  "github.copilot.chat.organizationCustomAgents.enabled": true
+}

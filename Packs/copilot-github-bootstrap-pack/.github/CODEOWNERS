@@ -1,0 +1,5 @@
+# CODEOWNERS
+# Replace placeholders with actual GitHub users/teams (e.g. @org/team or @username).
+# Keep this file minimal.
+
+* @<ORG>/<TEAM-CORE>

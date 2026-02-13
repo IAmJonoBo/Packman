@@ -1,0 +1,24 @@
+name: Documentation issue
+description: Report missing/incorrect/unclear documentation.
+title: "[Docs]: "
+labels: ["type: docs", "status: triage"]
+body:
+  - type: textarea
+    id: location
+    attributes:
+      label: Where is the doc?
+      placeholder: Link or file path.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong or missing?
+    validations:
+      required: true
+  - type: textarea
+    id: fix
+    attributes:
+      label: Suggested fix
+    validations:
+      required: false

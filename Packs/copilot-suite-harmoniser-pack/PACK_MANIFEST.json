@@ -1,0 +1,16 @@
+{
+  "id": "copilot-suite-harmoniser",
+  "name": "Copilot Suite Harmoniser Pack",
+  "version": "0.1.0",
+  "intended_install": "suite",
+  "orchestrator_agent": "Suite Chief of Staff",
+  "owned_paths": [
+    ".github/copilot-instructions.md",
+    ".vscode/settings.json",
+    ".github/agents",
+    ".github/prompts"
+  ],
+  "commands": [
+    "suite:route"
+  ]
+}

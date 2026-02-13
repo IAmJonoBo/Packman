@@ -1,0 +1,23 @@
+{
+  "name": "packman-cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "packman": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test",
+    "start": "node dist/index.js",
+    "packman": "node dist/index.js"
+  },
+  "dependencies": {
+    "@packman/core": "workspace:*",
+    "commander": "^14.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "typescript": "^5.9.3"
+  }
+}

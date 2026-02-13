@@ -1,0 +1,13 @@
+{
+  "chat.promptFilesLocations": [
+    ".github/prompts"
+  ],
+  "chat.agentSkillsLocations": [
+    ".github/skills"
+  ],
+  "chat.agentFilesLocations": [
+    ".github/agents"
+  ],
+  "github.copilot.chat.organizationInstructions.enabled": true,
+  "github.copilot.chat.organizationCustomAgents.enabled": true
+}

@@ -1,0 +1,4 @@
+packages:
+  - 'packman-core'
+  - 'packman-cli'
+  - 'packman-app'

@@ -1,0 +1,14 @@
+{
+  "id": "good-minimal",
+  "name": "Good Minimal",
+  "version": "1.0.0",
+  "intended_install": "solo",
+  "owned_paths": [
+    ".github/prompts",
+    ".github/agents",
+    ".github/instructions",
+    ".github/skills"
+  ],
+  "commands": ["validate", "normalize", "install", "doctor"],
+  "orchestrator_agent": "orchestrator"
+}

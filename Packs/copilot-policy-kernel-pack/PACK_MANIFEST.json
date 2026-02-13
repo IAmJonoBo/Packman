@@ -1,0 +1,14 @@
+{
+  "id": "copilot-policy-kernel",
+  "name": "Copilot Policy Kernel Pack",
+  "version": "0.1.0",
+  "intended_install": "suite",
+  "orchestrator_agent": "",
+  "owned_paths": [
+    ".github/copilot-instructions.md",
+    ".github/instructions",
+    ".vscode/settings.json",
+    "tools/validate-instructions.py"
+  ],
+  "commands": []
+}

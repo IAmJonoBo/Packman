@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Packman",
+  "version": "0.1.0",
+  "identifier": "com.packman.app",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm build",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Packman",
+        "width": 1100,
+        "height": 820,
+        "label": "main"
+      },
+      {
+        "title": "Packman Viewer",
+        "width": 860,
+        "height": 640,
+        "label": "viewer",
+        "visible": false
+      }
+    ],
+    "security": {
+      "capabilities": ["main-window", "viewer-window"]
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all"
+  }
+}

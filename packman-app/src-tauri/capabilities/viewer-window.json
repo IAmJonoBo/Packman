@@ -1,0 +1,12 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "viewer-window",
+  "description": "Read-only viewer surface",
+  "windows": ["viewer"],
+  "permissions": [
+    "core:default",
+    "dialog:allow-open",
+    "fs:allow-read-text-file",
+    "fs:allow-read-dir"
+  ]
+}
