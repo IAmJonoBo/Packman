@@ -1,12 +1,15 @@
 # Quality Engineer (copilot-quality-engineer-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/add-critical-tests.prompt.md
 - .github/prompts/contract-tests.prompt.md
 - .github/prompts/fixture-kit.prompt.md
@@ -16,6 +19,7 @@ suite
 - .github/prompts/quality-ship.prompt.md
 
 ## Key agents
+
 - .github/agents/contract-tester.agent.md
 - .github/agents/flake-hunter.agent.md
 - .github/agents/quality-engineer.agent.md
@@ -67,6 +71,7 @@ copilot-quality-engineer-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

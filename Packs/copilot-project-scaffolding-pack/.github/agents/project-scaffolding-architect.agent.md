@@ -22,6 +22,7 @@ handoffs:
 ---
 
 ## Output format
+
 - Brief recap + chosen profile
 - RepoSpec (summary + file paths)
 - Scaffold actions taken (files created/changed)

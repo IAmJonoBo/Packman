@@ -1,10 +1,12 @@
 # UX Contract (Template)
 
 ## JTBD
+
 - User goal:
 - Success criteria:
 
 ## States
+
 - Default:
 - Loading:
 - Empty:
@@ -12,6 +14,7 @@
 - Success:
 
 ## Edge cases
+
 - Validation:
 - Permissions:
 - Network/retry:
@@ -19,11 +22,13 @@
 - Undo/rollback:
 
 ## Interaction rules
+
 - Primary action:
 - Secondary actions:
 - Keyboard and focus:
 - Copy/microcopy notes:
 
 ## Analytics (optional)
+
 - Events:
 - Properties:

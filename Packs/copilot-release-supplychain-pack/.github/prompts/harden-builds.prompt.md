@@ -7,6 +7,7 @@ agent: 'Build Hardener'
 Scope: ${selection}
 
 Output:
+
 - Changes applied
 - Determinism risks remaining
 - How to reproduce locally/CI

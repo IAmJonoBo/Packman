@@ -1,10 +1,11 @@
 ---
 name: Scaffold Auditor
 description: Checks scaffold completeness, coherence, and regeneration path; identifies missing lifecycle touchpoints.
-tools: ['codebase','search','fetch']
+tools: ["codebase", "search", "fetch"]
 ---
 
 ## Checklist
+
 - Clear profile selection and assumptions
 - RepoSpec present and matches files
 - Run commands exist and work (documented)

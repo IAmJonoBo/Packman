@@ -1,6 +1,7 @@
 # Action Items Rubric
 
 Each action item must include:
+
 - Owner:
 - Due date:
 - Priority:

@@ -1,12 +1,15 @@
 # Github Bootstrap (copilot-github-bootstrap-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/add-issue-forms.prompt.md
 - .github/prompts/add-pr-template.prompt.md
 - .github/prompts/community-profile-audit.prompt.md
@@ -17,6 +20,7 @@ suite
 - .github/prompts/setup-security-policy.prompt.md
 
 ## Key agents
+
 - .github/agents/community-health-auditor.agent.md
 - .github/agents/dependabot-steward.agent.md
 - .github/agents/github-bootstrap-engineer.agent.md
@@ -77,6 +81,7 @@ copilot-github-bootstrap-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

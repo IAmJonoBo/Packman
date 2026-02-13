@@ -7,6 +7,7 @@ agent: 'ask'
 Write a component specification for: ${selection}
 
 Include:
+
 - Purpose + JTBD
 - Props (name/type/default) + events
 - Variants and states

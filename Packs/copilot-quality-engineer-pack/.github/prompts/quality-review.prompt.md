@@ -7,6 +7,7 @@ agent: 'Quality Gate Reviewer'
 Target: ${selection}
 
 Output:
+
 - Findings (ranked)
 - Required fixes
 - Verification steps

@@ -1,19 +1,25 @@
 # Release vX.Y.Z
 
 ## Highlights
-- 
+
+-
 
 ## Breaking changes
-- 
+
+-
 
 ## Migration
-1)
+
+1.
 
 ## Deprecations
-- 
+
+-
 
 ## Security
-- 
+
+-
 
 ## Known issues
-- 
+
+-

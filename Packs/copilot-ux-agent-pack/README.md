@@ -1,18 +1,22 @@
 # Ux Agent (copilot-ux-agent-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/component-spec.prompt.md
 - .github/prompts/prototype-screen.prompt.md
 - .github/prompts/tokens-hardening.prompt.md
 - .github/prompts/ux-audit.prompt.md
 
 ## Key agents
+
 - .github/agents/ux-implementer.agent.md
 - .github/agents/ux-prototyper.agent.md
 - .github/agents/ux-researcher.agent.md
@@ -53,6 +57,7 @@ copilot-ux-agent-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

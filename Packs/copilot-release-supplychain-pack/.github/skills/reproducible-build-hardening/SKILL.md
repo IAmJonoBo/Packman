@@ -6,6 +6,7 @@ description: Harden builds for repeatability: pinned toolchains, deterministic a
 # Reproducible Build Hardening
 
 ## Checklist
+
 - Pin toolchain versions (Node/Rust/Python/etc.)
 - Enforce lockfile usage
 - Avoid timestamps in artifacts (or normalise)
@@ -14,5 +15,5 @@ description: Harden builds for repeatability: pinned toolchains, deterministic a
 - Document exact build commands
 
 ## Template
-- [Reproducibility audit](./templates/repro-audit.md)
 
+- [Reproducibility audit](./templates/repro-audit.md)

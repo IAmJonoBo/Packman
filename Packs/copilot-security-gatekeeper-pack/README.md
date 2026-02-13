@@ -1,12 +1,15 @@
 # Security Gatekeeper (copilot-security-gatekeeper-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/asvs-checklist.prompt.md
 - .github/prompts/dependency-risk-triage.prompt.md
 - .github/prompts/secure-error-model.prompt.md
@@ -16,6 +19,7 @@ suite
 - .github/prompts/threat-model.prompt.md
 
 ## Key agents
+
 - .github/agents/asvs-mapper.agent.md
 - .github/agents/secure-implementer.agent.md
 - .github/agents/security-gatekeeper.agent.md
@@ -67,6 +71,7 @@ copilot-security-gatekeeper-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

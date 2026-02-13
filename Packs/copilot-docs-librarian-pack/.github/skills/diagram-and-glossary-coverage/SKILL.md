@@ -6,6 +6,7 @@ description: Ensure docs include comprehensive Mermaid diagrams and an enforced 
 # Diagram + Glossary Coverage
 
 ## Diagrams
+
 - Use Mermaid for:
   - flowcharts (processes)
   - sequence diagrams (interfaces)
@@ -15,11 +16,12 @@ description: Ensure docs include comprehensive Mermaid diagrams and an enforced 
 - Keep diagrams accurate to code; update when behaviour changes.
 
 ## Glossary
+
 - Maintain a single glossary (default: `docs/glossary.md`).
 - Define acronyms on first use and link to glossary.
 - Prefer short, precise definitions.
 
 ## Templates
+
 - [Mermaid snippets](./templates/mermaid-snippets.md)
 - [Glossary template](./templates/glossary.md)
-

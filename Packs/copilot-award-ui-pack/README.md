@@ -1,12 +1,15 @@
 # Award Ui (copilot-award-ui-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/art-direct-screen.prompt.md
 - .github/prompts/design-system-blueprint.prompt.md
 - .github/prompts/layout-grid.prompt.md
@@ -15,6 +18,7 @@ suite
 - .github/prompts/ui-brief.prompt.md
 
 ## Key agents
+
 - .github/agents/art-direction-planner.agent.md
 - .github/agents/design-system-engineer.agent.md
 - .github/agents/pixel-qa-reviewer.agent.md
@@ -62,6 +66,7 @@ copilot-award-ui-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

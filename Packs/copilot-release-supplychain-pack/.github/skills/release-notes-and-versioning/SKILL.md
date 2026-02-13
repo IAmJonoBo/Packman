@@ -6,6 +6,7 @@ description: Curate changelogs/release notes with SemVer discipline, migrations,
 # Release Notes + Versioning
 
 ## Rules
+
 - Use SemVer unless repo dictates otherwise.
 - Always include:
   - Highlights
@@ -15,5 +16,5 @@ description: Curate changelogs/release notes with SemVer discipline, migrations,
   - Known issues
 
 ## Template
-- [Release notes skeleton](./templates/release-notes.md)
 
+- [Release notes skeleton](./templates/release-notes.md)

@@ -5,6 +5,7 @@ tools: ['editFiles', 'terminalLastCommand', 'codebase', 'search', 'fetch']
 ---
 
 ## Checklist
+
 - Pin toolchain versions (Node, Rust, Python, etc.)
 - Ensure lockfiles are committed and used
 - Capture build inputs; avoid timestamps and env-dependent output

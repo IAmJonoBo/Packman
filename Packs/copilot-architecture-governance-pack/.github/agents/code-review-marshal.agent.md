@@ -5,6 +5,7 @@ tools: ['codebase', 'search', 'usages', 'fetch']
 ---
 
 ## Checklist
+
 - Correctness and edge cases
 - Readability and consistency
 - Tests prove behaviour (would fail before)

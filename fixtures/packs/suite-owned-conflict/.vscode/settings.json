@@ -1,8 +1,4 @@
 {
-  "chat.promptFilesLocations": [
-    ".github/prompts"
-  ],
-  "chat.instructionsFilesLocations": [
-    ".github/instructions"
-  ]
+  "chat.promptFilesLocations": [".github/prompts"],
+  "chat.instructionsFilesLocations": [".github/instructions"]
 }

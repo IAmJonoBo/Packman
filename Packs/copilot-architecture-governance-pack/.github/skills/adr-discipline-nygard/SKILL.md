@@ -6,7 +6,9 @@ description: Create and maintain concise Nygard-style ADRs and an ADR index; kee
 # ADR Discipline (Nygard-style)
 
 ## When to write an ADR
+
 Write/update an ADR when a change is architecture-material:
+
 - new core dependency or platform
 - storage/queue/interface boundary changes
 - security/auth model changes
@@ -15,6 +17,7 @@ Write/update an ADR when a change is architecture-material:
 - changes with long-lived maintenance cost
 
 ## ADR structure
+
 - Title
 - Status
 - Context
@@ -24,6 +27,6 @@ Write/update an ADR when a change is architecture-material:
 - Links
 
 ## Templates
+
 - [ADR template](./templates/adr-template.md)
 - [ADR index template](./templates/adr-index.md)
-

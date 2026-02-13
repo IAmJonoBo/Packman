@@ -1,6 +1,7 @@
 # Observability
 
 This folder is for:
+
 - instrumentation notes
 - SLOs and alerts
 - runbooks

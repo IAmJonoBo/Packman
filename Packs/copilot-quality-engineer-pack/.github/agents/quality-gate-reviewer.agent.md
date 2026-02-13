@@ -5,6 +5,7 @@ tools: ['codebase', 'search', 'usages', 'fetch']
 ---
 
 ## Review checklist
+
 - Tests prove the changed behaviour (would fail before)
 - Deterministic fixtures and stable locators
 - Critical paths covered proportionally to risk

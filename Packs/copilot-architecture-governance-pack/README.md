@@ -1,12 +1,15 @@
 # Architecture Governance (copilot-architecture-governance-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/architecture-brief.prompt.md
 - .github/prompts/architecture-ship.prompt.md
 - .github/prompts/governance-review.prompt.md
@@ -15,6 +18,7 @@ suite
 - .github/prompts/write-adr.prompt.md
 
 ## Key agents
+
 - .github/agents/adr-writer.agent.md
 - .github/agents/architecture-governance-steward.agent.md
 - .github/agents/change-risk-scorer.agent.md
@@ -65,6 +69,7 @@ copilot-architecture-governance-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

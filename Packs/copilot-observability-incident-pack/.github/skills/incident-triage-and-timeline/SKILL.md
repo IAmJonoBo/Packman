@@ -6,12 +6,14 @@ description: Standardise incident response: roles, comms, triage checklist, and 
 # Incident Triage + Timeline
 
 ## Roles
+
 - Incident Commander (IC)
 - Comms
 - Ops/Investigation
 - Scribe
 
 ## Triage checklist
+
 - Declare incident + severity
 - Establish comms channel
 - Identify impacted services/users
@@ -20,6 +22,6 @@ description: Standardise incident response: roles, comms, triage checklist, and 
 - Capture timeline and decisions
 
 ## Templates
+
 - [Timeline template](./templates/timeline.md)
 - [Live checklist](./templates/live-checklist.md)
-

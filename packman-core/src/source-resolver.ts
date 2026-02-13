@@ -1,21 +1,24 @@
-import path from 'node:path';
-import { promises as fs } from 'node:fs';
-import os from 'node:os';
-import JSZip from 'jszip';
-import { detectPack } from './detect.js';
+import path from "node:path";
+import { promises as fs } from "node:fs";
+import os from "node:os";
+import JSZip from "jszip";
+import { detectPack } from "./detect.js";
 
 function isMacOsJunk(entryPath: string): boolean {
   return (
-    entryPath.includes('__MACOSX/') ||
-    entryPath.endsWith('.DS_Store') ||
-    entryPath.split('/').some((part) => part.startsWith('._'))
+    entryPath.includes("__MACOSX/") ||
+    entryPath.endsWith(".DS_Store") ||
+    entryPath.split("/").some((part) => part.startsWith("._"))
   );
 }
 
-async function extractZipToTemp(zipPath: string, autoCleanMacOSJunk: boolean): Promise<string> {
+async function extractZipToTemp(
+  zipPath: string,
+  autoCleanMacOSJunk: boolean,
+): Promise<string> {
   const bytes = await fs.readFile(zipPath);
   const zip = await JSZip.loadAsync(bytes);
-  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'packman-zip-'));
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "packman-zip-"));
 
   for (const [entryPath, entry] of Object.entries(zip.files)) {
     if (entry.dir) {
@@ -28,7 +31,7 @@ async function extractZipToTemp(zipPath: string, autoCleanMacOSJunk: boolean): P
 
     const destination = path.join(tempRoot, entryPath);
     await fs.mkdir(path.dirname(destination), { recursive: true });
-    const content = await entry.async('nodebuffer');
+    const content = await entry.async("nodebuffer");
     await fs.writeFile(destination, content);
   }
 
@@ -51,7 +54,7 @@ export async function resolvePackSource(
   let effectivePath = absolutePath;
   let tempPath: string | undefined;
 
-  if (absolutePath.toLowerCase().endsWith('.zip')) {
+  if (absolutePath.toLowerCase().endsWith(".zip")) {
     tempPath = await extractZipToTemp(absolutePath, autoClean);
     effectivePath = tempPath;
   }

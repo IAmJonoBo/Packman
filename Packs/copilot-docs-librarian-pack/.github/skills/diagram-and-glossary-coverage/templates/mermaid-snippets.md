@@ -1,4 +1,5 @@
 ## Flow
+
 ```mermaid
 flowchart TD
   A[Start] --> B{Decision}
@@ -7,6 +8,7 @@ flowchart TD
 ```
 
 ## Sequence
+
 ```mermaid
 sequenceDiagram
   participant UI
@@ -16,6 +18,7 @@ sequenceDiagram
 ```
 
 ## State
+
 ```mermaid
 stateDiagram-v2
   [*] --> Idle

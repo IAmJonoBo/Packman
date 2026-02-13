@@ -1,30 +1,39 @@
-import path from 'node:path';
-import { promises as fs } from 'node:fs';
-import fg from 'fast-glob';
-import JSZip from 'jszip';
-import { readJson, writeJson, readText, exists } from './fs-utils.js';
-import { detectPack } from './detect.js';
-import { resolvePackSource } from './source-resolver.js';
-import { mergeSettings } from './settings-merge.js';
-import { validatePack } from './validate.js';
-import type { InstallCollision, InstallOptions, InstallPlan, InstallResult, Issue } from './types.js';
+import path from "node:path";
+import { promises as fs } from "node:fs";
+import fg from "fast-glob";
+import JSZip from "jszip";
+import { readJson, writeJson, readText, exists } from "./fs-utils.js";
+import { detectPack } from "./detect.js";
+import { resolvePackSource } from "./source-resolver.js";
+import { mergeSettings } from "./settings-merge.js";
+import { validatePack } from "./validate.js";
+import type {
+  InstallCollision,
+  InstallOptions,
+  InstallPlan,
+  InstallResult,
+  Issue,
+} from "./types.js";
 
 const COPY_PATTERNS = [
-  '.github/agents/**/*.agent.md',
-  '.github/prompts/**/*.prompt.md',
-  '.github/instructions/**/*.instructions.md',
-  '.github/skills/**/SKILL.md',
-  '.github/copilot-instructions.md',
-  '.vscode/settings.json',
-  'PACK_MANIFEST.json',
-  'README.md',
+  ".github/agents/**/*.agent.md",
+  ".github/prompts/**/*.prompt.md",
+  ".github/instructions/**/*.instructions.md",
+  ".github/skills/**/SKILL.md",
+  ".github/copilot-instructions.md",
+  ".vscode/settings.json",
+  "PACK_MANIFEST.json",
+  "README.md",
 ];
 
 async function ensureParent(filePath: string): Promise<void> {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
 }
 
-async function backupFiles(targetRoot: string, files: string[]): Promise<string | undefined> {
+async function backupFiles(
+  targetRoot: string,
+  files: string[],
+): Promise<string | undefined> {
   if (files.length === 0) {
     return undefined;
   }
@@ -40,7 +49,7 @@ async function backupFiles(targetRoot: string, files: string[]): Promise<string 
     zip.file(relativePath, data);
   }
 
-  const content = await zip.generateAsync({ type: 'nodebuffer' });
+  const content = await zip.generateAsync({ type: "nodebuffer" });
   const backupPath = path.join(targetRoot, `.packman-backup-${Date.now()}.zip`);
   await fs.writeFile(backupPath, content);
   return backupPath;
@@ -54,23 +63,26 @@ async function copyFile(sourcePath: string, targetPath: string): Promise<void> {
 function renameCandidate(relativePath: string, attempt: number): string {
   const dir = path.posix.dirname(relativePath);
   const fileName = path.posix.basename(relativePath);
-  const suffixes = ['.prompt.md', '.agent.md', '.instructions.md'];
+  const suffixes = [".prompt.md", ".agent.md", ".instructions.md"];
   const matchedSuffix = suffixes.find((suffix) => fileName.endsWith(suffix));
-  const indexSuffix = attempt > 1 ? `-${attempt}` : '';
+  const indexSuffix = attempt > 1 ? `-${attempt}` : "";
 
   if (matchedSuffix) {
     const stem = fileName.slice(0, -matchedSuffix.length);
     const nextName = `${stem}-incoming${indexSuffix}${matchedSuffix}`;
-    return dir === '.' ? nextName : path.posix.join(dir, nextName);
+    return dir === "." ? nextName : path.posix.join(dir, nextName);
   }
 
   const ext = path.posix.extname(fileName);
   const stem = ext ? fileName.slice(0, -ext.length) : fileName;
   const nextName = `${stem}-incoming${indexSuffix}${ext}`;
-  return dir === '.' ? nextName : path.posix.join(dir, nextName);
+  return dir === "." ? nextName : path.posix.join(dir, nextName);
 }
 
-async function resolveRenamePath(relativePath: string, targetRoot: string): Promise<string> {
+async function resolveRenamePath(
+  relativePath: string,
+  targetRoot: string,
+): Promise<string> {
   let attempt = 1;
 
   while (true) {
@@ -92,45 +104,60 @@ function previewContent(content: string): string {
   return `${trimmed.slice(0, 400)}...`;
 }
 
-async function buildInstallPlan(sourcePath: string, targetPath: string): Promise<InstallPlan> {
-  const matches = await fg(COPY_PATTERNS, { cwd: sourcePath, onlyFiles: true, dot: true });
+async function buildInstallPlan(
+  sourcePath: string,
+  targetPath: string,
+): Promise<InstallPlan> {
+  const matches = await fg(COPY_PATTERNS, {
+    cwd: sourcePath,
+    onlyFiles: true,
+    dot: true,
+  });
   const unique = [...new Set(matches)];
-  const operations: InstallPlan['operations'] = [];
+  const operations: InstallPlan["operations"] = [];
   const collisions: InstallCollision[] = [];
 
   for (const relativePath of unique) {
     const sourceFile = path.join(sourcePath, relativePath);
     const targetFile = path.join(targetPath, relativePath);
 
-    if (relativePath === '.vscode/settings.json') {
+    if (relativePath === ".vscode/settings.json") {
       operations.push({
-        action: 'merge',
+        action: "merge",
         relativePath,
-        reason: 'Union merge for chat.*Locations, preserve unrelated keys',
+        reason: "Union merge for chat.*Locations, preserve unrelated keys",
       });
       continue;
     }
 
     if (!(await exists(targetFile))) {
-      operations.push({ action: 'create', relativePath });
+      operations.push({ action: "create", relativePath });
       continue;
     }
 
     const current = await readText(targetFile);
     const incoming = await readText(sourceFile);
     if (current === incoming) {
-      operations.push({ action: 'skip', relativePath, reason: 'Identical content already present' });
+      operations.push({
+        action: "skip",
+        relativePath,
+        reason: "Identical content already present",
+      });
       continue;
     }
 
-    operations.push({ action: 'update', relativePath, reason: 'Target content differs from source content' });
+    operations.push({
+      action: "update",
+      relativePath,
+      reason: "Target content differs from source content",
+    });
     collisions.push({
       relativePath,
       sourcePath: sourceFile,
       targetPath: targetFile,
       sourcePreview: previewContent(incoming),
       targetPreview: previewContent(current),
-      availableActions: ['skip', 'overwrite', 'rename'],
+      availableActions: ["skip", "overwrite", "rename"],
     });
   }
 
@@ -142,10 +169,13 @@ async function buildInstallPlan(sourcePath: string, targetPath: string): Promise
   };
 }
 
-export async function installPack(sourcePath: string, options: InstallOptions): Promise<InstallResult> {
+export async function installPack(
+  sourcePath: string,
+  options: InstallOptions,
+): Promise<InstallResult> {
   const started = Date.now();
   const issues: Issue[] = [];
-  const collisionStrategy = options.collisionStrategy ?? 'fail';
+  const collisionStrategy = options.collisionStrategy ?? "fail";
   const collisionDecisions = options.collisionDecisions ?? {};
   const plan = await buildInstallPlan(sourcePath, options.targetPath);
 
@@ -163,7 +193,11 @@ export async function installPack(sourcePath: string, options: InstallOptions): 
     };
   }
 
-  const matches = await fg(COPY_PATTERNS, { cwd: sourcePath, onlyFiles: true, dot: true });
+  const matches = await fg(COPY_PATTERNS, {
+    cwd: sourcePath,
+    onlyFiles: true,
+    dot: true,
+  });
   const filesToTouch = [...new Set(matches)];
   const touched: string[] = [];
 
@@ -185,19 +219,25 @@ export async function installPack(sourcePath: string, options: InstallOptions): 
     let effectiveRelativePath = relativePath;
     let targetFile = path.join(options.targetPath, effectiveRelativePath);
 
-    if (relativePath === '.vscode/settings.json') {
-      const existing = (await readJson<Record<string, unknown>>(targetFile)) ?? {};
-      const incoming = (await readJson<Record<string, unknown>>(sourceFile)) ?? {};
+    if (relativePath === ".vscode/settings.json") {
+      const existing =
+        (await readJson<Record<string, unknown>>(targetFile)) ?? {};
+      const incoming =
+        (await readJson<Record<string, unknown>>(sourceFile)) ?? {};
       const merged = mergeSettings(existing, incoming);
       await writeJson(targetFile, merged);
       touched.push(effectiveRelativePath);
       continue;
     }
 
-    if ((relativePath === '.github/copilot-instructions.md' || relativePath === '.vscode/settings.json') && !options.suite) {
+    if (
+      (relativePath === ".github/copilot-instructions.md" ||
+        relativePath === ".vscode/settings.json") &&
+      !options.suite
+    ) {
       issues.push({
-        severity: 'error',
-        code: 'SUITE_ONLY_FILE',
+        severity: "error",
+        code: "SUITE_ONLY_FILE",
         message: `Refusing to write ${relativePath} outside suite mode`,
         path: relativePath,
       });
@@ -211,50 +251,53 @@ export async function installPack(sourcePath: string, options: InstallOptions): 
         const perFileDecision = collisionDecisions[relativePath];
         const strategy = perFileDecision ?? collisionStrategy;
 
-        if (!['fail', 'skip', 'overwrite', 'rename'].includes(strategy)) {
+        if (!["fail", "skip", "overwrite", "rename"].includes(strategy)) {
           issues.push({
-            severity: 'error',
-            code: 'INVALID_COLLISION_DECISION',
+            severity: "error",
+            code: "INVALID_COLLISION_DECISION",
             message: `Invalid collision decision '${String(strategy)}' for ${relativePath}`,
             path: relativePath,
           });
           continue;
         }
 
-        if (strategy === 'fail') {
+        if (strategy === "fail") {
           issues.push({
-            severity: 'error',
-            code: 'COLLISION_FAILSAFE',
+            severity: "error",
+            code: "COLLISION_FAILSAFE",
             message: `Collision detected on ${relativePath}; refusing implicit overwrite`,
             path: relativePath,
           });
           continue;
         }
 
-        if (strategy === 'skip') {
+        if (strategy === "skip") {
           issues.push({
-            severity: 'warning',
-            code: 'COLLISION_SKIPPED',
+            severity: "warning",
+            code: "COLLISION_SKIPPED",
             message: `Collision detected on ${relativePath}; skipped incoming file`,
             path: relativePath,
           });
           continue;
         }
 
-        if (strategy === 'overwrite') {
+        if (strategy === "overwrite") {
           issues.push({
-            severity: 'warning',
-            code: 'COLLISION_OVERWRITTEN',
+            severity: "warning",
+            code: "COLLISION_OVERWRITTEN",
             message: `Collision detected on ${relativePath}; overwrote target file`,
             path: relativePath,
           });
         }
 
-        if (strategy === 'rename') {
-          const renamed = await resolveRenamePath(relativePath, options.targetPath);
+        if (strategy === "rename") {
+          const renamed = await resolveRenamePath(
+            relativePath,
+            options.targetPath,
+          );
           issues.push({
-            severity: 'warning',
-            code: 'COLLISION_RENAMED',
+            severity: "warning",
+            code: "COLLISION_RENAMED",
             message: `Collision detected on ${relativePath}; installed as ${renamed}`,
             path: relativePath,
           });
@@ -268,7 +311,7 @@ export async function installPack(sourcePath: string, options: InstallOptions): 
     touched.push(effectiveRelativePath);
   }
 
-  const ok = issues.every((issue) => issue.severity !== 'error');
+  const ok = issues.every((issue) => issue.severity !== "error");
 
   return {
     ok,
@@ -280,7 +323,10 @@ export async function installPack(sourcePath: string, options: InstallOptions): 
   };
 }
 
-export async function installPacks(sourcePath: string, options: InstallOptions): Promise<InstallResult> {
+export async function installPacks(
+  sourcePath: string,
+  options: InstallOptions,
+): Promise<InstallResult> {
   const started = Date.now();
   const issues: Issue[] = [];
   const filesTouched: string[] = [];
@@ -301,9 +347,9 @@ export async function installPacks(sourcePath: string, options: InstallOptions):
       ok: false,
       issues: [
         {
-          severity: 'error',
-          code: 'NO_PACKS_FOUND',
-          message: 'No pack roots found in provided source path',
+          severity: "error",
+          code: "NO_PACKS_FOUND",
+          message: "No pack roots found in provided source path",
           path: sourcePath,
         },
       ],
@@ -318,7 +364,8 @@ export async function installPacks(sourcePath: string, options: InstallOptions):
   for (const packRoot of packRoots) {
     const detection = await detectPack(packRoot);
     const ownsSuiteFile = detection.artifacts.some(
-      (artifact) => artifact.type === 'copilotInstructions' || artifact.type === 'settings',
+      (artifact) =>
+        artifact.type === "copilotInstructions" || artifact.type === "settings",
     );
     if (ownsSuiteFile) {
       suiteOwners.push(packRoot);
@@ -333,20 +380,20 @@ export async function installPacks(sourcePath: string, options: InstallOptions):
     issues.push(...validation.issues);
 
     for (const artifact of validation.parsedArtifacts) {
-      if (artifact.type !== 'prompt') {
+      if (artifact.type !== "prompt") {
         continue;
       }
 
       const name = artifact.frontmatter?.name;
-      if (typeof name !== 'string') {
+      if (typeof name !== "string") {
         continue;
       }
 
       const previousOwner = promptNames.get(name);
       if (previousOwner && previousOwner !== packRoot) {
         issues.push({
-          severity: 'error',
-          code: 'PROMPT_NAME_DUPLICATE_SOURCE_SET',
+          severity: "error",
+          code: "PROMPT_NAME_DUPLICATE_SOURCE_SET",
           message: `Duplicate prompt name across source packs: ${name}`,
           details: { previousOwner, currentOwner: packRoot },
         });
@@ -357,19 +404,21 @@ export async function installPacks(sourcePath: string, options: InstallOptions):
   }
 
   if (suiteOwners.length > 1) {
-    const hasHarmoniser = packRoots.some((packRoot) => path.basename(packRoot).includes('suite-harmoniser'));
+    const hasHarmoniser = packRoots.some((packRoot) =>
+      path.basename(packRoot).includes("suite-harmoniser"),
+    );
     if (!options.suite || !hasHarmoniser) {
       issues.push({
-        severity: 'error',
-        code: 'SUITE_OWNER_COLLISION',
+        severity: "error",
+        code: "SUITE_OWNER_COLLISION",
         message:
-          'Multiple packs contain suite-owned files. Enable --suite and include suite harmoniser pack before install.',
+          "Multiple packs contain suite-owned files. Enable --suite and include suite harmoniser pack before install.",
         details: { suiteOwners },
       });
     }
   }
 
-  if (issues.some((issue) => issue.severity === 'error')) {
+  if (issues.some((issue) => issue.severity === "error")) {
     return {
       ok: false,
       issues,
@@ -382,7 +431,11 @@ export async function installPacks(sourcePath: string, options: InstallOptions):
     for (const packRoot of packRoots) {
       const result = await installPack(packRoot, options);
       issues.push(...result.issues);
-      filesTouched.push(...result.filesTouched.map((filePath) => `${path.basename(packRoot)}:${filePath}`));
+      filesTouched.push(
+        ...result.filesTouched.map(
+          (filePath) => `${path.basename(packRoot)}:${filePath}`,
+        ),
+      );
       if (result.plans) {
         plans.push(...result.plans);
       }
@@ -395,7 +448,7 @@ export async function installPacks(sourcePath: string, options: InstallOptions):
   }
 
   return {
-    ok: !issues.some((issue) => issue.severity === 'error'),
+    ok: !issues.some((issue) => issue.severity === "error"),
     issues,
     filesTouched,
     backupZipPath,
@@ -404,7 +457,10 @@ export async function installPacks(sourcePath: string, options: InstallOptions):
   };
 }
 
-export async function rollbackInstall(targetPath: string, backupZipPath: string): Promise<InstallResult> {
+export async function rollbackInstall(
+  targetPath: string,
+  backupZipPath: string,
+): Promise<InstallResult> {
   const started = Date.now();
   const issues: Issue[] = [];
 
@@ -417,7 +473,7 @@ export async function rollbackInstall(targetPath: string, backupZipPath: string)
       continue;
     }
 
-    const content = await entry.async('nodebuffer');
+    const content = await entry.async("nodebuffer");
     const destination = path.join(targetPath, entryPath);
     await ensureParent(destination);
     await fs.writeFile(destination, content);

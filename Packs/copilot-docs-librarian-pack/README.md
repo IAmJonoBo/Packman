@@ -1,12 +1,15 @@
 # Docs Librarian (copilot-docs-librarian-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/add-diagrams.prompt.md
 - .github/prompts/diataxis-restructure.prompt.md
 - .github/prompts/docs-audit.prompt.md
@@ -16,6 +19,7 @@ suite
 - .github/prompts/style-sweep.prompt.md
 
 ## Key agents
+
 - .github/agents/diagram-curator.agent.md
 - .github/agents/diataxis-architect.agent.md
 - .github/agents/docs-librarian.agent.md
@@ -72,6 +76,7 @@ copilot-docs-librarian-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

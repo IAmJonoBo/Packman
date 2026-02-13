@@ -1,12 +1,15 @@
 # Release Supplychain (copilot-release-supplychain-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/attest-provenance.prompt.md
 - .github/prompts/curate-release-notes.prompt.md
 - .github/prompts/generate-sbom.prompt.md
@@ -16,6 +19,7 @@ suite
 - .github/prompts/verify-release.prompt.md
 
 ## Key agents
+
 - .github/agents/build-hardener.agent.md
 - .github/agents/provenance-attestor.agent.md
 - .github/agents/release-notes-curator.agent.md
@@ -76,6 +80,7 @@ copilot-release-supplychain-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

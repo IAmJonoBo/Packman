@@ -5,6 +5,7 @@ tools: ['codebase', 'search', 'fetch']
 ---
 
 ## Rules
+
 - Prefer small, frequent merges to trunk.
 - Break work into slices with independent value.
 - Use feature flags for incomplete UI/behaviour.

@@ -6,11 +6,13 @@ description: Apply high-signal review gates aligned to Google's code review stan
 # Review Gates (Google-standard inspired)
 
 ## Goals
+
 - Ensure the codebase’s health improves over time.
 - Catch bugs and prevent regressions.
 - Maintain readability and consistency.
 
 ## Gates
+
 - Correctness and edge cases
 - Tests: behaviour proven, not assumed
 - Readability and consistency
@@ -20,7 +22,7 @@ description: Apply high-signal review gates aligned to Google's code review stan
 - Docs/ADRs updated
 
 ## Output format
+
 - Findings (ranked)
 - Required fixes
 - Verification steps
-

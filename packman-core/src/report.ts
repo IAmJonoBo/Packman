@@ -1,4 +1,4 @@
-import type { Issue, OperationReport } from './types.js';
+import type { Issue, OperationReport } from "./types.js";
 
 export function nowIso(): string {
   return new Date().toISOString();
@@ -22,15 +22,19 @@ export function createReport<TPayload>(
 }
 
 export function hasErrors(issues: Issue[]): boolean {
-  return issues.some((issue) => issue.severity === 'error');
+  return issues.some((issue) => issue.severity === "error");
 }
 
-export function summarizeIssues(issues: Issue[]): { errors: number; warnings: number; info: number } {
+export function summarizeIssues(issues: Issue[]): {
+  errors: number;
+  warnings: number;
+  info: number;
+} {
   return issues.reduce(
     (acc, issue) => {
-      if (issue.severity === 'error') {
+      if (issue.severity === "error") {
         acc.errors += 1;
-      } else if (issue.severity === 'warning') {
+      } else if (issue.severity === "warning") {
         acc.warnings += 1;
       } else {
         acc.info += 1;

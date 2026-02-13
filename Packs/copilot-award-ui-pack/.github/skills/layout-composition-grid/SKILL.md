@@ -6,6 +6,7 @@ description: Grid and composition rules for pixel-perfect layouts: columns, gutt
 # Layout + Composition Grid
 
 ## Grid spec
+
 - Breakpoints and container widths
 - Columns, gutters, margins
 - Spacing rhythm (4/8 base)
@@ -13,7 +14,7 @@ description: Grid and composition rules for pixel-perfect layouts: columns, gutt
 - Optical alignment exceptions (documented)
 
 ## Output
+
 - Grid table per breakpoint
 - Spacing rhythm rules
 - A before/after alignment checklist
-

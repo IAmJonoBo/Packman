@@ -18,7 +18,10 @@ struct HealthResponse {
 }
 
 #[tauri::command]
-fn set_persist_scopes(state: tauri::State<'_, PermissionState>, enabled: bool) -> Result<(), String> {
+fn set_persist_scopes(
+    state: tauri::State<'_, PermissionState>,
+    enabled: bool,
+) -> Result<(), String> {
     let mut guard = state
         .persist_scopes
         .lock()
@@ -77,7 +80,8 @@ fn run_packman(command: String, args: Vec<String>) -> Result<Value, String> {
         return Err(format!("packman command failed: {}", stderr));
     }
 
-    serde_json::from_str::<Value>(&stdout).map_err(|e| format!("invalid json output: {} / output: {}", e, stdout))
+    serde_json::from_str::<Value>(&stdout)
+        .map_err(|e| format!("invalid json output: {} / output: {}", e, stdout))
 }
 
 fn main() {
@@ -85,7 +89,11 @@ fn main() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .manage(PermissionState::default())
-        .invoke_handler(tauri::generate_handler![set_persist_scopes, app_health, run_packman])
+        .invoke_handler(tauri::generate_handler![
+            set_persist_scopes,
+            app_health,
+            run_packman
+        ])
         .run(tauri::generate_context!())
         .expect("error while running packman app");
 }

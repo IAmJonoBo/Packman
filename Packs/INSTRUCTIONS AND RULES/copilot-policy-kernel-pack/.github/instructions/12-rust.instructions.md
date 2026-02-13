@@ -10,4 +10,5 @@ applyTo: "**/*.rs"
 - Prefer clippy-friendly code; address warnings rather than suppressing.
 
 Testing:
+
 - Prefer unit tests for logic, integration tests for boundaries.

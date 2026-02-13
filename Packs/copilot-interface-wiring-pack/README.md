@@ -1,12 +1,15 @@
 # Interface Wiring (copilot-interface-wiring-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/add-mocks.prompt.md
 - .github/prompts/api-contract.prompt.md
 - .github/prompts/generate-typed-client.prompt.md
@@ -14,6 +17,7 @@ suite
 - .github/prompts/wire-up-feature.prompt.md
 
 ## Key agents
+
 - .github/agents/api-contract-analyst.agent.md
 - .github/agents/integration-reviewer.agent.md
 - .github/agents/integration-tester.agent.md
@@ -60,6 +64,7 @@ copilot-interface-wiring-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

@@ -1,12 +1,15 @@
 # Prompt Library (copilot-prompt-library-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/audit/audit:repo-health.prompt.md
 - .github/prompts/audit/audit:security-basics.prompt.md
 - .github/prompts/audit/audit:ui-a11y.prompt.md
@@ -21,6 +24,7 @@ suite
 - .github/prompts/scaffold/scaffold:new.prompt.md
 
 ## Key agents
+
 - None detected
 
 ## Directory tree
@@ -71,6 +75,7 @@ copilot-prompt-library-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

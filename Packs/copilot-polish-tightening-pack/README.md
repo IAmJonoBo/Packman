@@ -1,12 +1,15 @@
 # Polish Tightening (copilot-polish-tightening-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/consistency-pass.prompt.md
 - .github/prompts/nit-sweep.prompt.md
 - .github/prompts/polish-brief.prompt.md
@@ -16,6 +19,7 @@ suite
 - .github/prompts/slice-small-cls.prompt.md
 
 ## Key agents
+
 - .github/agents/consistency-enforcer.agent.md
 - .github/agents/nit-hunter.agent.md
 - .github/agents/polish-gate-reviewer.agent.md
@@ -67,6 +71,7 @@ copilot-polish-tightening-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

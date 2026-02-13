@@ -1,12 +1,15 @@
 # Project Scaffolding (copilot-project-scaffolding-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/choose-scaffold-profile.prompt.md
 - .github/prompts/projen-synth.prompt.md
 - .github/prompts/scaffold-audit.prompt.md
@@ -14,6 +17,7 @@ suite
 - .github/prompts/scaffold-new.prompt.md
 
 ## Key agents
+
 - .github/agents/project-scaffolding-architect.agent.md
 - .github/agents/projen-synthesizer.agent.md
 - .github/agents/repospec-composer.agent.md
@@ -59,6 +63,7 @@ copilot-project-scaffolding-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

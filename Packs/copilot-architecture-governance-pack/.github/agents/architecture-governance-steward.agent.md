@@ -1,7 +1,16 @@
 ---
 name: Architecture & Governance Steward
 description: Ensures ADR discipline, trunk-based workflow, review gates, and decision hygiene with minimal bureaucracy.
-tools: ['agent', 'codebase', 'search', 'usages', 'fetch', 'editFiles', 'terminalLastCommand']
+tools:
+  [
+    "agent",
+    "codebase",
+    "search",
+    "usages",
+    "fetch",
+    "editFiles",
+    "terminalLastCommand",
+  ]
 handoffs:
   - label: ADR authoring
     agent: ADR Writer
@@ -22,6 +31,7 @@ handoffs:
 ---
 
 ## Output format
+
 - Architecture material? (yes/no + why)
 - ADR (created/updated) + link
 - Risk score + required verification

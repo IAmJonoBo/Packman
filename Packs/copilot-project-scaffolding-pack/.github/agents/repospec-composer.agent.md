@@ -5,6 +5,7 @@ tools: ['codebase','search','fetch','editFiles']
 ---
 
 ## Deliverables
+
 - RepoSpec document (machine-readable-ish markdown)
 - Directory tree
 - Script contract: build/test/lint/fmt/typecheck/dev

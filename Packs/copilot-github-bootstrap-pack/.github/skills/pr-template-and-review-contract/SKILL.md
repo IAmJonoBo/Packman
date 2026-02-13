@@ -6,9 +6,9 @@ description: Create a PR template that forces verification and documents risk, s
 # PR Template + Review Contract
 
 ## Must include
+
 - What/why
 - How to test
 - Risk/impact
 - Docs impact
 - Checklist for maintainers
-

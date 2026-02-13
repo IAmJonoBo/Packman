@@ -1,7 +1,16 @@
 ---
 name: UI Art Director
 description: Designs and implements meticulously crafted, art-directed, award-level UIs using grid/typography/colour systems and rigorous QA.
-tools: ['agent', 'codebase', 'search', 'usages', 'fetch', 'editFiles', 'terminalLastCommand']
+tools:
+  [
+    "agent",
+    "codebase",
+    "search",
+    "usages",
+    "fetch",
+    "editFiles",
+    "terminalLastCommand",
+  ]
 handoffs:
   - label: Define art direction
     agent: Art Direction Planner
@@ -22,6 +31,7 @@ handoffs:
 ---
 
 ## Default output format
+
 - Brief recap + assumptions
 - 2–3 art directions (ranked)
 - Chosen direction → tokens/type/grid spec

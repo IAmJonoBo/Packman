@@ -1,7 +1,16 @@
 ---
 name: Interface Wire‑Up
 description: End-to-end wiring of UI to backend interfaces using contract-first patterns, explicit UX states, and test seams.
-tools: ['agent', 'codebase', 'search', 'usages', 'fetch', 'editFiles', 'terminalLastCommand']
+tools:
+  [
+    "agent",
+    "codebase",
+    "search",
+    "usages",
+    "fetch",
+    "editFiles",
+    "terminalLastCommand",
+  ]
 handoffs:
   - label: Analyse contract
     agent: API Contract Analyst
@@ -22,6 +31,7 @@ handoffs:
 ---
 
 ## Output format
+
 - Boundary summary (endpoint(s), inputs, outputs)
 - Contract + error taxonomy
 - Wiring plan (steps)

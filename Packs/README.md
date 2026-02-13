@@ -3,29 +3,31 @@
 Pack library (repo-local Copilot customisations; no extensions).
 
 ## Install guidance
+
 - **Solo**: install one pack into a repo.
 - **Suite**: install multiple packs; include `copilot-suite-harmoniser-pack` to avoid collisions.
 
-| Folder | Purpose |
-|---|---|
-| `copilot-architecture-governance-pack` | Copilot Architecture + Governance Pack (drop-in) |
-| `copilot-award-ui-pack` | Copilot Award‑Winning UI Art Director Pack (drop‑in) |
-| `copilot-docs-librarian-pack` | Copilot Docs Librarian Pack (drop-in) |
-| `copilot-github-bootstrap-pack` | Copilot GitHub Bootstrap Pack (drop-in) |
-| `copilot-interface-wiring-pack` | Copilot Interface Wiring Pack (drop-in) |
-| `copilot-observability-incident-pack` | Copilot Observability + Incident Response Pack (drop-in) |
-| `copilot-policy-kernel-pack` | Copilot Policy Kernel Pack |
-| `copilot-polish-tightening-pack` | Copilot Polish + Tightening Pack (drop-in) |
-| `copilot-project-scaffolding-pack` | Copilot Project-Type Scaffolding Pack (drop-in) |
-| `copilot-prompt-library-pack` | Copilot Prompt Library Pack (Prompt Files) |
-| `copilot-quality-engineer-pack` | Copilot Quality Engineer Pack (drop-in) |
-| `copilot-release-supplychain-pack` | Copilot Release + Supply Chain Pack (drop-in) |
-| `copilot-security-gatekeeper-pack` | Copilot Security Gatekeeper Pack (drop‑in) |
-| `copilot-suite-harmoniser-pack` | Copilot Suite Harmoniser Pack |
-| `copilot-ux-agent-pack` | Copilot UX + Prototype Agent Pack (drop-in) |
-| `docs` | docs |
+| Folder                                 | Purpose                                                  |
+| -------------------------------------- | -------------------------------------------------------- |
+| `copilot-architecture-governance-pack` | Copilot Architecture + Governance Pack (drop-in)         |
+| `copilot-award-ui-pack`                | Copilot Award‑Winning UI Art Director Pack (drop‑in)     |
+| `copilot-docs-librarian-pack`          | Copilot Docs Librarian Pack (drop-in)                    |
+| `copilot-github-bootstrap-pack`        | Copilot GitHub Bootstrap Pack (drop-in)                  |
+| `copilot-interface-wiring-pack`        | Copilot Interface Wiring Pack (drop-in)                  |
+| `copilot-observability-incident-pack`  | Copilot Observability + Incident Response Pack (drop-in) |
+| `copilot-policy-kernel-pack`           | Copilot Policy Kernel Pack                               |
+| `copilot-polish-tightening-pack`       | Copilot Polish + Tightening Pack (drop-in)               |
+| `copilot-project-scaffolding-pack`     | Copilot Project-Type Scaffolding Pack (drop-in)          |
+| `copilot-prompt-library-pack`          | Copilot Prompt Library Pack (Prompt Files)               |
+| `copilot-quality-engineer-pack`        | Copilot Quality Engineer Pack (drop-in)                  |
+| `copilot-release-supplychain-pack`     | Copilot Release + Supply Chain Pack (drop-in)            |
+| `copilot-security-gatekeeper-pack`     | Copilot Security Gatekeeper Pack (drop‑in)               |
+| `copilot-suite-harmoniser-pack`        | Copilot Suite Harmoniser Pack                            |
+| `copilot-ux-agent-pack`                | Copilot UX + Prototype Agent Pack (drop-in)              |
+| `docs`                                 | docs                                                     |
 
 ## Structure
+
 ```text
 ├── copilot-architecture-governance-pack/
 │   ├── .github/
@@ -570,5 +572,6 @@ Pack library (repo-local Copilot customisations; no extensions).
 ```
 
 ## Flow diagrams
+
 - `docs/diagrams/suite-routing.md`
 - `docs/diagrams/pack-anatomy.md`

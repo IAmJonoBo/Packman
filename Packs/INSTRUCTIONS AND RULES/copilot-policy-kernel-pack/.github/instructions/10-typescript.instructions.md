@@ -11,5 +11,6 @@ applyTo: "**/*.{ts,tsx,js,jsx}"
 - Prefer stable, serialisable error shapes for APIs.
 
 Testing:
+
 - Tests should assert behaviour, not implementation details.
 - Avoid time-based flakiness; use deterministic clocks where possible.

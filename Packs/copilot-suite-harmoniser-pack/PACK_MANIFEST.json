@@ -10,7 +10,5 @@
     ".github/agents",
     ".github/prompts"
   ],
-  "commands": [
-    "suite:route"
-  ]
+  "commands": ["suite:route"]
 }

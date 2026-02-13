@@ -8,10 +8,11 @@ description: Create a scoped OWASP ASVS checklist for a change and map requireme
 Default: OWASP ASVS **5.0.0**, target **L2** unless specified.
 
 ## Steps
-1) Confirm ASVS version and target level.
-2) Select relevant chapters based on the change (auth, session, validation, errors, etc.).
-3) Produce checklist mapping requirement → implementation → verification.
+
+1. Confirm ASVS version and target level.
+2. Select relevant chapters based on the change (auth, session, validation, errors, etc.).
+3. Produce checklist mapping requirement → implementation → verification.
 
 ## Template
-- [ASVS mapping table](./templates/asvs-mapping.md)
 
+- [ASVS mapping table](./templates/asvs-mapping.md)

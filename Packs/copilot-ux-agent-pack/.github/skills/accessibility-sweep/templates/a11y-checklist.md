@@ -13,4 +13,4 @@
   - [ ] No keyboard traps
 - ARIA:
   - [ ] Used only where semantics are insufficient
-  - [ ] aria-* reflects actual state
+  - [ ] aria-\* reflects actual state

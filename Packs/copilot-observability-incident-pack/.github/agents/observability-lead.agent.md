@@ -26,6 +26,7 @@ handoffs:
 ---
 
 ## Output format
+
 - Critical paths + telemetry gaps
 - Instrumentation plan + changes
 - SLO/alert set + runbooks

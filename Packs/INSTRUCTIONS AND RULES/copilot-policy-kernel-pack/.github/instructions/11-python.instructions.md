@@ -10,5 +10,6 @@ applyTo: "**/*.py"
 - Ensure scripts have clear entry points; prefer modules for reuse.
 
 Testing:
+
 - Tests must be deterministic; avoid network unless explicitly integration tests.
 - Use fixtures to remove duplication.

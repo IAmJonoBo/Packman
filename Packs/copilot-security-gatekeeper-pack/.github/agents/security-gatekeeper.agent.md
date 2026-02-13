@@ -1,7 +1,16 @@
 ---
 name: Security Gatekeeper
 description: Threat-models changes, maps to OWASP ASVS, enforces safe error handling, and blocks risky deps before shipping.
-tools: ['agent', 'codebase', 'search', 'usages', 'fetch', 'editFiles', 'terminalLastCommand']
+tools:
+  [
+    "agent",
+    "codebase",
+    "search",
+    "usages",
+    "fetch",
+    "editFiles",
+    "terminalLastCommand",
+  ]
 handoffs:
   - label: Threat model
     agent: Threat Modeler
@@ -22,6 +31,7 @@ handoffs:
 ---
 
 ## Output format
+
 - Brief recap + risk assumptions
 - Threat model summary
 - ASVS checklist (scoped)

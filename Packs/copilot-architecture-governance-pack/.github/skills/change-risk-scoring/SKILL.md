@@ -6,6 +6,7 @@ description: Score changes by blast radius and prescribe verification, rollout, 
 # Change Risk Scoring
 
 ## Score (0–10) drivers
+
 - Blast radius (users/services/data)
 - Reversibility (rollback/flags)
 - Novelty (new patterns/deps)
@@ -14,8 +15,8 @@ description: Score changes by blast radius and prescribe verification, rollout, 
 - Operability risk (monitoring gaps)
 
 ## Output
+
 - Score with drivers
 - Verification gates
 - Rollout plan (flags, canary, staged)
 - Rollback plan
-

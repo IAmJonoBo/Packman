@@ -5,6 +5,7 @@ tools: ['codebase','search','usages','fetch']
 ---
 
 ## Checklist
+
 - Value: each change has a clear benefit
 - Risk: safe refactor discipline and tests
 - Churn: no unnecessary formatting/renames

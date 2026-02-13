@@ -6,6 +6,7 @@ description: Bootstrap and maintain GitHub community health files and templates 
 # GitHub Community Health
 
 ## Supported files (typical)
+
 - README
 - LICENSE
 - CODE_OF_CONDUCT
@@ -17,9 +18,10 @@ description: Bootstrap and maintain GitHub community health files and templates 
 - CODEOWNERS
 
 ## Locations
+
 Prefer `.github/` in the repository for repository-specific files.
 
 ## Output
+
 - file list + locations
 - minimal content that is high-signal
-

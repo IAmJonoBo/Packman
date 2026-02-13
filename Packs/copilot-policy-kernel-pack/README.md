@@ -1,15 +1,19 @@
 # Policy Kernel (copilot-policy-kernel-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - None detected
 
 ## Key agents
+
 - None detected
 
 ## Directory tree
@@ -29,6 +33,7 @@ copilot-policy-kernel-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-import os, sys, re
+import os
+import re
+import sys
 
 ROOT = sys.argv[1] if len(sys.argv) > 1 else "."
 INSTR_DIR = os.path.join(ROOT, ".github", "instructions")
 
 REQ_FRONTMATTER_KEYS = ["name", "description", "applyTo"]
 FM_RE = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
+
 
 def main():
     if not os.path.isdir(INSTR_DIR):
@@ -34,7 +37,9 @@ def main():
             if re.search(rf"^{re.escape(k)}\s*:", fm, re.MULTILINE) is None:
                 errors.append(f"{rel}: frontmatter missing key '{k}'")
         # crude applyTo sanity
-        if "applyTo:" in fm and ("**" not in fm and "*" not in fm and "{" not in fm and "}" not in fm):
+        if "applyTo:" in fm and (
+            "**" not in fm and "*" not in fm and "{" not in fm and "}" not in fm
+        ):
             # still ok; just warn-ish via errors? keep as warning in stdout
             pass
 
@@ -46,6 +51,7 @@ def main():
 
     print("OK: instructions validated.")
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

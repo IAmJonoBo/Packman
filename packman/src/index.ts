@@ -1,1 +1,1 @@
-console.log('packman: scaffolded');
+console.log("packman: scaffolded");

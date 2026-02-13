@@ -1,4 +1,4 @@
-import type { Issue } from '@packman/core';
+import type { Issue } from "@packman/core";
 
 export function printIssues(issues: Issue[]): void {
   if (issues.length === 0) {
@@ -6,8 +6,10 @@ export function printIssues(issues: Issue[]): void {
   }
 
   for (const issue of issues) {
-    const scope = issue.path ? ` (${issue.path})` : '';
-    console.log(`- [${issue.severity}] ${issue.code}: ${issue.message}${scope}`);
+    const scope = issue.path ? ` (${issue.path})` : "";
+    console.log(
+      `- [${issue.severity}] ${issue.code}: ${issue.message}${scope}`,
+    );
   }
 }
 

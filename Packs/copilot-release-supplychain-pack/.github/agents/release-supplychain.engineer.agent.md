@@ -26,6 +26,7 @@ handoffs:
 ---
 
 ## Output format
+
 - Artifacts + release surfaces
 - Provenance configuration
 - SBOM configuration

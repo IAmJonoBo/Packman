@@ -2,15 +2,9 @@
   "chat.instructionsFilesLocations": {
     ".github/instructions": true
   },
-  "chat.promptFilesLocations": [
-    ".github/prompts"
-  ],
-  "chat.agentSkillsLocations": [
-    ".github/skills"
-  ],
-  "chat.agentFilesLocations": [
-    ".github/agents"
-  ],
+  "chat.promptFilesLocations": [".github/prompts"],
+  "chat.agentSkillsLocations": [".github/skills"],
+  "chat.agentFilesLocations": [".github/agents"],
   "chat.includeApplyingInstructions": true,
   "chat.includeReferencedInstructions": false,
   "github.copilot.chat.codeGeneration.useInstructionFiles": true,

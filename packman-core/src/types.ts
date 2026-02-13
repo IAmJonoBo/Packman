@@ -1,4 +1,4 @@
-export type Severity = 'error' | 'warning' | 'info';
+export type Severity = "error" | "warning" | "info";
 
 export interface Issue {
   severity: Severity;
@@ -9,7 +9,14 @@ export interface Issue {
 }
 
 export interface Artifact {
-  type: 'prompt' | 'instruction' | 'agent' | 'skill' | 'copilotInstructions' | 'settings' | 'manifest';
+  type:
+    | "prompt"
+    | "instruction"
+    | "agent"
+    | "skill"
+    | "copilotInstructions"
+    | "settings"
+    | "manifest";
   absolutePath: string;
   relativePath: string;
 }
@@ -55,7 +62,7 @@ export interface NormalizeOptions {
 }
 
 export interface FileChange {
-  action: 'create' | 'update' | 'rename';
+  action: "create" | "update" | "rename";
   fromPath?: string;
   toPath: string;
   before?: string;
@@ -79,11 +86,11 @@ export interface ReadmeSyncResult {
 
 export interface InstallOptions {
   targetPath: string;
-  targetType: 'workspace' | 'global';
+  targetType: "workspace" | "global";
   dryRun?: boolean;
   suite?: boolean;
-  collisionStrategy?: 'fail' | 'skip' | 'overwrite' | 'rename';
-  collisionDecisions?: Record<string, 'fail' | 'skip' | 'overwrite' | 'rename'>;
+  collisionStrategy?: "fail" | "skip" | "overwrite" | "rename";
+  collisionDecisions?: Record<string, "fail" | "skip" | "overwrite" | "rename">;
   autoCleanMacOSJunk?: boolean;
 }
 
@@ -93,11 +100,11 @@ export interface InstallCollision {
   targetPath: string;
   sourcePreview: string;
   targetPreview: string;
-  availableActions: Array<'skip' | 'overwrite' | 'rename'>;
+  availableActions: Array<"skip" | "overwrite" | "rename">;
 }
 
 export interface InstallPlannedOperation {
-  action: 'create' | 'update' | 'merge' | 'skip';
+  action: "create" | "update" | "merge" | "skip";
   relativePath: string;
   reason?: string;
 }

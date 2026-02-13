@@ -5,6 +5,7 @@ tools: ['editFiles', 'codebase', 'search', 'fetch']
 ---
 
 ## Rules
+
 - Prefer user-impactful change descriptions.
 - Always call out breaking changes and migrations.
 - Include security fixes in a dedicated section (without leaking exploit details).

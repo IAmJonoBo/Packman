@@ -1,7 +1,16 @@
 ---
 name: Polish & Tightening Engineer
 description: Hunts paper-cuts, enforces consistency, and performs safe refactors in small, reviewable slices.
-tools: ['agent','codebase','search','usages','fetch','editFiles','terminalLastCommand']
+tools:
+  [
+    "agent",
+    "codebase",
+    "search",
+    "usages",
+    "fetch",
+    "editFiles",
+    "terminalLastCommand",
+  ]
 handoffs:
   - label: Nits that matter
     agent: Nit Hunter
@@ -26,6 +35,7 @@ handoffs:
 ---
 
 ## Output format
+
 - Findings (ranked, with impact)
 - Slice plan (small CLs) + verification per slice
 - Changes applied (files + rationale)

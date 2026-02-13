@@ -6,10 +6,11 @@ description: Document and implement verification steps for released artifacts: a
 # Artifact Verification
 
 ## What to verify
+
 - Artifact digest/checksum
 - Provenance attestation exists and matches artifact
 - SBOM exists and matches artifact/version
 
 ## Template
-- [Verification guide](./templates/verify.md)
 
+- [Verification guide](./templates/verify.md)

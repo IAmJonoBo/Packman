@@ -6,13 +6,15 @@ description: Uses projen as definition-as-code scaffolding; keeps .projenrc.* mi
 # Projen Scaffolding
 
 ## Principles
+
 - `.projenrc.*` is the source of truth; files are synthesised.
 - Use `npx projen new <type>` to start.
 - Keep synthesis deterministic: pin toolchain, commit lockfiles, avoid env-dependent output.
 
 ## Notes
+
 - projen creates `.projenrc.js/.ts/.py/.json` depending on project type.
 
 ## Templates
-- [Projen starter checklist](./templates/projen-checklist.md)
 
+- [Projen starter checklist](./templates/projen-checklist.md)

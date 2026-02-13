@@ -1,6 +1,7 @@
 # Diátaxis Mode Templates
 
 ## Tutorial
+
 - Goal
 - Prerequisites
 - Step-by-step
@@ -8,6 +9,7 @@
 - Next steps
 
 ## How-to
+
 - Goal
 - Steps
 - Variations
@@ -15,6 +17,7 @@
 - Related reference
 
 ## Reference
+
 - Scope
 - Definitions
 - API/options tables
@@ -22,6 +25,7 @@
 - Caveats
 
 ## Explanation
+
 - Context
 - Concepts
 - Rationale

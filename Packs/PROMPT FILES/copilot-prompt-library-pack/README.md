@@ -3,6 +3,7 @@
 A **namespaced prompt library** for VS Code Copilot Chat. These prompts are reusable task macros.
 
 ## Namespaces
+
 - `brief:*` constraint capture and acceptance criteria
 - `audit:*` systematic audits
 - `ship:*` shipping helpers (slice plans, PR-ready summaries)
@@ -10,10 +11,13 @@ A **namespaced prompt library** for VS Code Copilot Chat. These prompts are reus
 - optional suite router: `suite:route` (if Suite Chief of Staff exists)
 
 ## Validation
+
 Run:
+
 - `python tools/validate-prompts.py .`
 
 ## Directory layout
+
 ```text
 ├── .github/
 │   ├── copilot-instructions.md

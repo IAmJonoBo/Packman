@@ -6,11 +6,12 @@ description: Assess dependency risk (maintenance, attack surface, transitive dep
 # Dependency Risk Triage
 
 ## Procedure
-1) List new/changed dependencies and surfaces they touch (crypto/parsing/networking).
-2) Evaluate maintenance signals and transitive dependency footprint.
-3) Decide accept/replace/avoid, and list mitigations (pinning, scopes, sandboxing).
+
+1. List new/changed dependencies and surfaces they touch (crypto/parsing/networking).
+2. Evaluate maintenance signals and transitive dependency footprint.
+3. Decide accept/replace/avoid, and list mitigations (pinning, scopes, sandboxing).
 
 ## Output
+
 - Decision + rationale
 - Mitigations checklist
-

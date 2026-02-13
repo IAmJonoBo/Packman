@@ -6,6 +6,7 @@ description: A high-impact polish checklist for overlooked details: errors, defa
 # Polish Checklist
 
 ## High-impact checks
+
 - Naming: consistent, intention-revealing
 - Errors: stable types, clear messages, safe detail level
 - Defaults: safe and unsurprising
@@ -16,5 +17,5 @@ description: A high-impact polish checklist for overlooked details: errors, defa
 - UI (if present): keyboard nav, focus, labels, states, empty/loading/error
 
 ## Output format
-- Checklist results (pass/fail + fixes)
 
+- Checklist results (pass/fail + fixes)

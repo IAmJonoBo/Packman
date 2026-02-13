@@ -1,12 +1,15 @@
 # Observability Incident (copilot-observability-incident-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/define-slos.prompt.md
 - .github/prompts/dora-review.prompt.md
 - .github/prompts/incident-triage.prompt.md
@@ -16,6 +19,7 @@ suite
 - .github/prompts/write-postmortem.prompt.md
 
 ## Key agents
+
 - .github/agents/dora-reporter.agent.md
 - .github/agents/incident-commander-coach.agent.md
 - .github/agents/observability-lead.agent.md
@@ -80,6 +84,7 @@ copilot-observability-incident-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`

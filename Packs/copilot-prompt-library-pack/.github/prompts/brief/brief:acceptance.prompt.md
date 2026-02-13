@@ -1,8 +1,9 @@
 ---
 name: brief:acceptance
 description: Write crisp acceptance criteria and verification steps for the selected scope.
-agent: 'ask'
+agent: "ask"
 ---
+
 From the selection/scope, produce:
 
 - Acceptance criteria (observable, testable; bullets)

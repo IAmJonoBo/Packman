@@ -26,6 +26,7 @@ handoffs:
 ---
 
 ## Output format
+
 - What was added/changed
 - Paths and rationale
 - Open questions (only if blocking)

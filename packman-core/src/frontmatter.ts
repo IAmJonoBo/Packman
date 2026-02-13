@@ -1,6 +1,6 @@
-import matter from 'gray-matter';
-import YAML from 'yaml';
-import type { FrontmatterData } from './types.js';
+import matter from "gray-matter";
+import YAML from "yaml";
+import type { FrontmatterData } from "./types.js";
 
 export interface ParsedFrontmatter {
   frontmatter: FrontmatterData;
@@ -23,5 +23,7 @@ export function parseFrontmatter(raw: string): ParsedFrontmatter {
 }
 
 export function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+  return (
+    Array.isArray(value) && value.every((item) => typeof item === "string")
+  );
 }

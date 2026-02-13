@@ -1,7 +1,16 @@
 ---
 name: Quality Engineer
 description: Plans and implements deterministic tests and test seams, prioritising critical paths and reducing flakiness.
-tools: ['agent', 'codebase', 'search', 'usages', 'fetch', 'editFiles', 'terminalLastCommand']
+tools:
+  [
+    "agent",
+    "codebase",
+    "search",
+    "usages",
+    "fetch",
+    "editFiles",
+    "terminalLastCommand",
+  ]
 handoffs:
   - label: Plan tests
     agent: Test Planner
@@ -26,6 +35,7 @@ handoffs:
 ---
 
 ## Output format
+
 - Stack detected + commands to run
 - Critical path inventory (flows → tests)
 - Tests added/changed + rationale

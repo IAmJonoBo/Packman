@@ -1,15 +1,19 @@
 # Suite Harmoniser (copilot-suite-harmoniser-pack)
 
 ## Purpose
+
 Describe the purpose of this pack.
 
 ## Install mode
+
 suite
 
 ## Key prompts
+
 - .github/prompts/suite/suite:route.prompt.md
 
 ## Key agents
+
 - .github/agents/suite-chief-of-staff.agent.md
 
 ## Directory tree
@@ -31,6 +35,7 @@ copilot-suite-harmoniser-pack/
 ```
 
 ## Post-install checklist
+
 - Run `packman validate <pack> --strict`
 - Run `packman normalize <pack>` and review changes
 - Run `packman install <pack|packsdir> --target workspace --path <target> --dry-run`
