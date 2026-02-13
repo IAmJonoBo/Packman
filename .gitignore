@@ -9,6 +9,9 @@ coverage/
 # tauri / rust target
 packman-app/src-tauri/target/
 
+# CLI native binaries
+packman-cli/dist/bin/
+
 # temp / logs
 *.log
 .tmp/

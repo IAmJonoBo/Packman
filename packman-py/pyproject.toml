@@ -1,0 +1,13 @@
+[project]
+name = "packman-py"
+version = "0.1.0"
+description = "Packman Python CLI using Typer + Rich"
+authors = ["Packman <devnull@example.com>"]
+requires-python = ">=3.10"
+
+[project.scripts]
+packman-py = "packman_py.packman:app"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
