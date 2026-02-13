@@ -12,6 +12,10 @@ packman-app/src-tauri/target/
 # CLI native binaries
 packman-cli/dist/bin/
 
+# Python venvs and build outputs for packman-py
+packman-py/.venv/
+packman-py/dist/
+
 # temp / logs
 *.log
 .tmp/
