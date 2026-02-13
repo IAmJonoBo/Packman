@@ -15,10 +15,11 @@ console = Console()
 
 # Pastel cyberpunk palette
 PALETTE = {"accent": "#7ef9ff", "muted": "#a29bfe", "glow": "#ff7bd0", "bg": "#0f1724"}
+BOLD_STYLE_PREFIX = "bold "
 
 
 def render_header() -> None:
-    title = Text("PACKMAN", justify="center", style="bold " + PALETTE["glow"])
+    title = Text("PACKMAN", justify="center", style=BOLD_STYLE_PREFIX + PALETTE["glow"])
     subtitle = Text(
         "repository pack manager — pastel cyberpunk",
         style=PALETTE["muted"],
@@ -60,7 +61,9 @@ def resolve_packman_cli() -> str:
 def doctor() -> None:
     """Check local CLI packaging prerequisites."""
     render_header()
-    table = Table(show_header=True, header_style="bold " + PALETTE["accent"], box=None)
+    table = Table(
+        show_header=True, header_style=BOLD_STYLE_PREFIX + PALETTE["accent"], box=None
+    )
     table.add_column("Dependency", style=PALETTE["muted"])
     table.add_column("Status", style="white")
     table.add_row("node", "ok" if shutil.which("node") else "missing")
@@ -74,7 +77,9 @@ def doctor() -> None:
 def info(verbose: bool = typer.Option(False, "--verbose", "-v")) -> None:
     """Show repository and pack summary."""
     render_header()
-    table = Table(show_header=True, header_style="bold " + PALETTE["accent"], box=None)
+    table = Table(
+        show_header=True, header_style=BOLD_STYLE_PREFIX + PALETTE["accent"], box=None
+    )
     table.add_column("Key", style=PALETTE["muted"])
     table.add_column("Value", style="white")
     table.add_row("Packs", "./Packs (discovered locally)")
