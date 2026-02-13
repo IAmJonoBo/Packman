@@ -2,7 +2,7 @@ import path from "node:path";
 import { mkdtemp, mkdir, writeFile, rm, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { describe, expect, it } from "vitest";
-import { installPack } from "./install.js";
+import { installPack, installPacks, rollbackInstall } from "./install.js";
 
 describe("installPack collisions", () => {
   it("returns install plan with collisions on dry-run", async () => {
@@ -254,6 +254,150 @@ describe("installPack collisions", () => {
       "utf8",
     );
     expect(renamed).toContain("Source");
+
+    await rm(source, { recursive: true, force: true });
+    await rm(target, { recursive: true, force: true });
+  });
+
+  it("fails installPacks when source set has duplicate prompt names", async () => {
+    const source = await mkdtemp(
+      path.join(tmpdir(), "packman-install-source-"),
+    );
+    const target = await mkdtemp(
+      path.join(tmpdir(), "packman-install-target-"),
+    );
+
+    const packA = path.join(source, "pack-a");
+    const packB = path.join(source, "pack-b");
+    await mkdir(path.join(packA, ".github/prompts"), { recursive: true });
+    await mkdir(path.join(packB, ".github/prompts"), { recursive: true });
+
+    await writeFile(
+      path.join(packA, ".github/prompts", "one.prompt.md"),
+      `---\nname: brief:shared\ndescription: a\n---\nA\n`,
+      "utf8",
+    );
+    await writeFile(
+      path.join(packB, ".github/prompts", "two.prompt.md"),
+      `---\nname: brief:shared\ndescription: b\n---\nB\n`,
+      "utf8",
+    );
+
+    const result = await installPacks(source, {
+      targetPath: target,
+      targetType: "workspace",
+      dryRun: true,
+      suite: false,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some(
+        (issue) => issue.code === "PROMPT_NAME_DUPLICATE_SOURCE_SET",
+      ),
+    ).toBe(true);
+
+    await rm(source, { recursive: true, force: true });
+    await rm(target, { recursive: true, force: true });
+  });
+
+  it("fails installPacks when multiple suite owners without suite harmoniser", async () => {
+    const source = await mkdtemp(
+      path.join(tmpdir(), "packman-install-source-"),
+    );
+    const target = await mkdtemp(
+      path.join(tmpdir(), "packman-install-target-"),
+    );
+
+    const packA = path.join(source, "pack-a");
+    const packB = path.join(source, "pack-b");
+    await mkdir(path.join(packA, ".github/prompts"), { recursive: true });
+    await mkdir(path.join(packB, ".github/prompts"), { recursive: true });
+
+    await writeFile(
+      path.join(packA, ".github/copilot-instructions.md"),
+      "instructions a\n",
+      "utf8",
+    );
+    await writeFile(
+      path.join(packB, ".github/copilot-instructions.md"),
+      "instructions b\n",
+      "utf8",
+    );
+    await writeFile(
+      path.join(packA, ".github/prompts", "a.prompt.md"),
+      `---\nname: brief:a\ndescription: a\n---\nA\n`,
+      "utf8",
+    );
+    await writeFile(
+      path.join(packB, ".github/prompts", "b.prompt.md"),
+      `---\nname: brief:b\ndescription: b\n---\nB\n`,
+      "utf8",
+    );
+
+    const result = await installPacks(source, {
+      targetPath: target,
+      targetType: "workspace",
+      dryRun: true,
+      suite: true,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some((issue) => issue.code === "SUITE_OWNER_COLLISION"),
+    ).toBe(true);
+
+    await rm(source, { recursive: true, force: true });
+    await rm(target, { recursive: true, force: true });
+  });
+
+  it("restores files from backup using rollbackInstall", async () => {
+    const source = await mkdtemp(
+      path.join(tmpdir(), "packman-install-source-"),
+    );
+    const target = await mkdtemp(
+      path.join(tmpdir(), "packman-install-target-"),
+    );
+
+    await mkdir(path.join(source, ".github/prompts"), { recursive: true });
+    await mkdir(path.join(target, ".github/prompts"), { recursive: true });
+    await writeFile(
+      path.join(source, ".github/prompts", "brief.prompt.md"),
+      `---\nname: brief:source\ndescription: source\n---\nSource\n`,
+      "utf8",
+    );
+    await writeFile(
+      path.join(target, ".github/prompts", "brief.prompt.md"),
+      `---\nname: brief:target\ndescription: target\n---\nTarget\n`,
+      "utf8",
+    );
+
+    const installResult = await installPack(source, {
+      targetPath: target,
+      targetType: "workspace",
+      collisionStrategy: "overwrite",
+    });
+
+    expect(installResult.ok).toBe(true);
+    expect(installResult.backupZipPath).toBeTruthy();
+
+    const overwritten = await readFile(
+      path.join(target, ".github/prompts", "brief.prompt.md"),
+      "utf8",
+    );
+    expect(overwritten).toContain("Source");
+
+    const rollbackResult = await rollbackInstall(
+      target,
+      installResult.backupZipPath as string,
+    );
+    expect(rollbackResult.ok).toBe(true);
+
+    const restored = await readFile(
+      path.join(target, ".github/prompts", "brief.prompt.md"),
+      "utf8",
+    );
+    expect(restored).toContain("Target");
 
     await rm(source, { recursive: true, force: true });
     await rm(target, { recursive: true, force: true });

@@ -3,6 +3,7 @@ import { promises as fs } from "node:fs";
 import fg from "fast-glob";
 import { detectMacOsJunk, detectPack } from "./detect.js";
 import { isStringArray, parseFrontmatter } from "./frontmatter.js";
+import { readJson } from "./fs-utils.js";
 import { parseArtifacts } from "./parse.js";
 import { hasErrors } from "./report.js";
 import type {
@@ -32,6 +33,21 @@ export const DEFAULT_ALLOWED_SUBAGENTS = [
   "AIAgentExpert",
   "DataAnalysisExpert",
 ] as const;
+
+interface PackManifest {
+  commands?: unknown;
+}
+
+const BUILTIN_MANIFEST_COMMANDS = new Set([
+  "build",
+  "doctor",
+  "install",
+  "normalize",
+  "readiness",
+  "registry",
+  "rollback",
+  "validate",
+]);
 
 function hasField(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
@@ -86,6 +102,36 @@ function findPromptNames(
   }
 
   return map;
+}
+
+function promptCommandAliases(promptName: string): string[] {
+  const aliases = new Set<string>([promptName]);
+  const colonIndex = promptName.indexOf(":");
+  if (colonIndex > 0 && colonIndex < promptName.length - 1) {
+    aliases.add(promptName.slice(colonIndex + 1));
+  }
+  return [...aliases];
+}
+
+function collectPromptCommandAliases(artifacts: ParsedArtifact[]): Set<string> {
+  const aliases = new Set<string>();
+
+  for (const artifact of artifacts) {
+    if (artifact.type !== "prompt") {
+      continue;
+    }
+
+    const promptName = artifact.frontmatter?.name;
+    if (typeof promptName !== "string") {
+      continue;
+    }
+
+    for (const alias of promptCommandAliases(promptName)) {
+      aliases.add(alias);
+    }
+  }
+
+  return aliases;
 }
 
 function extractHandoffAgents(frontmatter: Record<string, unknown>): string[] {
@@ -418,6 +464,48 @@ export async function validatePack(
         "Pack includes suite-owned paths (.github/copilot-instructions.md or .vscode/settings.json); install requires --suite",
       path: rootPath,
     });
+  }
+
+  if (detection.manifestPath) {
+    const manifest = await readJson<PackManifest>(detection.manifestPath);
+    if (manifest && manifest.commands !== undefined) {
+      if (!Array.isArray(manifest.commands)) {
+        issues.push({
+          severity: "error",
+          code: "MANIFEST_COMMANDS_TYPE",
+          message: "PACK_MANIFEST.json commands must be an array of strings",
+          path: path.relative(rootPath, detection.manifestPath),
+        });
+      } else {
+        const manifestCommands = manifest.commands.filter(
+          (value): value is string => typeof value === "string",
+        );
+        if (manifestCommands.length !== manifest.commands.length) {
+          issues.push({
+            severity: "error",
+            code: "MANIFEST_COMMANDS_TYPE",
+            message: "PACK_MANIFEST.json commands must contain only strings",
+            path: path.relative(rootPath, detection.manifestPath),
+          });
+        }
+
+        const promptAliases = collectPromptCommandAliases(parsedArtifacts);
+        for (const command of manifestCommands) {
+          if (BUILTIN_MANIFEST_COMMANDS.has(command)) {
+            continue;
+          }
+
+          if (!promptAliases.has(command)) {
+            issues.push({
+              severity: options.strict ? "error" : "warning",
+              code: "MANIFEST_COMMAND_MISSING_PROMPT",
+              message: `Manifest command '${command}' has no matching prompt name`,
+              path: path.relative(rootPath, detection.manifestPath),
+            });
+          }
+        }
+      }
+    }
   }
 
   return {

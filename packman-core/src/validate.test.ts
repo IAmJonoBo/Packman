@@ -1,4 +1,6 @@
 import path from "node:path";
+import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { describe, expect, it } from "vitest";
 import { validatePack } from "./validate.js";
 
@@ -73,5 +75,58 @@ describe("validatePack", () => {
     expect(
       result.issues.some((issue) => issue.code === "AGENT_HANDOFF_UNKNOWN"),
     ).toBe(false);
+  });
+
+  it("fails strict mode when manifest command has no matching prompt", async () => {
+    const root = await mkdtemp(
+      path.join(tmpdir(), "packman-validate-manifest-"),
+    );
+    await mkdir(path.join(root, ".github/prompts"), { recursive: true });
+    await writeFile(
+      path.join(root, ".github/prompts", "brief.prompt.md"),
+      `---\nname: brief:project-overview\ndescription: desc\n---\nBody\n`,
+      "utf8",
+    );
+    await writeFile(
+      path.join(root, "PACK_MANIFEST.json"),
+      JSON.stringify({ commands: ["missing-command"] }, null, 2),
+      "utf8",
+    );
+
+    const result = await validatePack(root, { strict: true, suiteMode: false });
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some(
+        (issue) => issue.code === "MANIFEST_COMMAND_MISSING_PROMPT",
+      ),
+    ).toBe(true);
+
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("accepts manifest command matching prompt without namespace", async () => {
+    const root = await mkdtemp(
+      path.join(tmpdir(), "packman-validate-manifest-"),
+    );
+    await mkdir(path.join(root, ".github/prompts"), { recursive: true });
+    await writeFile(
+      path.join(root, ".github/prompts", "brief.prompt.md"),
+      `---\nname: brief:planning-brief\ndescription: desc\n---\nBody\n`,
+      "utf8",
+    );
+    await writeFile(
+      path.join(root, "PACK_MANIFEST.json"),
+      JSON.stringify({ commands: ["planning-brief"] }, null, 2),
+      "utf8",
+    );
+
+    const result = await validatePack(root, { strict: true, suiteMode: false });
+    expect(
+      result.issues.some(
+        (issue) => issue.code === "MANIFEST_COMMAND_MISSING_PROMPT",
+      ),
+    ).toBe(false);
+
+    await rm(root, { recursive: true, force: true });
   });
 });

@@ -6,6 +6,10 @@ const expected = [
   "Packs/copilot-suite-harmoniser-pack/.github/prompts/suite/suite:route.prompt.md",
   "Packs/copilot-prompt-library-pack/.github/prompts/suite/suite:route.prompt.md",
 ];
+const legacyMirrorRoots = [
+  "Packs/PROMPT FILES",
+  "Packs/INSTRUCTIONS AND RULES",
+];
 
 function rel(p) {
   return p.split(path.sep).join("/");
@@ -13,16 +17,12 @@ function rel(p) {
 
 async function collectPromptFiles(dir) {
   const out = [];
-  const ignoredRoots = new Set(["PROMPT FILES", "INSTRUCTIONS AND RULES"]);
 
   async function walk(current) {
     const entries = await fs.readdir(current, { withFileTypes: true });
     for (const entry of entries) {
       const full = path.join(current, entry.name);
       if (entry.isDirectory()) {
-        if (current === dir && ignoredRoots.has(entry.name.toUpperCase())) {
-          continue;
-        }
         if (entry.name === "node_modules" || entry.name === ".git") continue;
         await walk(full);
       } else if (entry.name.endsWith(".prompt.md")) {
@@ -35,6 +35,19 @@ async function collectPromptFiles(dir) {
 }
 
 async function main() {
+  for (const legacyDir of legacyMirrorRoots) {
+    const exists = await fs
+      .stat(path.join(root, legacyDir))
+      .then(() => true)
+      .catch(() => false);
+    if (!exists) {
+      console.error(
+        `Missing expected interface mirror directory: ${legacyDir}`,
+      );
+      process.exit(1);
+    }
+  }
+
   const promptFiles = await collectPromptFiles(path.join(root, "Packs"));
   const routeOwners = [];
 
@@ -49,7 +62,12 @@ async function main() {
   }
 
   const missing = expected.filter((file) => !routeOwners.includes(file));
-  const unexpected = routeOwners.filter((file) => !expected.includes(file));
+  const unexpected = routeOwners.filter(
+    (file) =>
+      !expected.includes(file) &&
+      !file.startsWith("Packs/PROMPT FILES/") &&
+      !file.startsWith("Packs/INSTRUCTIONS AND RULES/"),
+  );
 
   if (missing.length > 0 || unexpected.length > 0) {
     console.error("Route ownership check failed.");
