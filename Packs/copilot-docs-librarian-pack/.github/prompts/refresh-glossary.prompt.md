@@ -1,7 +1,7 @@
 ---
-name: refresh-glossary
+name: "brief:refresh-glossary"
 description: Update glossary and enforce first-use term definitions and consistent linking.
-agent: "Glossary Curator"
+agent: Glossary Curator
 ---
 
 Target: ${selection}

@@ -1,0 +1,51 @@
+{
+  "generatedAt": "2026-02-14T05:02:39.024Z",
+  "canonicalRoot": "Packs",
+  "canonicalPackRoots": [
+    "Packs/copilot-architecture-governance-pack",
+    "Packs/copilot-award-ui-pack",
+    "Packs/copilot-docs-librarian-pack",
+    "Packs/copilot-edge-case-vanguard-pack",
+    "Packs/copilot-github-bootstrap-pack",
+    "Packs/copilot-gold-standards-steward-pack",
+    "Packs/copilot-hooks-orchestrator-pack",
+    "Packs/copilot-interface-wiring-pack",
+    "Packs/copilot-observability-incident-pack",
+    "Packs/copilot-policy-kernel-hooks-pack",
+    "Packs/copilot-policy-kernel-pack",
+    "Packs/copilot-polish-tightening-pack",
+    "Packs/copilot-project-management-planning-pack",
+    "Packs/copilot-project-scaffolding-pack",
+    "Packs/copilot-prompt-library-pack",
+    "Packs/copilot-quality-engineer-pack",
+    "Packs/copilot-release-supplychain-pack",
+    "Packs/copilot-security-gatekeeper-pack",
+    "Packs/copilot-suite-harmoniser-pack",
+    "Packs/copilot-ux-agent-pack"
+  ],
+  "totals": {
+    "canonicalPacks": 20,
+    "artifacts": 243,
+    "duplicatesByInstallPath": 1,
+    "missingFrontmatter": 0,
+    "namingIssues": 0
+  },
+  "categoryCounts": {
+    "agents": 73,
+    "prompts": 112,
+    "skills": 54,
+    "instructions": 2,
+    "hooks": 2
+  },
+  "duplicatesByInstallPath": [
+    {
+      "installPath": ".github/prompts/suite/suite:route.prompt.md",
+      "sources": [
+        "Packs/copilot-prompt-library-pack/.github/prompts/suite/suite:route.prompt.md",
+        "Packs/copilot-suite-harmoniser-pack/.github/prompts/suite/suite:route.prompt.md"
+      ]
+    }
+  ],
+  "missingFrontmatter": [],
+  "namingIssues": []
+}

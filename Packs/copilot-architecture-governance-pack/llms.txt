@@ -1,0 +1,21 @@
+# llms index (copilot-architecture-governance-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 15
+
+type	name	path	description
+agent	ADR Writer	.github/agents/adr-writer.agent.md	Creates crisp, Nygard-style ADRs with alternatives, constraints, and consequences; maintains ADR index.
+agent	Architecture & Governance Steward	.github/agents/architecture-governance-steward.agent.md	Ensures ADR discipline, trunk-based workflow, review gates, and decision hygiene with minimal bureaucracy.
+agent	Change Risk Scorer	.github/agents/change-risk-scorer.agent.md	Scores change risk and prescribes verification gates (tests, rollout, monitoring, rollback).
+agent	Code Review Marshal	.github/agents/code-review-marshal.agent.md	Enforces review standards for long-term code health: correctness, readability, maintainability, security, and operability.
+agent	Trunk Coach	.github/agents/trunk-coach.agent.md	Enforces trunk-based development discipline: small merges, short-lived branches, feature flags, and always releasable trunk.
+prompt	brief:architecture-brief	.github/prompts/architecture-brief.prompt.md	Ask for missing architecture/governance constraints before proceeding.
+prompt	brief:architecture-ship	.github/prompts/architecture-ship.prompt.md	>-
+prompt	brief:governance-review	.github/prompts/governance-review.prompt.md	>-
+prompt	brief:risk-score-change	.github/prompts/risk-score-change.prompt.md	>-
+prompt	brief:trunk-slice	.github/prompts/trunk-slice.prompt.md	>-
+prompt	brief:write-adr	.github/prompts/write-adr.prompt.md	>-
+skill	adr-discipline-nygard	.github/skills/adr-discipline-nygard/SKILL.md	Create and maintain concise Nygard-style ADRs and an ADR index; keep decisions discoverable and current.
+skill	change-risk-scoring	.github/skills/change-risk-scoring/SKILL.md	Score changes by blast radius and prescribe verification, rollout, and rollback plans proportional to risk.
+skill	review-gates-google-standard	.github/skills/review-gates-google-standard/SKILL.md	Apply high-signal review gates aligned to Google's code review standard: code health over time, readability, correctness, and maintainability.
+skill	trunk-discipline	.github/skills/trunk-discipline/SKILL.md	Apply trunk-based development discipline: small merges, short-lived branches, feature flags, and always releasable main.

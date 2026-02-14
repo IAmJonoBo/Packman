@@ -1,0 +1,7 @@
+Packs/copilot-policy-kernel-pack
+Packs/copilot-hooks-orchestrator-pack
+Packs/copilot-security-gatekeeper-pack
+Packs/copilot-release-supplychain-pack
+Packs/copilot-docs-librarian-pack
+Packs/copilot-project-scaffolding-pack
+Packs/copilot-polish-tightening-pack

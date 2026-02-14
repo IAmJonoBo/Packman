@@ -1,0 +1,7 @@
+# llms index (copilot-policy-kernel-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 1
+
+type	name	path	description
+skill	repo-core-policy	.github/skills/repo-core-policy/SKILL.md	Apply repo-core policy guardrails with small diffs, explicit verification, and ambiguity handling.

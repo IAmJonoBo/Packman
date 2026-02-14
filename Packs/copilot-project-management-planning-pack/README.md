@@ -8,6 +8,16 @@ Create and maintain an end-to-end project plan that stays current as scope, risk
 
 suite
 
+## Install links
+
+- VS Code Web sample: [Open sample artifact](https://vscode.dev/github/IAmJonoBo/Packman/blob/main/Packs/copilot-project-management-planning-pack/.github/prompts/checkpoint-review.prompt.md)
+- Raw sample: [Download raw artifact](https://raw.githubusercontent.com/IAmJonoBo/Packman/main/Packs/copilot-project-management-planning-pack/.github/prompts/checkpoint-review.prompt.md)
+
+## Install commands
+
+- Workspace target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-project-management-planning-pack --to /path/to/repo --mode fail --json`
+- Global profile target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-project-management-planning-pack --target-type global --to /path/to/profile --mode fail --json`
+
 ## Key prompts
 
 - .github/prompts/checkpoint-review.prompt.md

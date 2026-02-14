@@ -1,0 +1,13 @@
+# llms index (copilot-gold-standards-steward-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 7
+
+type	name	path	description
+agent	gold-standards-steward	.github/agents/gold-standards-steward.agent.md	Orchestrates standards-aligned quality and security uplift with measurable baselines and small, verifiable change slices.
+prompt	audit:gold-standard	.github/prompts/audit-gold-standard.prompt.md	Produce a standards-mapped baseline (ISO 25010, SSDF, ASVS, SLSA, Scorecard) and prioritized risk register.
+prompt	audit:doctor-report	.github/prompts/doctor-report.prompt.md	Generate a current-state doctor report with delta against baseline and gate readiness.
+prompt	brief:gates:setup	.github/prompts/gates-setup.prompt.md	>-
+prompt	brief:uplift:execute-slice	.github/prompts/uplift-execute-slice.prompt.md	>-
+prompt	brief:uplift:plan	.github/prompts/uplift-plan.prompt.md	>-
+skill	gold-standards-steward	.github/skills/gold-standards-steward/SKILL.md	Baseline, plan, uplift, and gate a repository against recognized quality, security, and supply-chain standards.

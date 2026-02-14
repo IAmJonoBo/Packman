@@ -1,7 +1,9 @@
 ---
-name: security-review
-description: Perform a security-focused review and produce a concrete fix list with patches.
-agent: "Security Reviewer"
+name: "sec:security-review"
+description: >-
+  Perform a security-focused review and produce a concrete fix list with
+  patches.
+agent: Security Reviewer
 ---
 
 Target: ${selection}

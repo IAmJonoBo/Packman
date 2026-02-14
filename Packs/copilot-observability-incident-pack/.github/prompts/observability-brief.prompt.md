@@ -1,7 +1,9 @@
 ---
-name: observability-brief
-description: Ask for missing constraints (telemetry, SLO targets, environments) before making observability changes.
-agent: "ask"
+name: "brief:observability-brief"
+description: >-
+  Ask for missing constraints (telemetry, SLO targets, environments) before
+  making observability changes.
+agent: ask
 ---
 
 Ask me ONLY for missing info:

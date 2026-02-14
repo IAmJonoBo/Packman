@@ -1,7 +1,7 @@
 ---
-name: architecture-brief
+name: "brief:architecture-brief"
 description: Ask for missing architecture/governance constraints before proceeding.
-agent: "ask"
+agent: ask
 ---
 
 Ask me ONLY for missing info:

@@ -16,29 +16,15 @@ It emphasizes hypothesis-driven investigation, verification-first decisions, and
 2. Choose a validation mode:
    - `test:pbt-plan` for invariant-led property testing plans.
    - `test:fuzz-plan` for harness/corpus/crash triage plans.
-   - `ops:chaos-experiments` for bounded resilience experiments.
-3. Use `ops:observability-gaps` to close signal and alerting blind spots.
-4. Ship one reversible mitigation via `fix:one-slice`.
-
-## Prompt usage
 
 - `audit:edge-inventory` → taxonomy inventory + prioritized hypotheses.
 - `test:pbt-plan` → property strategy, seeds, and deterministic regression conversion.
 - `test:fuzz-plan` → fuzz harness strategy, corpus, triage, and crash-to-test flow.
 - `ops:chaos-experiments` → controlled experiment with blast radius and abort guards.
 - `ops:observability-gaps` → signal deficit report with instrumentation plan.
-- `fix:one-slice` → minimal remediation plan with tests and rollback.
-
-## Handoff map
-
-The orchestrator agent explicitly coordinates cross-domain handoffs for deeper review:
+  The orchestrator agent explicitly coordinates cross-domain handoffs for deeper review:
 
 - Security handoff for abuse paths, auth/authz drift, and sanitization risk.
-- Release handoff for rollout safety, dependency integrity, and rollback mechanics.
-- Docs handoff for runbook/ADR/policy updates.
-- Standards handoff for test sizing, quality gate fit, and maintainability.
-
-## Validation checklist
 
 - Namespaced and unique prompts are present.
 - No suite-owned files are included (no `.github/copilot-instructions.md`, no `.vscode/settings.json`).
@@ -59,6 +45,16 @@ copilot-edge-case-vanguard-pack/
       fuzz-plan.prompt.md
       observability-gaps.prompt.md
       one-slice.prompt.md
+
+## Install links
+
+- VS Code Web sample: [Open sample artifact](https://vscode.dev/github/IAmJonoBo/Packman/blob/main/Packs/copilot-edge-case-vanguard-pack/.github/prompts/chaos-experiments.prompt.md)
+- Raw sample: [Download raw artifact](https://raw.githubusercontent.com/IAmJonoBo/Packman/main/Packs/copilot-edge-case-vanguard-pack/.github/prompts/chaos-experiments.prompt.md)
+
+## Install commands
+
+- Workspace target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-edge-case-vanguard-pack --to /path/to/repo --mode fail --json`
+- Global profile target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-edge-case-vanguard-pack --target-type global --to /path/to/profile --mode fail --json`
       pbt-plan.prompt.md
     skills/
       edge-case-vanguard/

@@ -1,7 +1,9 @@
 ---
-name: repo-settings-brief
-description: Ask for missing GitHub bootstrapping constraints before generating .github files.
-agent: "ask"
+name: "brief:repo-settings-brief"
+description: >-
+  Ask for missing GitHub bootstrapping constraints before generating .github
+  files.
+agent: ask
 ---
 
 Ask me ONLY for missing information:

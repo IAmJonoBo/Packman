@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "prePrompt": [
+      {
+        "id": "policy-kernel-preprompt",
+        "enabled": true,
+        "action": "enforce_repo_policy_baseline"
+      }
+    ],
+    "postResponse": [
+      {
+        "id": "policy-kernel-postresponse",
+        "enabled": true,
+        "action": "enforce_output_policy_checks"
+      }
+    ]
+  }
+}

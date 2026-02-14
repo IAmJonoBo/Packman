@@ -8,6 +8,16 @@ Describe the purpose of this pack.
 
 suite
 
+## Install links
+
+- VS Code Web sample: [Open sample artifact](https://vscode.dev/github/IAmJonoBo/Packman/blob/main/Packs/copilot-security-gatekeeper-pack/.github/prompts/asvs-checklist.prompt.md)
+- Raw sample: [Download raw artifact](https://raw.githubusercontent.com/IAmJonoBo/Packman/main/Packs/copilot-security-gatekeeper-pack/.github/prompts/asvs-checklist.prompt.md)
+
+## Install commands
+
+- Workspace target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-security-gatekeeper-pack --to /path/to/repo --mode fail --json`
+- Global profile target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-security-gatekeeper-pack --target-type global --to /path/to/profile --mode fail --json`
+
 ## Key prompts
 
 - .github/prompts/asvs-checklist.prompt.md

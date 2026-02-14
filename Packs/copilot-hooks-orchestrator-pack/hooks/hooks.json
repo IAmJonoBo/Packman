@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "pack": "copilot-hooks-orchestrator-pack",
+  "hooks": [
+    {
+      "id": "packman-session-start",
+      "event": "sessionStart",
+      "script": "hooks/scripts/session-start.sh",
+      "enabled": true
+    },
+    {
+      "id": "packman-pre-tool-use",
+      "event": "preToolUse",
+      "script": "hooks/scripts/pre-tool-use.sh",
+      "enabled": true
+    },
+    {
+      "id": "packman-error-occurred",
+      "event": "errorOccurred",
+      "script": "hooks/scripts/error-occurred.sh",
+      "enabled": true
+    },
+    {
+      "id": "packman-session-end",
+      "event": "sessionEnd",
+      "script": "hooks/scripts/session-end.sh",
+      "enabled": true
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 ---
-name: add-mocks
+name: "brief:add-mocks"
 description: Add deterministic mocks/fakes for an interface boundary for dev and tests.
-agent: "Integration Tester"
+agent: Integration Tester
 ---
 
 Boundary: ${selection}

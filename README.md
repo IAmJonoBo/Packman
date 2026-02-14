@@ -17,6 +17,10 @@ Monorepo for Packman (core library, CLI, and Tauri app) and the canonical pack c
 - Generate root launchers only: `pnpm run launchers`
 - Run tests: `pnpm test`
 - Governance manifest ownership sweep: `pnpm run governance:manifest-owned-paths`
+- Governance suite inventory artifact: `pnpm run governance:suite-inventory`
+- Governance install links report: `pnpm run governance:install-links-report`
+- Governance collections + suite index: `pnpm run governance:suite-index`
+- Governance validation log (all checks): `pnpm run governance:validation-log`
 - CLI validate: `pnpm --filter packman-cli exec node dist/index.js validate ./Packs --strict`
 - CLI validate zip with auto-clean: `pnpm --filter packman-cli exec node dist/index.js validate ./pack.zip --strict --auto-clean`
 - CLI normalize: `pnpm --filter packman-cli exec node dist/index.js normalize ./Packs --apply`
@@ -24,6 +28,9 @@ Monorepo for Packman (core library, CLI, and Tauri app) and the canonical pack c
 - CLI install dry-run: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --to /path/to/repo --mode fail --dry-run --json`
 - CLI install with skip collisions: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --to /path/to/repo --mode skip --json`
 - CLI install with rename collisions: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --to /path/to/repo --mode rename --json`
+- CLI install to global profile: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --target-type global --to /path/to/profile --mode fail --json`
+- CLI install selected categories only: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --include-category agents prompts instructions --json`
+- CLI install selected files only: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --include-path .github/agents/foo.agent.md --include-path .github/prompts/bar.prompt.md --json`
 - Suite-owned paths (`.github/copilot-instructions.md`, `.vscode/settings.json`) are auto-handled during validate/install; no extra flag required for standard flows.
 - If a pack defines `PACK_MANIFEST.json`, strict validation enforces `owned_paths` coverage and `intended_install` consistency.
 - CLI doctor: `pnpm --filter packman-cli exec node dist/index.js doctor /path/to/repo`
@@ -49,6 +56,8 @@ Monorepo for Packman (core library, CLI, and Tauri app) and the canonical pack c
   - In Import Wizard plan step, use `Create VS Code Workspace File` and regenerate plan.
 - Large source catalog slows plan/validate:
   - Prefer selecting a specific pack folder instead of a large catalog root when possible.
+- Global profile install pathing:
+  - In `--target-type global`, Packman maps artifacts into profile-ready folders (for example `.github/agents`, `.github/prompts`, `.github/instructions`, `.github/skills`, `.github/hooks`, `.vscode`).
 
 ## Release readiness checklist
 

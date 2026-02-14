@@ -1,8 +1,14 @@
 ---
-name: "uplift:plan"
-description: Convert baseline findings into a sequenced uplift plan of reversible small CL slices.
+name: "brief:uplift:plan"
+description: >-
+  Convert baseline findings into a sequenced uplift plan of reversible small CL
+  slices.
 agent: gold-standards-steward
-tools: ["codebase", "search", "usages", "agent"]
+tools:
+  - codebase
+  - search
+  - usages
+  - agent
 ---
 
 # uplift:plan

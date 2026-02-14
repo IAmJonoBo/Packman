@@ -1,0 +1,22 @@
+{
+  "id": "copilot-quality-engineer-pack",
+  "name": "copilot-quality-engineer-pack",
+  "version": "0.1.0",
+  "intended_install": "suite",
+  "owned_paths": [
+    ".github/agents",
+    ".github/copilot-instructions.md",
+    ".github/prompts",
+    ".github/skills",
+    ".vscode/settings.json",
+    "AGENTS.md"
+  ],
+  "namespaces": [],
+  "commands": [
+    "validate",
+    "normalize",
+    "install",
+    "doctor"
+  ],
+  "orchestrator_agent": ""
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "pack": "copilot-hooks-orchestrator-pack",
+  "description": "Installable GitHub/Copilot hooks profile for Packman safety and diagnostics.",
+  "hooks": [
+    {
+      "id": "session-start",
+      "event": "sessionStart",
+      "script": "hooks/scripts/session-start.sh",
+      "enabled": true
+    },
+    {
+      "id": "pre-tool-use",
+      "event": "preToolUse",
+      "script": "hooks/scripts/pre-tool-use.sh",
+      "enabled": true
+    },
+    {
+      "id": "error-occurred",
+      "event": "errorOccurred",
+      "script": "hooks/scripts/error-occurred.sh",
+      "enabled": true
+    },
+    {
+      "id": "session-end",
+      "event": "sessionEnd",
+      "script": "hooks/scripts/session-end.sh",
+      "enabled": true
+    }
+  ]
+}

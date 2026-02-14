@@ -1,6 +1,8 @@
 ---
-name: test:fuzz-plan
-description: Build a fuzzing plan and harness strategy focused on boundary-heavy and parser-adjacent failure surfaces.
+name: "brief:test:fuzz-plan"
+description: >-
+  Build a fuzzing plan and harness strategy focused on boundary-heavy and
+  parser-adjacent failure surfaces.
 ---
 
 Produce a fuzz plan with:

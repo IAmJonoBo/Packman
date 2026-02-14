@@ -28,6 +28,16 @@ This pack provides a cross-domain uplift orchestrator that benchmarks repository
 4. Gate
    - Install and enforce CI/security/provenance gates for sustained posture.
 
+## Install links
+
+- VS Code Web sample: [Open sample artifact](https://vscode.dev/github/IAmJonoBo/Packman/blob/main/Packs/copilot-gold-standards-steward-pack/.github/prompts/audit-gold-standard.prompt.md)
+- Raw sample: [Download raw artifact](https://raw.githubusercontent.com/IAmJonoBo/Packman/main/Packs/copilot-gold-standards-steward-pack/.github/prompts/audit-gold-standard.prompt.md)
+
+## Install commands
+
+- Workspace target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-gold-standards-steward-pack --to /path/to/repo --mode fail --json`
+- Global profile target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-gold-standards-steward-pack --target-type global --to /path/to/profile --mode fail --json`
+
 ## Slash commands
 
 - `/audit:gold-standard` — full benchmark and baseline report.

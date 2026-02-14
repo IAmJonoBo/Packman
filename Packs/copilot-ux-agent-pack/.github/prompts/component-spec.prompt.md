@@ -1,7 +1,7 @@
 ---
-name: component-spec
+name: "brief:component-spec"
 description: "Generate a component spec: props, variants, a11y contract, and examples."
-agent: "ask"
+agent: ask
 ---
 
 Write a component specification for: ${selection}

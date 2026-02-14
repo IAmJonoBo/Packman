@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "prePrompt": [
+      {
+        "id": "policy-kernel-local-preprompt",
+        "enabled": true,
+        "action": "local_only_preprompt_guard"
+      }
+    ]
+  }
+}

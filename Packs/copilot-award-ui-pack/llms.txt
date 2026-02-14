@@ -1,0 +1,21 @@
+# llms index (copilot-award-ui-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 15
+
+type	name	path	description
+agent	Art Direction Planner	.github/agents/art-direction-planner.agent.md	Produces tailored art directions (layout, typography, colour, component language) and a system plan before implementation.
+agent	Design System Engineer	.github/agents/design-system-engineer.agent.md	Implements design tokens, typography scale, and atomic components with strict consistency and documentation.
+agent	Pixel QA Reviewer	.github/agents/pixel-qa-reviewer.agent.md	Conducts a ruthless pixel-perfect, a11y, and heuristic review and forces closure of visual/interaction gaps.
+agent	Screen Composer	.github/agents/screen-composer.agent.md	Composes screens from the design system; ensures grid alignment, hierarchy, states, and polish.
+agent	UI Art Director	.github/agents/ui-art-director.agent.md	Designs and implements meticulously crafted, art-directed, award-level UIs using grid/typography/colour systems and rigorous QA.
+prompt	brief:art-direct-screen	.github/prompts/art-direct-screen.prompt.md	>-
+prompt	brief:design-system-blueprint	.github/prompts/design-system-blueprint.prompt.md	>-
+prompt	brief:layout-grid	.github/prompts/layout-grid.prompt.md	>-
+prompt	brief:pixel-perfect-review	.github/prompts/pixel-perfect-review.prompt.md	>-
+prompt	brief:tokens-and-typography	.github/prompts/tokens-and-typography.prompt.md	>-
+prompt	brief:ui-brief	.github/prompts/ui-brief.prompt.md	Collect a design brief for pixel-perfect, art-directed UI work.
+skill	art-direction-intake-and-options	.github/skills/art-direction-intake-and-options/SKILL.md	A rigorous brief intake + 2–3 art direction options (layout/type/colour/components), with explicit questions and decision criteria.
+skill	design-tokens-and-typography	.github/skills/design-tokens-and-typography/SKILL.md	Define semantic tokens and a typography system; enforce use across components and screens.
+skill	layout-composition-grid	.github/skills/layout-composition-grid/SKILL.md	Grid and composition rules for pixel-perfect layouts: columns, gutters, margins, spacing rhythm, optical alignment.
+skill	pixel-perfect-qa	.github/skills/pixel-perfect-qa/SKILL.md	A closing checklist that forces elimination of one-off styles, misalignment, weak hierarchy, and a11y gaps.

@@ -1,7 +1,7 @@
 ---
-name: ui-brief
-description: Collect a design brief for pixel-perfect, art-directed UI work.
-agent: "ask"
+name: "brief:ui-brief"
+description: "Collect a design brief for pixel-perfect, art-directed UI work."
+agent: ask
 ---
 
 Ask me ONLY for missing information, using this structure:

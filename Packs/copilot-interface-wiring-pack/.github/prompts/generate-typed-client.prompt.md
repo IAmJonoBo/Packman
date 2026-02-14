@@ -1,7 +1,9 @@
 ---
-name: generate-typed-client
-description: Create or extend a typed client wrapper for an API, consistent with repo patterns.
-agent: "UI Integrator"
+name: "brief:generate-typed-client"
+description: >-
+  Create or extend a typed client wrapper for an API, consistent with repo
+  patterns.
+agent: UI Integrator
 ---
 
 Scope: ${selection}

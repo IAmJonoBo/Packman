@@ -1,0 +1,62 @@
+{
+  "generatedAt": "2026-02-14T05:02:39.655Z",
+  "canonicalRoot": "Packs",
+  "totalPacks": 20,
+  "collections": [
+    {
+      "id": "foundation",
+      "name": "Foundation",
+      "description": "Core policy, route harmonisation, hooks, and prompt routing foundations.",
+      "packRoots": [
+        "Packs/copilot-policy-kernel-hooks-pack",
+        "Packs/copilot-policy-kernel-pack",
+        "Packs/copilot-prompt-library-pack",
+        "Packs/copilot-suite-harmoniser-pack"
+      ]
+    },
+    {
+      "id": "delivery",
+      "name": "Delivery",
+      "description": "Planning, scaffolding, integration, and repository bootstrap accelerators.",
+      "packRoots": [
+        "Packs/copilot-github-bootstrap-pack",
+        "Packs/copilot-interface-wiring-pack",
+        "Packs/copilot-project-management-planning-pack",
+        "Packs/copilot-project-scaffolding-pack"
+      ]
+    },
+    {
+      "id": "reliability",
+      "name": "Reliability & Security",
+      "description": "Quality, security, architecture, release, and operational resilience packs.",
+      "packRoots": [
+        "Packs/copilot-architecture-governance-pack",
+        "Packs/copilot-edge-case-vanguard-pack",
+        "Packs/copilot-gold-standards-steward-pack",
+        "Packs/copilot-observability-incident-pack",
+        "Packs/copilot-quality-engineer-pack",
+        "Packs/copilot-release-supplychain-pack",
+        "Packs/copilot-security-gatekeeper-pack"
+      ]
+    },
+    {
+      "id": "experience",
+      "name": "Experience & Docs",
+      "description": "UX, visual craft, and documentation quality packs.",
+      "packRoots": [
+        "Packs/copilot-award-ui-pack",
+        "Packs/copilot-docs-librarian-pack",
+        "Packs/copilot-ux-agent-pack"
+      ]
+    },
+    {
+      "id": "misc",
+      "name": "Misc",
+      "description": "Packs that do not fit a primary collection yet.",
+      "packRoots": [
+        "Packs/copilot-hooks-orchestrator-pack",
+        "Packs/copilot-polish-tightening-pack"
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 ---
-name: nit-sweep
+name: "brief:nit-sweep"
 description: Identify and rank high-impact “nits that matter” in the selected area.
-agent: "Nit Hunter"
+agent: Nit Hunter
 ---
 
 Target: ${selection}

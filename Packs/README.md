@@ -468,7 +468,7 @@ When a pack includes `PACK_MANIFEST.json`, Packman enforces ownership and intent
 │   │   │   ├── build-hardener.agent.md
 │   │   │   ├── provenance-attestor.agent.md
 │   │   │   ├── release-notes-curator.agent.md
-│   │   │   ├── release-supplychain.engineer.agent.md
+│   │   │   ├── release-supplychain-engineer.agent.md
 │   │   │   ├── sbom-maintainer.agent.md
 │   │   │   └── verifier.agent.md
 │   │   ├── copilot-instructions.md

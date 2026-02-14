@@ -1,7 +1,9 @@
 ---
-name: generate-sbom
-description: Generate SBOMs (CycloneDX or SPDX) for release artifacts and publish them alongside artifacts.
-agent: "SBOM Maintainer"
+name: "brief:generate-sbom"
+description: >-
+  Generate SBOMs (CycloneDX or SPDX) for release artifacts and publish them
+  alongside artifacts.
+agent: SBOM Maintainer
 ---
 
 Scope: ${selection}

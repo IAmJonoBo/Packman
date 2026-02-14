@@ -1,0 +1,22 @@
+{
+  "id": "copilot-architecture-governance-pack",
+  "name": "copilot-architecture-governance-pack",
+  "version": "0.1.0",
+  "intended_install": "suite",
+  "owned_paths": [
+    ".github/agents",
+    ".github/copilot-instructions.md",
+    ".github/prompts",
+    ".github/skills",
+    ".vscode/settings.json",
+    "AGENTS.md"
+  ],
+  "namespaces": [],
+  "commands": [
+    "validate",
+    "normalize",
+    "install",
+    "doctor"
+  ],
+  "orchestrator_agent": ""
+}

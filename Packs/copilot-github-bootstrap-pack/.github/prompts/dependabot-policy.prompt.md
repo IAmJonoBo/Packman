@@ -1,7 +1,7 @@
 ---
-name: dependabot-policy
+name: "brief:dependabot-policy"
 description: Add/adjust Dependabot update configuration and triage labels.
-agent: "Dependabot Steward"
+agent: Dependabot Steward
 ---
 
 Scope: ${selection}

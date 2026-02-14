@@ -51,6 +51,10 @@ export const api = {
     return invoke<string>("get_default_workspace_parent");
   },
 
+  async getDefaultGlobalProfileRoot(): Promise<string> {
+    return invoke<string>("get_default_global_profile_root");
+  },
+
   async cleanMacOsJunk(path: string): Promise<unknown> {
     return invoke("clean_macos_junk", { rootPath: path });
   },

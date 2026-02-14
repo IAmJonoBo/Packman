@@ -1,0 +1,23 @@
+# llms index (copilot-docs-librarian-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 17
+
+type	name	path	description
+agent	Diagram Curator	.github/agents/diagram-curator.agent.md	Adds or refreshes comprehensive Mermaid diagrams (flows, state machines, sequence, architecture) that match code and text.
+agent	Diátaxis Architect	.github/agents/diataxis-architect.agent.md	Enforces Diátaxis IA (tutorial/how-to/reference/explanation) and rewrites docs to match the correct mode.
+agent	Docs Librarian	.github/agents/docs-librarian.agent.md	Keeps documentation current, sanity-checked, lint-clean, Diátaxis-aligned, and richly supported by diagrams + glossaries.
+agent	Docs Lint Runner	.github/agents/docs-lint-runner.agent.md	Runs and fixes documentation linting (Vale for prose + markdownlint for Markdown formatting).
+agent	Glossary Curator	.github/agents/glossary-curator.agent.md	Maintains a repo glossary; ensures first-use definitions and consistent linking for terms and acronyms.
+agent	Style Enforcer	.github/agents/style-enforcer.agent.md	Enforces Oxford English and house style (incl. Google developer documentation style guide conventions).
+prompt	brief:add-diagrams	.github/prompts/add-diagrams.prompt.md	>-
+prompt	brief:diataxis-restructure	.github/prompts/diataxis-restructure.prompt.md	>-
+prompt	brief:docs-audit	.github/prompts/docs-audit.prompt.md	>-
+prompt	brief:lint-docs	.github/prompts/lint-docs.prompt.md	>-
+prompt	brief:refresh-docs	.github/prompts/refresh-docs.prompt.md	>-
+prompt	brief:refresh-glossary	.github/prompts/refresh-glossary.prompt.md	Update glossary and enforce first-use term definitions and consistent linking.
+prompt	brief:style-sweep	.github/prompts/style-sweep.prompt.md	>-
+skill	diagram-and-glossary-coverage	.github/skills/diagram-and-glossary-coverage/SKILL.md	Ensure docs include comprehensive Mermaid diagrams and an enforced glossary with first-use definitions and consistent linking.
+skill	diataxis-maintenance	.github/skills/diataxis-maintenance/SKILL.md	Classify, refactor, and maintain documentation using Diátaxis (tutorial/how-to/reference/explanation), keeping modes clean and cross-linked.
+skill	docs-sanity-check	.github/skills/docs-sanity-check/SKILL.md	A sanity-check workflow to keep documentation current: validate commands, versions, paths, behaviour, and link integrity.
+skill	style-and-lint-enforcement	.github/skills/style-and-lint-enforcement/SKILL.md	Enforce prose + Markdown style using Vale and markdownlint; align to Oxford English and optional Google developer style conventions.

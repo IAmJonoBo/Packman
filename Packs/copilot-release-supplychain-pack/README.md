@@ -8,6 +8,16 @@ Describe the purpose of this pack.
 
 suite
 
+## Install links
+
+- VS Code Web sample: [Open sample artifact](https://vscode.dev/github/IAmJonoBo/Packman/blob/main/Packs/copilot-release-supplychain-pack/.github/prompts/attest-provenance.prompt.md)
+- Raw sample: [Download raw artifact](https://raw.githubusercontent.com/IAmJonoBo/Packman/main/Packs/copilot-release-supplychain-pack/.github/prompts/attest-provenance.prompt.md)
+
+## Install commands
+
+- Workspace target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-release-supplychain-pack --to /path/to/repo --mode fail --json`
+- Global profile target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-release-supplychain-pack --target-type global --to /path/to/profile --mode fail --json`
+
 ## Key prompts
 
 - .github/prompts/attest-provenance.prompt.md
@@ -23,7 +33,7 @@ suite
 - .github/agents/build-hardener.agent.md
 - .github/agents/provenance-attestor.agent.md
 - .github/agents/release-notes-curator.agent.md
-- .github/agents/release-supplychain.engineer.agent.md
+- .github/agents/release-supplychain-engineer.agent.md
 - .github/agents/sbom-maintainer.agent.md
 - .github/agents/verifier.agent.md
 
@@ -36,7 +46,7 @@ copilot-release-supplychain-pack/
       build-hardener.agent.md
       provenance-attestor.agent.md
       release-notes-curator.agent.md
-      release-supplychain.engineer.agent.md
+      release-supplychain-engineer.agent.md
       sbom-maintainer.agent.md
       verifier.agent.md
     copilot-instructions.md

@@ -8,6 +8,16 @@ Describe the purpose of this pack.
 
 suite
 
+## Install links
+
+- VS Code Web sample: [Open sample artifact](https://vscode.dev/github/IAmJonoBo/Packman/blob/main/Packs/copilot-github-bootstrap-pack/.github/prompts/add-issue-forms.prompt.md)
+- Raw sample: [Download raw artifact](https://raw.githubusercontent.com/IAmJonoBo/Packman/main/Packs/copilot-github-bootstrap-pack/.github/prompts/add-issue-forms.prompt.md)
+
+## Install commands
+
+- Workspace target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-github-bootstrap-pack --to /path/to/repo --mode fail --json`
+- Global profile target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-github-bootstrap-pack --target-type global --to /path/to/profile --mode fail --json`
+
 ## Key prompts
 
 - .github/prompts/add-issue-forms.prompt.md

@@ -1,7 +1,9 @@
 ---
-name: trunk-slice
-description: Convert a large change into small mergeable slices and recommend flags/branch strategy.
-agent: "Trunk Coach"
+name: "brief:trunk-slice"
+description: >-
+  Convert a large change into small mergeable slices and recommend flags/branch
+  strategy.
+agent: Trunk Coach
 ---
 
 Scope: ${selection}

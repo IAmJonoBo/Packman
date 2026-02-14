@@ -1,0 +1,25 @@
+# llms index (copilot-prompt-library-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 19
+
+type	name	path	description
+prompt	audit:repo-health	.github/prompts/audit/audit-repo-health.prompt.md	Audit a repo for basic health: scripts, docs, CI, hygiene, and drift.
+prompt	audit:security-basics	.github/prompts/audit/audit-security-basics.prompt.md	Audit for common security footguns: secrets, auth, input validation, unsafe defaults.
+prompt	audit:ui-a11y	.github/prompts/audit/audit-ui-a11y.prompt.md	Audit UI for accessibility basics (keyboard, focus, semantics, states).
+prompt	brief:acceptance	.github/prompts/brief/brief-acceptance.prompt.md	Write crisp acceptance criteria and verification steps for the selected scope.
+prompt	brief:clarify	.github/prompts/brief/brief-clarify.prompt.md	Ask only for missing constraints; restate as an executable brief.
+prompt	gh:bootstrap	.github/prompts/gh/gh-bootstrap.prompt.md	Bootstrap GitHub hygiene: issue forms, PR template, CODEOWNERS, SECURITY, community health.
+prompt	gov:ship	.github/prompts/gov/gov-ship.prompt.md	Governance pass: ADR/risk scoring/review gates/trunk slicing.
+prompt	obs:ship	.github/prompts/obs/obs-ship.prompt.md	Instrument and define minimal SLIs/SLOs/alerts/runbooks for the selected service/app scope.
+prompt	polish:ship	.github/prompts/polish/polish-ship.prompt.md	Polish pass: nits that matter → safe refactors → consistency → gate review.
+prompt	qa:ship	.github/prompts/qa/qa-ship.prompt.md	Run a quality pass: tests, determinism, linting and CI sanity for the selected scope.
+prompt	rel:ship	.github/prompts/rel/rel-ship.prompt.md	Release & supply chain pass: SBOM/provenance/verification and release hygiene.
+prompt	scaffold:new	.github/prompts/scaffold/scaffold-new.prompt.md	End-to-end scaffolding: brief → profile selection → RepoSpec → scaffold.
+prompt	sec:ship	.github/prompts/sec/sec-ship.prompt.md	Run the security gatekeeper pass for the selected scope.
+prompt	ship:pr-ready	.github/prompts/ship/ship-pr-ready.prompt.md	Prepare a PR-ready summary: what/why/how to test/risk/docs impact.
+prompt	ship:small-slice-plan	.github/prompts/ship/ship-small-slice-plan.prompt.md	Convert the requested work into small mergeable slices with verification per slice.
+prompt	suite:route	.github/prompts/suite/suite:route.prompt.md	Route the request to the correct specialist agent if installed; otherwise produce a plan.
+prompt	ui:award	.github/prompts/ui/ui-award.prompt.md	Art-direct and implement a meticulous, award-level UI system (typography/layout/colour/components).
+prompt	ui:prototype	.github/prompts/ui/ui-prototype.prompt.md	Design an exceptional prototype (flows, IA, states) and produce implementation-ready UI guidance.
+prompt	ui:wiring	.github/prompts/ui/ui-wiring.prompt.md	Wire up UI to backend interfaces (contracts, adapters, state, error handling).

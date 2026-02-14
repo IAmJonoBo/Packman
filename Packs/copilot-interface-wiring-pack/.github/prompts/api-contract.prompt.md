@@ -1,7 +1,9 @@
 ---
-name: api-contract
-description: Analyse and document an API/interface contract and error taxonomy for a feature.
-agent: "API Contract Analyst"
+name: "brief:api-contract"
+description: >-
+  Analyse and document an API/interface contract and error taxonomy for a
+  feature.
+agent: API Contract Analyst
 ---
 
 Target: ${selection}

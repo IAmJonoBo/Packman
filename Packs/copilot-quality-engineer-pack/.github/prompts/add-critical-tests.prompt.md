@@ -1,7 +1,9 @@
 ---
-name: add-critical-tests
-description: Create/refresh critical path inventory and add the smallest set of tests that materially reduce regression risk.
-agent: "Quality Engineer"
+name: "brief:add-critical-tests"
+description: >-
+  Create/refresh critical path inventory and add the smallest set of tests that
+  materially reduce regression risk.
+agent: Quality Engineer
 ---
 
 Scope: ${selection}

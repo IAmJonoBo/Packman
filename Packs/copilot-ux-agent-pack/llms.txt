@@ -1,0 +1,17 @@
+# llms index (copilot-ux-agent-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 11
+
+type	name	path	description
+agent	UX Implementer	.github/agents/ux-implementer.agent.md	Implement UX changes with minimal diffs; cover states and accessibility; keep consistency.
+agent	UXPrototyper	.github/agents/ux-prototyper.agent.md	Turn product intent into a working prototype with strong UX, states, and accessibility.
+agent	UX Researcher	.github/agents/ux-researcher.agent.md	Read-only analysis of codebase patterns and UX constraints; propose a clear UX contract and plan.
+agent	UX Reviewer	.github/agents/ux-reviewer.agent.md	Review UX changes for clarity, a11y, states, copy, and consistency; produce actionable fixes.
+prompt	brief:component-spec	.github/prompts/component-spec.prompt.md	Generate a component spec: props, variants, a11y contract, and examples.
+prompt	brief:prototype-screen	.github/prompts/prototype-screen.prompt.md	Build a clickable prototype for a described screen/flow with strong UX states.
+prompt	brief:tokens-hardening	.github/prompts/tokens-hardening.prompt.md	Propose/align design tokens and refactor a component to use them consistently.
+prompt	brief:ux-audit	.github/prompts/ux-audit.prompt.md	>-
+skill	accessibility-sweep	.github/skills/accessibility-sweep/SKILL.md	Accessibility-first sweep: semantics, keyboard flow, focus, and ARIA correctness. Use when shipping UI changes.
+skill	ux-heuristic-audit	.github/skills/ux-heuristic-audit/SKILL.md	Heuristic UX audit workflow (including states + accessibility) with an impact/effort ranking and concrete fixes.
+skill	ux-prototype-workflow	.github/skills/ux-prototype-workflow/SKILL.md	End-to-end workflow for turning intent into a working UI prototype with states, accessibility, and consistency.

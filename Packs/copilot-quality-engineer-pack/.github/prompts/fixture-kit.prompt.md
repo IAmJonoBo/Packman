@@ -1,7 +1,9 @@
 ---
-name: fixture-kit
-description: Create a deterministic fixture kit (data builders, fake servers, clocks) for reliable tests.
-agent: "Test Implementer"
+name: "brief:fixture-kit"
+description: >-
+  Create a deterministic fixture kit (data builders, fake servers, clocks) for
+  reliable tests.
+agent: Test Implementer
 ---
 
 Scope: ${selection}

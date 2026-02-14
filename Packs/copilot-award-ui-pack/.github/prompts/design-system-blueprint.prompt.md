@@ -1,7 +1,9 @@
 ---
-name: design-system-blueprint
-description: Create a compact, high-rigor design system blueprint (tokens, type, grid, components) before implementation.
-agent: "Art Direction Planner"
+name: "brief:design-system-blueprint"
+description: >-
+  Create a compact, high-rigor design system blueprint (tokens, type, grid,
+  components) before implementation.
+agent: Art Direction Planner
 ---
 
 Scope: ${selection}

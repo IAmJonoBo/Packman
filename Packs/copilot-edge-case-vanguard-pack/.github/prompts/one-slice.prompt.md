@@ -1,6 +1,8 @@
 ---
-name: fix:one-slice
-description: Propose a single reversible mitigation slice with tests, verification gates, and rollback procedure.
+name: "brief:fix:one-slice"
+description: >-
+  Propose a single reversible mitigation slice with tests, verification gates,
+  and rollback procedure.
 ---
 
 Design one minimal remediation slice for the highest-priority edge case:

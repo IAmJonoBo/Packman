@@ -1,7 +1,7 @@
 ---
-name: make-tests-deterministic
-description: Remove flakiness by hardening locators, waits, fixtures, time, and randomness.
-agent: "Flake Hunter"
+name: "brief:make-tests-deterministic"
+description: "Remove flakiness by hardening locators, waits, fixtures, time, and randomness."
+agent: Flake Hunter
 ---
 
 Target: ${selection}

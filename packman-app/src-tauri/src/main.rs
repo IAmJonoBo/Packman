@@ -177,6 +177,44 @@ fn detect_default_workspace_parent() -> PathBuf {
     PathBuf::from(".")
 }
 
+fn detect_default_global_profile_root() -> PathBuf {
+    #[cfg(target_os = "windows")]
+    {
+        if let Ok(app_data) = env::var("APPDATA") {
+            return PathBuf::from(app_data).join("Packman").join("profile");
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        if let Ok(home) = env::var("HOME") {
+            return PathBuf::from(home)
+                .join("Library")
+                .join("Application Support")
+                .join("Packman")
+                .join("profile");
+        }
+    }
+
+    #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
+    {
+        if let Ok(xdg_config_home) = env::var("XDG_CONFIG_HOME") {
+            return PathBuf::from(xdg_config_home)
+                .join("packman")
+                .join("profile");
+        }
+    }
+
+    if let Ok(home) = env::var("HOME") {
+        return PathBuf::from(home)
+            .join(".config")
+            .join("packman")
+            .join("profile");
+    }
+
+    PathBuf::from(".").join("packman-profile")
+}
+
 fn debug_log_path() -> PathBuf {
     if let Ok(explicit) = env::var("PACKMAN_DEBUG_LOG_PATH") {
         return PathBuf::from(explicit);
@@ -341,6 +379,19 @@ fn get_default_workspace_parent() -> Result<String, String> {
         .to_str()
         .map(|s| s.to_string())
         .ok_or_else(|| String::from("Failed to encode default workspace parent path"))
+}
+
+#[tauri::command]
+fn get_default_global_profile_root() -> Result<String, String> {
+    let root = detect_default_global_profile_root();
+    append_debug_log(&format!(
+        "get_default_global_profile_root resolved={} ",
+        root.to_string_lossy()
+    ));
+    std::fs::create_dir_all(&root).map_err(|e| e.to_string())?;
+    root.to_str()
+        .map(|s| s.to_string())
+        .ok_or_else(|| String::from("Failed to encode global profile root path"))
 }
 
 fn is_allowed_trial_workspace(path: &Path) -> bool {
@@ -638,6 +689,7 @@ fn main() {
             create_trial_workspace,
             seed_trial_workspace,
             get_default_workspace_parent,
+            get_default_global_profile_root,
             clean_macos_junk,
             probe_workspace_file,
             create_workspace_file,

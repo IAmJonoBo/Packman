@@ -1,8 +1,14 @@
 ---
-name: "gates:setup"
-description: Define and wire CI quality, security, and provenance gates aligned to target standards.
+name: "brief:gates:setup"
+description: >-
+  Define and wire CI quality, security, and provenance gates aligned to target
+  standards.
 agent: gold-standards-steward
-tools: ["codebase", "search", "editFiles", "agent"]
+tools:
+  - codebase
+  - search
+  - editFiles
+  - agent
 ---
 
 # gates:setup

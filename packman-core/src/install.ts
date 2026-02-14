@@ -9,6 +9,7 @@ import { mergeSettings } from "./settings-merge.js";
 import { validatePack } from "./validate.js";
 import { isSuiteOwnedPath } from "./artifact-policy.js";
 import type {
+  ImportCategory,
   InstallCollision,
   InstallOptions,
   InstallPlan,
@@ -40,6 +41,190 @@ const COPY_PATTERNS = [
 ];
 const BACKUP_DIRECTORY_RELATIVE_PATH = path.join(".packman", "backups");
 const MAX_BACKUP_ARCHIVES = 20;
+
+function normalizePathForCompare(value: string): string {
+  return value.replace(/\\/g, "/").replace(/^\.\//, "");
+}
+
+function categoryForRelativePath(relativePath: string): ImportCategory | null {
+  const normalized = normalizePathForCompare(relativePath);
+
+  if (
+    normalized === "AGENTS.md" ||
+    normalized === "CLAUDE.md" ||
+    normalized === "CLAUDE.local.md" ||
+    normalized === ".claude/CLAUDE.md"
+  ) {
+    return "alwaysOn";
+  }
+
+  if (
+    normalized.endsWith(".agent.md") ||
+    normalized.startsWith(".github/agents/") ||
+    normalized.startsWith(".claude/agents/")
+  ) {
+    return "agents";
+  }
+
+  if (
+    normalized.endsWith(".prompt.md") ||
+    normalized.startsWith(".github/prompts/")
+  ) {
+    return "prompts";
+  }
+
+  if (
+    normalized.endsWith(".instructions.md") ||
+    normalized === ".github/copilot-instructions.md" ||
+    normalized === "AGENTS.md" ||
+    normalized === "CLAUDE.md" ||
+    normalized === "CLAUDE.local.md" ||
+    normalized === ".claude/CLAUDE.md"
+  ) {
+    return "instructions";
+  }
+
+  if (
+    normalized.startsWith(".github/skills/") ||
+    normalized.startsWith(".claude/skills/") ||
+    normalized.startsWith(".agents/skills/")
+  ) {
+    return "skills";
+  }
+
+  if (
+    normalized === ".claude/settings.json" ||
+    normalized === ".claude/settings.local.json" ||
+    normalized === ".vscode/settings.json"
+  ) {
+    return "settings";
+  }
+
+  if (normalized.startsWith(".github/hooks/")) {
+    return "hooks";
+  }
+
+  if (normalized === ".vscode/mcp.json") {
+    return "mcp";
+  }
+
+  if (normalized === "PACK_MANIFEST.json") {
+    return "manifest";
+  }
+
+  if (normalized === "README.md") {
+    return "readme";
+  }
+
+  return null;
+}
+
+function stripKnownPrefix(normalizedPath: string, prefixes: string[]): string {
+  for (const prefix of prefixes) {
+    if (normalizedPath.startsWith(prefix)) {
+      return normalizedPath.slice(prefix.length);
+    }
+  }
+  return path.posix.basename(normalizedPath);
+}
+
+function mapRelativePathForTarget(
+  sourceRelativePath: string,
+  options: InstallOptions,
+): string {
+  if (options.targetType !== "global") {
+    return sourceRelativePath;
+  }
+
+  const normalized = normalizePathForCompare(sourceRelativePath);
+  const category = categoryForRelativePath(normalized);
+
+  if (category === null) {
+    return normalized;
+  }
+
+  switch (category) {
+    case "agents": {
+      const remainder = stripKnownPrefix(normalized, [
+        ".github/agents/",
+        ".claude/agents/",
+      ]);
+      return path.posix.join(".github/agents", remainder);
+    }
+    case "prompts": {
+      const remainder = stripKnownPrefix(normalized, [".github/prompts/"]);
+      return path.posix.join(".github/prompts", remainder);
+    }
+    case "instructions": {
+      const remainder = stripKnownPrefix(normalized, [".github/instructions/"]);
+      return path.posix.join(".github/instructions", remainder);
+    }
+    case "skills": {
+      const remainder = stripKnownPrefix(normalized, [
+        ".github/skills/",
+        ".claude/skills/",
+        ".agents/skills/",
+      ]);
+      return path.posix.join(".github/skills", remainder);
+    }
+    case "settings":
+      return path.posix.join(".vscode", path.posix.basename(normalized));
+    case "hooks":
+      return path.posix.join(".github/hooks", path.posix.basename(normalized));
+    case "mcp":
+      return ".vscode/mcp.json";
+    case "alwaysOn":
+      return path.posix.basename(normalized);
+    case "manifest":
+      return "PACK_MANIFEST.json";
+    case "readme":
+      return "README.md";
+    default:
+      return normalized;
+  }
+}
+
+function filterInstallPaths(
+  paths: string[],
+  options: InstallOptions,
+): {
+  filteredPaths: string[];
+  categoriesApplied: boolean;
+  explicitPathsApplied: boolean;
+} {
+  const unique = [
+    ...new Set(paths.map((value) => normalizePathForCompare(value))),
+  ];
+  const includePaths = (options.includePaths ?? []).map((value) =>
+    normalizePathForCompare(value),
+  );
+  const includePathSet = new Set(includePaths);
+  const explicitPathsApplied = includePathSet.size > 0;
+
+  const includeCategories = options.includeCategories ?? [];
+  const categorySet = new Set(includeCategories);
+  const categoriesApplied = categorySet.size > 0;
+
+  let filtered = unique;
+  if (explicitPathsApplied) {
+    filtered = filtered.filter((relativePath) =>
+      includePathSet.has(relativePath),
+    );
+  }
+
+  if (categoriesApplied) {
+    filtered = filtered.filter((relativePath) => {
+      const category = categoryForRelativePath(relativePath);
+      return category !== null && categorySet.has(category);
+    });
+  }
+
+  return {
+    filteredPaths: filtered,
+    categoriesApplied,
+    explicitPathsApplied,
+  };
+}
 
 async function ensureParent(filePath: string): Promise<void> {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -155,21 +340,23 @@ function previewContent(content: string): string {
 async function buildInstallPlan(
   sourcePath: string,
   targetPath: string,
+  options: InstallOptions,
 ): Promise<InstallPlan> {
   const matches = await fg(COPY_PATTERNS, {
     cwd: sourcePath,
     onlyFiles: true,
     dot: true,
   });
-  const unique = [...new Set(matches)];
+  const { filteredPaths } = filterInstallPaths(matches, options);
   const operations: InstallPlan["operations"] = [];
   const collisions: InstallCollision[] = [];
 
-  for (const relativePath of unique) {
+  for (const relativePath of filteredPaths) {
     const sourceFile = path.join(sourcePath, relativePath);
-    const targetFile = path.join(targetPath, relativePath);
+    const mappedRelativePath = mapRelativePathForTarget(relativePath, options);
+    const targetFile = path.join(targetPath, mappedRelativePath);
 
-    if (relativePath === ".vscode/settings.json") {
+    if (mappedRelativePath === ".vscode/settings.json") {
       operations.push({
         action: "merge",
         relativePath,
@@ -200,7 +387,7 @@ async function buildInstallPlan(
       reason: "Target content differs from source content",
     });
     collisions.push({
-      relativePath,
+      relativePath: mappedRelativePath,
       sourcePath: sourceFile,
       targetPath: targetFile,
       sourcePreview: previewContent(incoming),
@@ -225,7 +412,7 @@ export async function installPack(
   const issues: Issue[] = [];
   const collisionStrategy = options.collisionStrategy ?? "fail";
   const collisionDecisions = options.collisionDecisions ?? {};
-  const plan = await buildInstallPlan(sourcePath, options.targetPath);
+  const plan = await buildInstallPlan(sourcePath, options.targetPath, options);
   const hasSuiteOwnedFiles = plan.operations.some((operation) =>
     isSuiteOwnedPath(operation.relativePath),
   );
@@ -249,8 +436,30 @@ export async function installPack(
     onlyFiles: true,
     dot: true,
   });
-  const filesToTouch = [...new Set(matches)];
+  const {
+    filteredPaths: filesToTouch,
+    categoriesApplied,
+    explicitPathsApplied,
+  } = filterInstallPaths(matches, options);
   const touched: string[] = [];
+
+  if (filesToTouch.length === 0) {
+    issues.push({
+      severity: "error",
+      code: "INSTALL_FILTER_EMPTY",
+      message:
+        categoriesApplied || explicitPathsApplied
+          ? "No files matched the selected categories/files. Adjust your selection and regenerate the plan."
+          : "No installable files found in the selected pack source.",
+    });
+    return {
+      ok: false,
+      issues,
+      filesTouched: [],
+      plans: [plan],
+      elapsedMs: Date.now() - started,
+    };
+  }
 
   if (options.dryRun) {
     return {
@@ -262,14 +471,20 @@ export async function installPack(
     };
   }
 
-  const backupZipPath = await backupFiles(options.targetPath, filesToTouch);
+  const mappedFilesToTouch = filesToTouch.map((relativePath) =>
+    mapRelativePathForTarget(relativePath, options),
+  );
+  const backupZipPath = await backupFiles(
+    options.targetPath,
+    mappedFilesToTouch,
+  );
 
   for (const relativePath of filesToTouch) {
     const sourceFile = path.join(sourcePath, relativePath);
-    let effectiveRelativePath = relativePath;
+    let effectiveRelativePath = mapRelativePathForTarget(relativePath, options);
     let targetFile = path.join(options.targetPath, effectiveRelativePath);
 
-    if (relativePath === ".vscode/settings.json") {
+    if (effectiveRelativePath === ".vscode/settings.json") {
       const existing =
         (await readJson<Record<string, unknown>>(targetFile)) ?? {};
       const incoming =

@@ -1,0 +1,8 @@
+# llms index (copilot-suite-harmoniser-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 2
+
+type	name	path	description
+agent	Suite Chief of Staff	.github/agents/suite-chief-of-staff.agent.md	Routes work across installed packs, enforces namespacing, and avoids file collisions.
+prompt	suite:route	.github/prompts/suite/suite:route.prompt.md	Route the request to the right pack orchestrator (if installed) or produce a minimal plan.

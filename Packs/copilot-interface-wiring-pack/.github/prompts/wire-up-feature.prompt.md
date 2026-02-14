@@ -1,7 +1,9 @@
 ---
-name: wire-up-feature
-description: Wire a UI surface to backend interface(s) contract-first, with explicit states and tests.
-agent: "Interface Wire‑Up"
+name: "brief:wire-up-feature"
+description: >-
+  Wire a UI surface to backend interface(s) contract-first, with explicit states
+  and tests.
+agent: Interface Wire‑Up
 ---
 
 Target / description: ${selection}

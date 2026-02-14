@@ -1,7 +1,7 @@
 ---
-name: verify-release
-description: Add verification docs/scripts for artifacts, attestations, and SBOM checks.
-agent: "Verifier"
+name: "brief:verify-release"
+description: "Add verification docs/scripts for artifacts, attestations, and SBOM checks."
+agent: Verifier
 ---
 
 Scope: ${selection}

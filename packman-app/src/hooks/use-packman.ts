@@ -4,6 +4,21 @@ import { api } from "../lib/api";
 const RECENT_TRIAL_WORKSPACES_KEY = "packman.recentTrialWorkspaces.v1";
 const MAX_RECENT_TRIAL_WORKSPACES = 12;
 
+export const AVAILABLE_IMPORT_CATEGORIES = [
+  "agents",
+  "prompts",
+  "instructions",
+  "skills",
+  "settings",
+  "hooks",
+  "mcp",
+  "alwaysOn",
+  "manifest",
+  "readme",
+] as const;
+
+export type ImportCategory = (typeof AVAILABLE_IMPORT_CATEGORIES)[number];
+
 function normalizeRecentTrialWorkspaceList(paths: string[]): string[] {
   const unique = [...new Set(paths.filter((value) => value.length > 0))];
   return unique.slice(0, MAX_RECENT_TRIAL_WORKSPACES);
@@ -234,6 +249,16 @@ export function usePackman() {
   const [workspaceParentPath, setWorkspaceParentPath] = useState<string | null>(
     null,
   );
+  const [installTargetType, setInstallTargetType] = useState<
+    "workspace" | "global"
+  >("workspace");
+  const [globalProfilePath, setGlobalProfilePath] = useState<string | null>(
+    null,
+  );
+  const [selectedImportCategories, setSelectedImportCategories] = useState<
+    ImportCategory[]
+  >([...AVAILABLE_IMPORT_CATEGORIES]);
+  const [selectedImportPaths, setSelectedImportPaths] = useState<string[]>([]);
   const [collisionStrategy, setCollisionStrategy] = useState<
     "fail" | "skip" | "overwrite" | "rename"
   >("fail");
@@ -277,6 +302,30 @@ export function usePackman() {
       cancelled = true;
     };
   }, [debugLog, workspaceParentPath]);
+
+  useEffect(() => {
+    if (installTargetType !== "global" || globalProfilePath) {
+      return;
+    }
+
+    let cancelled = false;
+    void (async () => {
+      try {
+        const resolvedPath = await api.getDefaultGlobalProfileRoot();
+        if (!cancelled && resolvedPath) {
+          setGlobalProfilePath(resolvedPath);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(String(err));
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [globalProfilePath, installTargetType]);
 
   const pushRecentTrialWorkspace = useCallback((workspacePath: string) => {
     setRecentTrialWorkspaces((previous) => {
@@ -330,16 +379,24 @@ export function usePackman() {
 
     try {
       setIsBusy(true);
-      const path = await api.pickDirectory("Select Target Workspace");
+      const path = await api.pickDirectory(
+        installTargetType === "global"
+          ? "Select Global Profile Target"
+          : "Select Target Workspace",
+      );
       if (path) {
-        setTargetPath(path);
+        if (installTargetType === "global") {
+          setGlobalProfilePath(path);
+        } else {
+          setTargetPath(path);
+        }
       }
     } catch (err) {
       setError(String(err));
     } finally {
       setIsBusy(false);
     }
-  }, []);
+  }, [installTargetType]);
 
   const pickWorkspaceParent = useCallback(async () => {
     try {
@@ -579,6 +636,14 @@ export function usePackman() {
   }, [targetPath]);
 
   const probeTargetWorkspaceFile = useCallback(async () => {
+    if (installTargetType === "global") {
+      return {
+        ok: true,
+        exists: true,
+        reason: "GLOBAL_TARGET",
+      };
+    }
+
     if (!targetPath) {
       return {
         ok: true,
@@ -600,7 +665,7 @@ export function usePackman() {
         error: message,
       };
     }
-  }, [targetPath]);
+  }, [installTargetType, targetPath]);
 
   const buildInstallError = useCallback(
     (action: "plan" | "apply", message: string): CommandErrorOutput => ({
@@ -613,6 +678,16 @@ export function usePackman() {
   );
 
   const ensureTargetWorkspace = useCallback(async () => {
+    if (installTargetType === "global") {
+      if (globalProfilePath) {
+        return globalProfilePath;
+      }
+
+      const resolvedPath = await api.getDefaultGlobalProfileRoot();
+      setGlobalProfilePath(resolvedPath);
+      return resolvedPath;
+    }
+
     if (targetPath) {
       return targetPath;
     }
@@ -626,7 +701,25 @@ export function usePackman() {
     setTargetPath(seededPath);
     pushRecentTrialWorkspace(seededPath);
     return seededPath;
-  }, [pushRecentTrialWorkspace, targetPath]);
+  }, [
+    globalProfilePath,
+    installTargetType,
+    pushRecentTrialWorkspace,
+    targetPath,
+  ]);
+
+  const appendInstallSelectionArgs = useCallback(
+    (args: string[]) => {
+      args.push("--target-type", installTargetType);
+      for (const category of selectedImportCategories) {
+        args.push("--include-category", category);
+      }
+      for (const relativePath of selectedImportPaths) {
+        args.push("--include-path", relativePath);
+      }
+    },
+    [installTargetType, selectedImportCategories, selectedImportPaths],
+  );
 
   const installPlan = useCallback(async () => {
     if (!sourcePath) {
@@ -653,32 +746,34 @@ export function usePackman() {
       }
 
       const resolvedTargetPath = await ensureTargetWorkspace();
-      const workspaceProbe = (await api.probeWorkspaceFile(
-        resolvedTargetPath,
-      )) as WorkspaceFileProbeResult;
-      if (!workspaceProbe.ok) {
-        const message =
-          workspaceProbe.error ??
-          "Failed to inspect target workspace file state";
-        const failure = buildInstallError("plan", message);
-        setError(message);
-        setPlanOutput(failure);
-        return failure;
-      }
+      if (installTargetType === "workspace") {
+        const workspaceProbe = (await api.probeWorkspaceFile(
+          resolvedTargetPath,
+        )) as WorkspaceFileProbeResult;
+        if (!workspaceProbe.ok) {
+          const message =
+            workspaceProbe.error ??
+            "Failed to inspect target workspace file state";
+          const failure = buildInstallError("plan", message);
+          setError(message);
+          setPlanOutput(failure);
+          return failure;
+        }
 
-      if (!workspaceProbe.exists) {
-        const message =
-          "No VS Code .code-workspace file found in target. Confirm to create one before generating a plan.";
-        const failure = {
-          ok: false,
-          error: message,
-          code: "WORKSPACE_FILE_MISSING",
-          targetPath: resolvedTargetPath,
-          action: "plan",
-        };
-        setError(message);
-        setPlanOutput(failure);
-        return failure;
+        if (!workspaceProbe.exists) {
+          const message =
+            "No VS Code .code-workspace file found in target. Confirm to create one before generating a plan.";
+          const failure = {
+            ok: false,
+            error: message,
+            code: "WORKSPACE_FILE_MISSING",
+            targetPath: resolvedTargetPath,
+            action: "plan",
+          };
+          setError(message);
+          setPlanOutput(failure);
+          return failure;
+        }
       }
 
       const args = [
@@ -690,6 +785,7 @@ export function usePackman() {
         "--dry-run",
         "--json",
       ];
+      appendInstallSelectionArgs(args);
       const result = await api.runPackmanCommand("install", args);
       const failure = parseCommandFailure(result, sourcePath);
       if (failure) {
@@ -708,10 +804,12 @@ export function usePackman() {
       setIsBusy(false);
     }
   }, [
+    appendInstallSelectionArgs,
     buildInstallError,
     collisionStrategy,
     debugLog,
     ensureTargetWorkspace,
+    installTargetType,
     sourcePath,
     targetPath,
   ]);
@@ -742,6 +840,7 @@ export function usePackman() {
         collisionStrategy,
         "--json",
       ];
+      appendInstallSelectionArgs(args);
       const mockedInstall = e2eState.mockResponses.install;
       if (mockedInstall !== undefined) {
         debugLog("Install apply using mocked response");
@@ -766,6 +865,7 @@ export function usePackman() {
       setIsBusy(false);
     }
   }, [
+    appendInstallSelectionArgs,
     buildInstallError,
     collisionStrategy,
     debugLog,
@@ -797,14 +897,22 @@ export function usePackman() {
   return {
     sourcePath,
     targetPath,
+    installTargetType,
+    globalProfilePath,
     workspaceParentPath,
     collisionStrategy,
+    selectedImportCategories,
+    selectedImportPaths,
     isBusy,
     lastOutput,
     planOutput,
     installOutput,
     error,
     recentTrialWorkspaces,
+    setInstallTargetType,
+    setGlobalProfilePath,
+    setSelectedImportCategories,
+    setSelectedImportPaths,
     setCollisionStrategy,
     setTargetWorkspace,
     pickSource,

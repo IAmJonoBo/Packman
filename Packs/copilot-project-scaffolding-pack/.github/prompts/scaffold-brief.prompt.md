@@ -1,7 +1,7 @@
 ---
-name: scaffold-brief
+name: "brief:scaffold-brief"
 description: Capture missing constraints before scaffolding a new project.
-agent: "ask"
+agent: ask
 ---
 
 Ask me ONLY for missing information:

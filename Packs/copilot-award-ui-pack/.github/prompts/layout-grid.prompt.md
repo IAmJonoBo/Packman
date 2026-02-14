@@ -1,7 +1,9 @@
 ---
-name: layout-grid
-description: Define a precise layout grid and spacing rhythm, then apply it to the target UI.
-agent: "Design System Engineer"
+name: "brief:layout-grid"
+description: >-
+  Define a precise layout grid and spacing rhythm, then apply it to the target
+  UI.
+agent: Design System Engineer
 ---
 
 Target: ${selection}

@@ -1,7 +1,9 @@
 ---
-name: instrument-service
-description: Add/standardise OpenTelemetry instrumentation using semantic conventions; include correlation and exception attributes.
-agent: "OTel Instrumentation Engineer"
+name: "brief:instrument-service"
+description: >-
+  Add/standardise OpenTelemetry instrumentation using semantic conventions;
+  include correlation and exception attributes.
+agent: OTel Instrumentation Engineer
 ---
 
 Target: ${selection}

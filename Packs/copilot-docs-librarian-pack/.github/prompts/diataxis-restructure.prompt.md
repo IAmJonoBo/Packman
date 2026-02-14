@@ -1,7 +1,9 @@
 ---
-name: diataxis-restructure
-description: Restructure docs to conform to Diátaxis; split mixed-mode pages and cross-link.
-agent: "Diátaxis Architect"
+name: "brief:diataxis-restructure"
+description: >-
+  Restructure docs to conform to Diátaxis; split mixed-mode pages and
+  cross-link.
+agent: Diátaxis Architect
 ---
 
 Target: ${selection}

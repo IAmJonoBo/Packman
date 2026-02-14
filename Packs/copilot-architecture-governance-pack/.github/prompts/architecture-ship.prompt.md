@@ -1,7 +1,9 @@
 ---
-name: architecture-ship
-description: "End-to-end governance: brief → ADR → risk score → review gates → trunk slicing (if needed)."
-agent: "Architecture & Governance Steward"
+name: "brief:architecture-ship"
+description: >-
+  End-to-end governance: brief → ADR → risk score → review gates → trunk slicing
+  (if needed).
+agent: Architecture & Governance Steward
 ---
 
 Scope: ${selection}

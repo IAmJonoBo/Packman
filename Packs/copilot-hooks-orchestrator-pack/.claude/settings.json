@@ -1,0 +1,32 @@
+{
+  "hooks": {
+    "sessionStart": [
+      {
+        "id": "packman-session-start",
+        "enabled": true,
+        "script": "hooks/scripts/session-start.sh"
+      }
+    ],
+    "preToolUse": [
+      {
+        "id": "packman-pre-tool-use",
+        "enabled": true,
+        "script": "hooks/scripts/pre-tool-use.sh"
+      }
+    ],
+    "errorOccurred": [
+      {
+        "id": "packman-error-occurred",
+        "enabled": true,
+        "script": "hooks/scripts/error-occurred.sh"
+      }
+    ],
+    "sessionEnd": [
+      {
+        "id": "packman-session-end",
+        "enabled": true,
+        "script": "hooks/scripts/session-end.sh"
+      }
+    ]
+  }
+}

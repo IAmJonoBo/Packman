@@ -1,7 +1,7 @@
 ---
-name: security-brief
+name: "sec:security-brief"
 description: Ask for missing security requirements and constraints before proceeding.
-agent: "ask"
+agent: ask
 ---
 
 Ask me ONLY for missing information, using this structure:

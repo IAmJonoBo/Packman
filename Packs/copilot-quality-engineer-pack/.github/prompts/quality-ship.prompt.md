@@ -1,7 +1,7 @@
 ---
-name: quality-ship
+name: "qa:quality-ship"
 description: "End-to-end quality pass: brief → plan → implement → de-flake → review."
-agent: "Quality Engineer"
+agent: Quality Engineer
 ---
 
 Scope: ${selection}

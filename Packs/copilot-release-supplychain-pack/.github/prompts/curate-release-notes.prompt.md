@@ -1,7 +1,9 @@
 ---
-name: curate-release-notes
-description: Curate changelog/release notes for the upcoming release with breaking changes and migration guidance.
-agent: "Release Notes Curator"
+name: "brief:curate-release-notes"
+description: >-
+  Curate changelog/release notes for the upcoming release with breaking changes
+  and migration guidance.
+agent: Release Notes Curator
 ---
 
 Scope: ${selection}

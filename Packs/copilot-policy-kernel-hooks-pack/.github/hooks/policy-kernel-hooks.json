@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "pack": "copilot-policy-kernel-hooks-pack",
+  "description": "Reference hook profile for policy-kernel preflight and post-write checks.",
+  "hooks": [
+    {
+      "id": "policy-kernel-preflight",
+      "event": "pre_command",
+      "action": "validate_policy_context",
+      "enabled": true
+    },
+    {
+      "id": "policy-kernel-postwrite",
+      "event": "post_edit",
+      "action": "validate_changed_files",
+      "enabled": true
+    }
+  ]
+}

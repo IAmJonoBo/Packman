@@ -1,0 +1,245 @@
+# suite llms index
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 20
+entry_count: 239
+
+type	name	path	description
+agent	ADR Writer	Packs/copilot-architecture-governance-pack/.github/agents/adr-writer.agent.md	Creates crisp, Nygard-style ADRs with alternatives, constraints, and consequences; maintains ADR index.
+agent	Architecture & Governance Steward	Packs/copilot-architecture-governance-pack/.github/agents/architecture-governance-steward.agent.md	Ensures ADR discipline, trunk-based workflow, review gates, and decision hygiene with minimal bureaucracy.
+agent	Change Risk Scorer	Packs/copilot-architecture-governance-pack/.github/agents/change-risk-scorer.agent.md	Scores change risk and prescribes verification gates (tests, rollout, monitoring, rollback).
+agent	Code Review Marshal	Packs/copilot-architecture-governance-pack/.github/agents/code-review-marshal.agent.md	Enforces review standards for long-term code health: correctness, readability, maintainability, security, and operability.
+agent	Trunk Coach	Packs/copilot-architecture-governance-pack/.github/agents/trunk-coach.agent.md	Enforces trunk-based development discipline: small merges, short-lived branches, feature flags, and always releasable trunk.
+prompt	brief:architecture-brief	Packs/copilot-architecture-governance-pack/.github/prompts/architecture-brief.prompt.md	Ask for missing architecture/governance constraints before proceeding.
+prompt	brief:architecture-ship	Packs/copilot-architecture-governance-pack/.github/prompts/architecture-ship.prompt.md	>-
+prompt	brief:governance-review	Packs/copilot-architecture-governance-pack/.github/prompts/governance-review.prompt.md	>-
+prompt	brief:risk-score-change	Packs/copilot-architecture-governance-pack/.github/prompts/risk-score-change.prompt.md	>-
+prompt	brief:trunk-slice	Packs/copilot-architecture-governance-pack/.github/prompts/trunk-slice.prompt.md	>-
+prompt	brief:write-adr	Packs/copilot-architecture-governance-pack/.github/prompts/write-adr.prompt.md	>-
+skill	adr-discipline-nygard	Packs/copilot-architecture-governance-pack/.github/skills/adr-discipline-nygard/SKILL.md	Create and maintain concise Nygard-style ADRs and an ADR index; keep decisions discoverable and current.
+skill	change-risk-scoring	Packs/copilot-architecture-governance-pack/.github/skills/change-risk-scoring/SKILL.md	Score changes by blast radius and prescribe verification, rollout, and rollback plans proportional to risk.
+skill	review-gates-google-standard	Packs/copilot-architecture-governance-pack/.github/skills/review-gates-google-standard/SKILL.md	Apply high-signal review gates aligned to Google's code review standard: code health over time, readability, correctness, and maintainability.
+skill	trunk-discipline	Packs/copilot-architecture-governance-pack/.github/skills/trunk-discipline/SKILL.md	Apply trunk-based development discipline: small merges, short-lived branches, feature flags, and always releasable main.
+agent	Art Direction Planner	Packs/copilot-award-ui-pack/.github/agents/art-direction-planner.agent.md	Produces tailored art directions (layout, typography, colour, component language) and a system plan before implementation.
+agent	Design System Engineer	Packs/copilot-award-ui-pack/.github/agents/design-system-engineer.agent.md	Implements design tokens, typography scale, and atomic components with strict consistency and documentation.
+agent	Pixel QA Reviewer	Packs/copilot-award-ui-pack/.github/agents/pixel-qa-reviewer.agent.md	Conducts a ruthless pixel-perfect, a11y, and heuristic review and forces closure of visual/interaction gaps.
+agent	Screen Composer	Packs/copilot-award-ui-pack/.github/agents/screen-composer.agent.md	Composes screens from the design system; ensures grid alignment, hierarchy, states, and polish.
+agent	UI Art Director	Packs/copilot-award-ui-pack/.github/agents/ui-art-director.agent.md	Designs and implements meticulously crafted, art-directed, award-level UIs using grid/typography/colour systems and rigorous QA.
+prompt	brief:art-direct-screen	Packs/copilot-award-ui-pack/.github/prompts/art-direct-screen.prompt.md	>-
+prompt	brief:design-system-blueprint	Packs/copilot-award-ui-pack/.github/prompts/design-system-blueprint.prompt.md	>-
+prompt	brief:layout-grid	Packs/copilot-award-ui-pack/.github/prompts/layout-grid.prompt.md	>-
+prompt	brief:pixel-perfect-review	Packs/copilot-award-ui-pack/.github/prompts/pixel-perfect-review.prompt.md	>-
+prompt	brief:tokens-and-typography	Packs/copilot-award-ui-pack/.github/prompts/tokens-and-typography.prompt.md	>-
+prompt	brief:ui-brief	Packs/copilot-award-ui-pack/.github/prompts/ui-brief.prompt.md	Collect a design brief for pixel-perfect, art-directed UI work.
+skill	art-direction-intake-and-options	Packs/copilot-award-ui-pack/.github/skills/art-direction-intake-and-options/SKILL.md	A rigorous brief intake + 2–3 art direction options (layout/type/colour/components), with explicit questions and decision criteria.
+skill	design-tokens-and-typography	Packs/copilot-award-ui-pack/.github/skills/design-tokens-and-typography/SKILL.md	Define semantic tokens and a typography system; enforce use across components and screens.
+skill	layout-composition-grid	Packs/copilot-award-ui-pack/.github/skills/layout-composition-grid/SKILL.md	Grid and composition rules for pixel-perfect layouts: columns, gutters, margins, spacing rhythm, optical alignment.
+skill	pixel-perfect-qa	Packs/copilot-award-ui-pack/.github/skills/pixel-perfect-qa/SKILL.md	A closing checklist that forces elimination of one-off styles, misalignment, weak hierarchy, and a11y gaps.
+agent	Diagram Curator	Packs/copilot-docs-librarian-pack/.github/agents/diagram-curator.agent.md	Adds or refreshes comprehensive Mermaid diagrams (flows, state machines, sequence, architecture) that match code and text.
+agent	Diátaxis Architect	Packs/copilot-docs-librarian-pack/.github/agents/diataxis-architect.agent.md	Enforces Diátaxis IA (tutorial/how-to/reference/explanation) and rewrites docs to match the correct mode.
+agent	Docs Librarian	Packs/copilot-docs-librarian-pack/.github/agents/docs-librarian.agent.md	Keeps documentation current, sanity-checked, lint-clean, Diátaxis-aligned, and richly supported by diagrams + glossaries.
+agent	Docs Lint Runner	Packs/copilot-docs-librarian-pack/.github/agents/docs-lint-runner.agent.md	Runs and fixes documentation linting (Vale for prose + markdownlint for Markdown formatting).
+agent	Glossary Curator	Packs/copilot-docs-librarian-pack/.github/agents/glossary-curator.agent.md	Maintains a repo glossary; ensures first-use definitions and consistent linking for terms and acronyms.
+agent	Style Enforcer	Packs/copilot-docs-librarian-pack/.github/agents/style-enforcer.agent.md	Enforces Oxford English and house style (incl. Google developer documentation style guide conventions).
+prompt	brief:add-diagrams	Packs/copilot-docs-librarian-pack/.github/prompts/add-diagrams.prompt.md	>-
+prompt	brief:diataxis-restructure	Packs/copilot-docs-librarian-pack/.github/prompts/diataxis-restructure.prompt.md	>-
+prompt	brief:docs-audit	Packs/copilot-docs-librarian-pack/.github/prompts/docs-audit.prompt.md	>-
+prompt	brief:lint-docs	Packs/copilot-docs-librarian-pack/.github/prompts/lint-docs.prompt.md	>-
+prompt	brief:refresh-docs	Packs/copilot-docs-librarian-pack/.github/prompts/refresh-docs.prompt.md	>-
+prompt	brief:refresh-glossary	Packs/copilot-docs-librarian-pack/.github/prompts/refresh-glossary.prompt.md	Update glossary and enforce first-use term definitions and consistent linking.
+prompt	brief:style-sweep	Packs/copilot-docs-librarian-pack/.github/prompts/style-sweep.prompt.md	>-
+skill	diagram-and-glossary-coverage	Packs/copilot-docs-librarian-pack/.github/skills/diagram-and-glossary-coverage/SKILL.md	Ensure docs include comprehensive Mermaid diagrams and an enforced glossary with first-use definitions and consistent linking.
+skill	diataxis-maintenance	Packs/copilot-docs-librarian-pack/.github/skills/diataxis-maintenance/SKILL.md	Classify, refactor, and maintain documentation using Diátaxis (tutorial/how-to/reference/explanation), keeping modes clean and cross-linked.
+skill	docs-sanity-check	Packs/copilot-docs-librarian-pack/.github/skills/docs-sanity-check/SKILL.md	A sanity-check workflow to keep documentation current: validate commands, versions, paths, behaviour, and link integrity.
+skill	style-and-lint-enforcement	Packs/copilot-docs-librarian-pack/.github/skills/style-and-lint-enforcement/SKILL.md	Enforce prose + Markdown style using Vale and markdownlint; align to Oxford English and optional Google developer style conventions.
+agent	edge-case-vanguard	Packs/copilot-edge-case-vanguard-pack/.github/agents/edge-case-vanguard.agent.md	Investigative edge-case specialist that discovers failure modes across code, runtime, and production operations, then proposes reversible one-slice mitigations with verification-first evidence.
+prompt	ops:chaos-experiments	Packs/copilot-edge-case-vanguard-pack/.github/prompts/chaos-experiments.prompt.md	Plan controlled chaos experiments to validate resilience assumptions with strict blast-radius controls.
+prompt	audit:edge-inventory	Packs/copilot-edge-case-vanguard-pack/.github/prompts/edge-inventory.prompt.md	Build a complete edge-case inventory across code, runtime, and operations with evidence-driven prioritization.
+prompt	brief:test:fuzz-plan	Packs/copilot-edge-case-vanguard-pack/.github/prompts/fuzz-plan.prompt.md	>-
+prompt	ops:observability-gaps	Packs/copilot-edge-case-vanguard-pack/.github/prompts/observability-gaps.prompt.md	Produce an observability gap report with concrete signal additions and alerting improvements.
+prompt	brief:fix:one-slice	Packs/copilot-edge-case-vanguard-pack/.github/prompts/one-slice.prompt.md	>-
+prompt	brief:test:pbt-plan	Packs/copilot-edge-case-vanguard-pack/.github/prompts/pbt-plan.prompt.md	>-
+skill	edge-case-vanguard	Packs/copilot-edge-case-vanguard-pack/.github/skills/edge-case-vanguard/SKILL.md	Templates and methods for edge inventory, PBT/fuzz planning, chaos experiments, observability gap analysis, and one-slice mitigations.
+agent	Community Health Auditor	Packs/copilot-github-bootstrap-pack/.github/agents/community-health-auditor.agent.md	Audits repo against GitHub’s community profile checklist and closes gaps (README, LICENSE, contributing, CoC, support, etc.).
+agent	Dependabot Steward	Packs/copilot-github-bootstrap-pack/.github/agents/dependabot-steward.agent.md	Adds/updates Dependabot config and aligns update PRs with labels/triage conventions.
+agent	GitHub Bootstrap Engineer	Packs/copilot-github-bootstrap-pack/.github/agents/github-bootstrap-engineer.agent.md	Bootstraps .github hygiene: issue forms, PR templates, CODEOWNERS, SECURITY, CONTRIBUTING, labels guidance, and repo profile sanity checks.
+agent	Ownership Marshal	Packs/copilot-github-bootstrap-pack/.github/agents/ownership-marshal.agent.md	Adds CODEOWNERS and review routing; ensures “require review from code owners” workflow can work.
+agent	Security Policy Editor	Packs/copilot-github-bootstrap-pack/.github/agents/security-policy-editor.agent.md	Writes/updates SECURITY.md: how to report vulns, response expectations, supported versions, and disclosure rules.
+agent	Template Curator	Packs/copilot-github-bootstrap-pack/.github/agents/template-curator.agent.md	Creates issue forms/templates and PR templates that force high-signal inputs and reduce maintainers’ back-and-forth.
+prompt	brief:add-issue-forms	Packs/copilot-github-bootstrap-pack/.github/prompts/add-issue-forms.prompt.md	Add structured GitHub issue forms for bugs, features, and docs.
+prompt	brief:add-pr-template	Packs/copilot-github-bootstrap-pack/.github/prompts/add-pr-template.prompt.md	>-
+prompt	brief:community-profile-audit	Packs/copilot-github-bootstrap-pack/.github/prompts/community-profile-audit.prompt.md	Audit repo community health readiness and propose patches to close gaps.
+prompt	brief:dependabot-policy	Packs/copilot-github-bootstrap-pack/.github/prompts/dependabot-policy.prompt.md	Add/adjust Dependabot update configuration and triage labels.
+prompt	brief:github-bootstrap	Packs/copilot-github-bootstrap-pack/.github/prompts/github-bootstrap.prompt.md	>-
+prompt	brief:repo-settings-brief	Packs/copilot-github-bootstrap-pack/.github/prompts/repo-settings-brief.prompt.md	>-
+prompt	brief:setup-codeowners	Packs/copilot-github-bootstrap-pack/.github/prompts/setup-codeowners.prompt.md	>-
+prompt	brief:setup-security-policy	Packs/copilot-github-bootstrap-pack/.github/prompts/setup-security-policy.prompt.md	>-
+skill	codeowners-ownership	Packs/copilot-github-bootstrap-pack/.github/skills/codeowners-ownership/SKILL.md	Add CODEOWNERS to route reviews and clarify responsibility without creating bureaucracy.
+skill	github-community-health	Packs/copilot-github-bootstrap-pack/.github/skills/github-community-health/SKILL.md	Bootstrap and maintain GitHub community health files and templates in supported locations.
+skill	issue-forms-and-templates	Packs/copilot-github-bootstrap-pack/.github/skills/issue-forms-and-templates/SKILL.md	Design GitHub issue forms and templates that gather structured, actionable information.
+skill	pr-template-and-review-contract	Packs/copilot-github-bootstrap-pack/.github/skills/pr-template-and-review-contract/SKILL.md	Create a PR template that forces verification and documents risk, scope, and docs impact.
+agent	gold-standards-steward	Packs/copilot-gold-standards-steward-pack/.github/agents/gold-standards-steward.agent.md	Orchestrates standards-aligned quality and security uplift with measurable baselines and small, verifiable change slices.
+prompt	audit:gold-standard	Packs/copilot-gold-standards-steward-pack/.github/prompts/audit-gold-standard.prompt.md	Produce a standards-mapped baseline (ISO 25010, SSDF, ASVS, SLSA, Scorecard) and prioritized risk register.
+prompt	audit:doctor-report	Packs/copilot-gold-standards-steward-pack/.github/prompts/doctor-report.prompt.md	Generate a current-state doctor report with delta against baseline and gate readiness.
+prompt	brief:gates:setup	Packs/copilot-gold-standards-steward-pack/.github/prompts/gates-setup.prompt.md	>-
+prompt	brief:uplift:execute-slice	Packs/copilot-gold-standards-steward-pack/.github/prompts/uplift-execute-slice.prompt.md	>-
+prompt	brief:uplift:plan	Packs/copilot-gold-standards-steward-pack/.github/prompts/uplift-plan.prompt.md	>-
+skill	gold-standards-steward	Packs/copilot-gold-standards-steward-pack/.github/skills/gold-standards-steward/SKILL.md	Baseline, plan, uplift, and gate a repository against recognized quality, security, and supply-chain standards.
+agent	API Contract Analyst	Packs/copilot-interface-wiring-pack/.github/agents/api-contract-analyst.agent.md	Read-only analysis of API/interface contracts and their mapping to UI state and error handling.
+agent	Integration Reviewer	Packs/copilot-interface-wiring-pack/.github/agents/integration-reviewer.agent.md	Review wiring changes for correctness, state coverage, error mapping, security basics, and maintainability.
+agent	Integration Tester	Packs/copilot-interface-wiring-pack/.github/agents/integration-tester.agent.md	Add test seams (mocks/fakes) and an integration test for the critical path; cover key error cases.
+agent	Interface Wire‑Up	Packs/copilot-interface-wiring-pack/.github/agents/interface-wireup.agent.md	End-to-end wiring of UI to backend interfaces using contract-first patterns, explicit UX states, and test seams.
+agent	UI Integrator	Packs/copilot-interface-wiring-pack/.github/agents/ui-integrator.agent.md	Implement typed client seam and wire UI to backend interface with explicit states and consistent patterns.
+prompt	brief:add-mocks	Packs/copilot-interface-wiring-pack/.github/prompts/add-mocks.prompt.md	Add deterministic mocks/fakes for an interface boundary for dev and tests.
+prompt	brief:api-contract	Packs/copilot-interface-wiring-pack/.github/prompts/api-contract.prompt.md	>-
+prompt	brief:generate-typed-client	Packs/copilot-interface-wiring-pack/.github/prompts/generate-typed-client.prompt.md	>-
+prompt	brief:integration-test	Packs/copilot-interface-wiring-pack/.github/prompts/integration-test.prompt.md	>-
+prompt	brief:wire-up-feature	Packs/copilot-interface-wiring-pack/.github/prompts/wire-up-feature.prompt.md	>-
+skill	contract-first-integration	Packs/copilot-interface-wiring-pack/.github/skills/contract-first-integration/SKILL.md	Create/validate API contracts and error taxonomies before wiring UI, ensuring explicit mappings and type safety.
+skill	integration-testing-seams	Packs/copilot-interface-wiring-pack/.github/skills/integration-testing-seams/SKILL.md	Set up mocks/fixtures and add integration tests for wired features (happy path + key errors).
+skill	ui-backend-wiring-workflow	Packs/copilot-interface-wiring-pack/.github/skills/ui-backend-wiring-workflow/SKILL.md	End-to-end workflow for wiring UI to backend interfaces with explicit state matrices, retries, and cancellation.
+agent	DORA Reporter	Packs/copilot-observability-incident-pack/.github/agents/dora-reporter.agent.md	Defines DORA metrics calculations and lightweight reporting/review routines.
+agent	Incident Commander Coach	Packs/copilot-observability-incident-pack/.github/agents/incident-commander-coach.agent.md	Standardises incident roles, comms, and timeline capture; creates a lightweight incident response playbook.
+agent	Observability Lead	Packs/copilot-observability-incident-pack/.github/agents/observability-lead.agent.md	End-to-end observability + incident readiness: OTel instrumentation, SLOs/alerts, incident playbooks, postmortems, and DORA metrics review.
+agent	OTel Instrumentation Engineer	Packs/copilot-observability-incident-pack/.github/agents/otel-instrumentation-engineer.agent.md	Implements OpenTelemetry tracing/metrics/logging with semantic conventions, stable error attributes, and correlation.
+agent	Postmortem Editor	Packs/copilot-observability-incident-pack/.github/agents/postmortem-editor.agent.md	Produces and enforces a blame-free postmortem process with high-quality action items and broad sharing.
+agent	SLO & Alert Designer	Packs/copilot-observability-incident-pack/.github/agents/slo-alert-designer.agent.md	Defines SLIs/SLOs, reduces alert noise, and creates short runbooks tied to user impact.
+prompt	brief:define-slos	Packs/copilot-observability-incident-pack/.github/prompts/define-slos.prompt.md	Define SLIs/SLOs for critical paths and design low-noise alerts with runbooks.
+prompt	brief:dora-review	Packs/copilot-observability-incident-pack/.github/prompts/dora-review.prompt.md	Define DORA metrics data sources and how to compute/report them for this repo.
+prompt	brief:incident-triage	Packs/copilot-observability-incident-pack/.github/prompts/incident-triage.prompt.md	>-
+prompt	brief:instrument-service	Packs/copilot-observability-incident-pack/.github/prompts/instrument-service.prompt.md	>-
+prompt	brief:observability-brief	Packs/copilot-observability-incident-pack/.github/prompts/observability-brief.prompt.md	>-
+prompt	brief:observability-ship	Packs/copilot-observability-incident-pack/.github/prompts/observability-ship.prompt.md	>-
+prompt	brief:write-postmortem	Packs/copilot-observability-incident-pack/.github/prompts/write-postmortem.prompt.md	Create or refine a blame-free postmortem template and action-item standards.
+skill	dora-metrics-definition	Packs/copilot-observability-incident-pack/.github/skills/dora-metrics-definition/SKILL.md	Define DORA metrics for this repo (data sources, computation, and review cadence).
+skill	incident-triage-and-timeline	Packs/copilot-observability-incident-pack/.github/skills/incident-triage-and-timeline/SKILL.md	Standardise incident response: roles, comms, triage checklist, and real-time timeline capture.
+skill	otel-semantic-conventions	Packs/copilot-observability-incident-pack/.github/skills/otel-semantic-conventions/SKILL.md	Standardise traces/metrics/logs using OpenTelemetry semantic conventions, including error and exception attributes.
+skill	postmortems-and-action-items	Packs/copilot-observability-incident-pack/.github/skills/postmortems-and-action-items/SKILL.md	Blame-free postmortems with high-quality action items; broad sharing; learning loops back into backlog.
+skill	slo-alerting-runbooks	Packs/copilot-observability-incident-pack/.github/skills/slo-alerting-runbooks/SKILL.md	Define SLIs/SLOs and low-noise alerts with short runbooks tied to user impact.
+skill	repo-core-policy	Packs/copilot-policy-kernel-pack/.github/skills/repo-core-policy/SKILL.md	Apply repo-core policy guardrails with small diffs, explicit verification, and ambiguity handling.
+agent	Consistency Enforcer	Packs/copilot-polish-tightening-pack/.github/agents/consistency-enforcer.agent.md	Enforces consistency in a scoped area: naming, error model, configuration, logging, and structure.
+agent	Nit Hunter	Packs/copilot-polish-tightening-pack/.github/agents/nit-hunter.agent.md	Finds high-impact paper-cuts and overlooked details that degrade UX, DX, reliability, or maintainability.
+agent	Polish Gate Reviewer	Packs/copilot-polish-tightening-pack/.github/agents/polish-gate-reviewer.agent.md	Reviews for value and risk: ensure improvements justify the diff, refactors are safe, and no details are missed.
+agent	Polish & Tightening Engineer	Packs/copilot-polish-tightening-pack/.github/agents/polish-tightening-engineer.agent.md	Hunts paper-cuts, enforces consistency, and performs safe refactors in small, reviewable slices.
+agent	Refactor Surgeon	Packs/copilot-polish-tightening-pack/.github/agents/refactor-surgeon.agent.md	Performs safe refactors using behaviour-preserving baby steps and small transformations, with tests proving safety.
+agent	Small-CL Slicer	Packs/copilot-polish-tightening-pack/.github/agents/small-cl-slicer.agent.md	Turns a large improvement into small mergeable slices; minimises reviewer load and risk.
+prompt	brief:consistency-pass	Packs/copilot-polish-tightening-pack/.github/prompts/consistency-pass.prompt.md	>-
+prompt	brief:nit-sweep	Packs/copilot-polish-tightening-pack/.github/prompts/nit-sweep.prompt.md	Identify and rank high-impact “nits that matter” in the selected area.
+prompt	brief:polish-brief	Packs/copilot-polish-tightening-pack/.github/prompts/polish-brief.prompt.md	Capture constraints for a polish pass to avoid unintended product changes.
+prompt	brief:polish-review	Packs/copilot-polish-tightening-pack/.github/prompts/polish-review.prompt.md	Review a polish/refactor diff for value, risk, churn, and missed details.
+prompt	brief:polish-ship	Packs/copilot-polish-tightening-pack/.github/prompts/polish-ship.prompt.md	>-
+prompt	brief:refactor-safely	Packs/copilot-polish-tightening-pack/.github/prompts/refactor-safely.prompt.md	>-
+prompt	brief:slice-small-cls	Packs/copilot-polish-tightening-pack/.github/prompts/slice-small-cls.prompt.md	>-
+skill	operational-tidiness-12factor-inspired	Packs/copilot-polish-tightening-pack/.github/skills/operational-tidiness-12factor-inspired/SKILL.md	Tidy operational concerns: config separation, logs as event streams, build/release/run separation (where applicable).
+skill	polish-checklist	Packs/copilot-polish-tightening-pack/.github/skills/polish-checklist/SKILL.md	A high-impact polish checklist for overlooked details: errors, defaults, docs, observability hooks, accessibility, and ergonomics.
+skill	refactoring-baby-steps	Packs/copilot-polish-tightening-pack/.github/skills/refactoring-baby-steps/SKILL.md	Perform behaviour-preserving refactors using small transformations; verify continuously; avoid rewrites.
+skill	small-change-discipline	Packs/copilot-polish-tightening-pack/.github/skills/small-change-discipline/SKILL.md	Keep polish and refactors in small, reviewable changes; separate refactors from behaviour changes.
+agent	Execution Gate Reviewer	Packs/copilot-project-management-planning-pack/.github/agents/execution-gate-reviewer.agent.md	Performs pre-execution gate review to ensure plan feasibility, ownership clarity, and risk coverage.
+agent	Project Planning Lead	Packs/copilot-project-management-planning-pack/.github/agents/project-planning-lead.agent.md	Owns end-to-end project planning, variance handling, and checkpoint governance using balanced delegation.
+agent	Risk Dependency Coordinator	Packs/copilot-project-management-planning-pack/.github/agents/risk-dependency-coordinator.agent.md	Maintains risk register, dependency map, and variance impact analysis for replanning decisions.
+agent	Scope Clarifier	Packs/copilot-project-management-planning-pack/.github/agents/scope-clarifier.agent.md	Turns ambiguous goals into explicit scope, constraints, assumptions, and acceptance criteria.
+agent	Work Breakdown Planner	Packs/copilot-project-management-planning-pack/.github/agents/work-breakdown-planner.agent.md	Produces WBS, milestone sequencing, and thin-slice execution plans with dependency-aware ordering.
+prompt	brief:checkpoint-review	Packs/copilot-project-management-planning-pack/.github/prompts/checkpoint-review.prompt.md	>-
+prompt	brief:planning-brief	Packs/copilot-project-management-planning-pack/.github/prompts/planning-brief.prompt.md	>-
+prompt	brief:planning-replan	Packs/copilot-project-management-planning-pack/.github/prompts/planning-replan.prompt.md	>-
+prompt	brief:planning-ship	Packs/copilot-project-management-planning-pack/.github/prompts/planning-ship.prompt.md	End-to-end project planning workflow from brief to execution-gate-ready plan.
+prompt	brief:variance-triage	Packs/copilot-project-management-planning-pack/.github/prompts/variance-triage.prompt.md	>-
+skill	dependency-critical-path-mapping	Packs/copilot-project-management-planning-pack/.github/skills/dependency-critical-path-mapping/SKILL.md	Maps dependencies, identifies the critical path, and highlights schedule sensitivity.
+skill	execution-gate-checklist	Packs/copilot-project-management-planning-pack/.github/skills/execution-gate-checklist/SKILL.md	Defines the minimum pre-execution gates for scope, risk, ownership, and readiness.
+skill	project-plan-contract	Packs/copilot-project-management-planning-pack/.github/skills/project-plan-contract/SKILL.md	Defines required sections for an authoritative project plan and checkpoint governance model.
+skill	variance-and-backpedal-management	Packs/copilot-project-management-planning-pack/.github/skills/variance-and-backpedal-management/SKILL.md	Captures variance events and produces controlled replanning deltas with impact transparency.
+agent	Project Scaffolding Architect	Packs/copilot-project-scaffolding-pack/.github/agents/project-scaffolding-architect.agent.md	Classifies project type, produces a RepoSpec, and scaffolds a correct-by-default repo (prefer definition-as-code via projen).
+agent	Projen Synthesizer	Packs/copilot-project-scaffolding-pack/.github/agents/projen-synthesizer.agent.md	Implements scaffolding with projen (definition-as-code) where feasible; pins toolchains; adds synth command.
+agent	RepoSpec Composer	Packs/copilot-project-scaffolding-pack/.github/agents/repospec-composer.agent.md	Produces a RepoSpec: directory layout, toolchains, scripts, docs skeleton, CI entry points, and release surface.
+agent	Scaffold Auditor	Packs/copilot-project-scaffolding-pack/.github/agents/scaffold-auditor.agent.md	Checks scaffold completeness, coherence, and regeneration path; identifies missing lifecycle touchpoints.
+agent	Scaffold Profile Selector	Packs/copilot-project-scaffolding-pack/.github/agents/scaffold-profile-selector.agent.md	Chooses the right project scaffold profile based on goals, constraints, and lifecycle needs.
+prompt	brief:choose-scaffold-profile	Packs/copilot-project-scaffolding-pack/.github/prompts/choose-scaffold-profile.prompt.md	Select a standard scaffold profile from the catalogue based on the brief.
+prompt	brief:projen-synth	Packs/copilot-project-scaffolding-pack/.github/prompts/projen-synth.prompt.md	>-
+prompt	brief:scaffold-audit	Packs/copilot-project-scaffolding-pack/.github/prompts/scaffold-audit.prompt.md	>-
+prompt	brief:scaffold-brief	Packs/copilot-project-scaffolding-pack/.github/prompts/scaffold-brief.prompt.md	Capture missing constraints before scaffolding a new project.
+prompt	brief:scaffold-new	Packs/copilot-project-scaffolding-pack/.github/prompts/scaffold-new.prompt.md	>-
+skill	projen-scaffolding	Packs/copilot-project-scaffolding-pack/.github/skills/projen-scaffolding/SKILL.md	Uses projen as definition-as-code scaffolding; keeps .projenrc.* minimal and uses synth as the regeneration mechanism.
+skill	repospec-contract	Packs/copilot-project-scaffolding-pack/.github/skills/repospec-contract/SKILL.md	Defines RepoSpec sections and the minimum required repo contracts (scripts, docs, CI entry points, release surface).
+skill	scaffold-profile-catalogue	Packs/copilot-project-scaffolding-pack/.github/skills/scaffold-profile-catalogue/SKILL.md	A controlled catalogue of project-type scaffolds and the questions used to select them.
+prompt	audit:repo-health	Packs/copilot-prompt-library-pack/.github/prompts/audit/audit-repo-health.prompt.md	Audit a repo for basic health: scripts, docs, CI, hygiene, and drift.
+prompt	audit:security-basics	Packs/copilot-prompt-library-pack/.github/prompts/audit/audit-security-basics.prompt.md	Audit for common security footguns: secrets, auth, input validation, unsafe defaults.
+prompt	audit:ui-a11y	Packs/copilot-prompt-library-pack/.github/prompts/audit/audit-ui-a11y.prompt.md	Audit UI for accessibility basics (keyboard, focus, semantics, states).
+prompt	brief:acceptance	Packs/copilot-prompt-library-pack/.github/prompts/brief/brief-acceptance.prompt.md	Write crisp acceptance criteria and verification steps for the selected scope.
+prompt	brief:clarify	Packs/copilot-prompt-library-pack/.github/prompts/brief/brief-clarify.prompt.md	Ask only for missing constraints; restate as an executable brief.
+prompt	gh:bootstrap	Packs/copilot-prompt-library-pack/.github/prompts/gh/gh-bootstrap.prompt.md	Bootstrap GitHub hygiene: issue forms, PR template, CODEOWNERS, SECURITY, community health.
+prompt	gov:ship	Packs/copilot-prompt-library-pack/.github/prompts/gov/gov-ship.prompt.md	Governance pass: ADR/risk scoring/review gates/trunk slicing.
+prompt	obs:ship	Packs/copilot-prompt-library-pack/.github/prompts/obs/obs-ship.prompt.md	Instrument and define minimal SLIs/SLOs/alerts/runbooks for the selected service/app scope.
+prompt	polish:ship	Packs/copilot-prompt-library-pack/.github/prompts/polish/polish-ship.prompt.md	Polish pass: nits that matter → safe refactors → consistency → gate review.
+prompt	qa:ship	Packs/copilot-prompt-library-pack/.github/prompts/qa/qa-ship.prompt.md	Run a quality pass: tests, determinism, linting and CI sanity for the selected scope.
+prompt	rel:ship	Packs/copilot-prompt-library-pack/.github/prompts/rel/rel-ship.prompt.md	Release & supply chain pass: SBOM/provenance/verification and release hygiene.
+prompt	scaffold:new	Packs/copilot-prompt-library-pack/.github/prompts/scaffold/scaffold-new.prompt.md	End-to-end scaffolding: brief → profile selection → RepoSpec → scaffold.
+prompt	sec:ship	Packs/copilot-prompt-library-pack/.github/prompts/sec/sec-ship.prompt.md	Run the security gatekeeper pass for the selected scope.
+prompt	ship:pr-ready	Packs/copilot-prompt-library-pack/.github/prompts/ship/ship-pr-ready.prompt.md	Prepare a PR-ready summary: what/why/how to test/risk/docs impact.
+prompt	ship:small-slice-plan	Packs/copilot-prompt-library-pack/.github/prompts/ship/ship-small-slice-plan.prompt.md	Convert the requested work into small mergeable slices with verification per slice.
+prompt	suite:route	Packs/copilot-prompt-library-pack/.github/prompts/suite/suite:route.prompt.md	Route the request to the correct specialist agent if installed; otherwise produce a plan.
+prompt	ui:award	Packs/copilot-prompt-library-pack/.github/prompts/ui/ui-award.prompt.md	Art-direct and implement a meticulous, award-level UI system (typography/layout/colour/components).
+prompt	ui:prototype	Packs/copilot-prompt-library-pack/.github/prompts/ui/ui-prototype.prompt.md	Design an exceptional prototype (flows, IA, states) and produce implementation-ready UI guidance.
+prompt	ui:wiring	Packs/copilot-prompt-library-pack/.github/prompts/ui/ui-wiring.prompt.md	Wire up UI to backend interfaces (contracts, adapters, state, error handling).
+agent	Contract Tester	Packs/copilot-quality-engineer-pack/.github/agents/contract-tester.agent.md	Adds contract tests for interface boundaries (schemas/types), ensuring breaking changes are caught early.
+agent	Flake Hunter	Packs/copilot-quality-engineer-pack/.github/agents/flake-hunter.agent.md	Diagnoses and eliminates flaky tests; hardens locators, waits, and fixtures; improves reproducibility.
+agent	Quality Engineer	Packs/copilot-quality-engineer-pack/.github/agents/quality-engineer.agent.md	Plans and implements deterministic tests and test seams, prioritising critical paths and reducing flakiness.
+agent	Quality Gate Reviewer	Packs/copilot-quality-engineer-pack/.github/agents/quality-gate-reviewer.agent.md	Reviews changes for evidence of correctness: tests, determinism, coverage of critical paths, and maintainability.
+agent	Test Implementer	Packs/copilot-quality-engineer-pack/.github/agents/test-implementer.agent.md	Implements tests and fixtures with repo conventions; avoids flakiness and keeps execution fast.
+agent	Test Planner	Packs/copilot-quality-engineer-pack/.github/agents/test-planner.agent.md	Detects test stack, defines critical paths, and writes a minimal high-impact test plan.
+prompt	brief:add-critical-tests	Packs/copilot-quality-engineer-pack/.github/prompts/add-critical-tests.prompt.md	>-
+prompt	brief:contract-tests	Packs/copilot-quality-engineer-pack/.github/prompts/contract-tests.prompt.md	>-
+prompt	brief:fixture-kit	Packs/copilot-quality-engineer-pack/.github/prompts/fixture-kit.prompt.md	>-
+prompt	brief:make-tests-deterministic	Packs/copilot-quality-engineer-pack/.github/prompts/make-tests-deterministic.prompt.md	Remove flakiness by hardening locators, waits, fixtures, time, and randomness.
+prompt	qa:quality-brief	Packs/copilot-quality-engineer-pack/.github/prompts/quality-brief.prompt.md	Ask for missing quality/testing constraints before proceeding.
+prompt	qa:quality-review	Packs/copilot-quality-engineer-pack/.github/prompts/quality-review.prompt.md	>-
+prompt	qa:quality-ship	Packs/copilot-quality-engineer-pack/.github/prompts/quality-ship.prompt.md	End-to-end quality pass: brief → plan → implement → de-flake → review.
+skill	contract-testing-seams	Packs/copilot-quality-engineer-pack/.github/skills/contract-testing-seams/SKILL.md	Add contract tests for boundary interfaces and prevent accidental breaking changes.
+skill	critical-path-inventory	Packs/copilot-quality-engineer-pack/.github/skills/critical-path-inventory/SKILL.md	Define and maintain a critical path inventory (top flows) and map them to tests to prevent regressions.
+skill	deterministic-testing	Packs/copilot-quality-engineer-pack/.github/skills/deterministic-testing/SKILL.md	Make tests deterministic by controlling time, randomness, IO boundaries, and using stable locators and waits.
+skill	flake-triage	Packs/copilot-quality-engineer-pack/.github/skills/flake-triage/SKILL.md	Systematically diagnose and eliminate flaky tests and reduce future flake risk.
+agent	Build Hardener	Packs/copilot-release-supplychain-pack/.github/agents/build-hardener.agent.md	Hardens builds for repeatability and supply-chain hygiene: pin toolchains, lock dependencies, reduce nondeterminism.
+agent	Provenance Attestor	Packs/copilot-release-supplychain-pack/.github/agents/provenance-attestor.agent.md	Configures build provenance attestations (SLSA provenance) using CI-native mechanisms (e.g., GitHub artifact attestations).
+agent	Release Notes Curator	Packs/copilot-release-supplychain-pack/.github/agents/release-notes-curator.agent.md	Curates changelog and release notes: highlights, breaking changes, migrations, security notes, and known issues.
+agent	Release & Supply Chain Engineer	Packs/copilot-release-supplychain-pack/.github/agents/release-supplychain-engineer.agent.md	Makes releases repeatable and auditable: provenance attestations, SBOMs, verification, and curated release notes.
+agent	SBOM Maintainer	Packs/copilot-release-supplychain-pack/.github/agents/sbom-maintainer.agent.md	Generates and publishes SBOMs (CycloneDX or SPDX) for release artifacts and ensures linkage to versions and checksums.
+agent	Verifier	Packs/copilot-release-supplychain-pack/.github/agents/verifier.agent.md	Adds verification steps/scripts for artifacts, attestations, and SBOM integrity and explains how to validate a release.
+prompt	brief:attest-provenance	Packs/copilot-release-supplychain-pack/.github/prompts/attest-provenance.prompt.md	>-
+prompt	brief:curate-release-notes	Packs/copilot-release-supplychain-pack/.github/prompts/curate-release-notes.prompt.md	>-
+prompt	brief:generate-sbom	Packs/copilot-release-supplychain-pack/.github/prompts/generate-sbom.prompt.md	>-
+prompt	brief:harden-builds	Packs/copilot-release-supplychain-pack/.github/prompts/harden-builds.prompt.md	>-
+prompt	brief:release-brief	Packs/copilot-release-supplychain-pack/.github/prompts/release-brief.prompt.md	Ask for missing release constraints before adding supply-chain gates.
+prompt	brief:release-ship	Packs/copilot-release-supplychain-pack/.github/prompts/release-ship.prompt.md	>-
+prompt	brief:verify-release	Packs/copilot-release-supplychain-pack/.github/prompts/verify-release.prompt.md	Add verification docs/scripts for artifacts, attestations, and SBOM checks.
+skill	artifact-verification	Packs/copilot-release-supplychain-pack/.github/skills/artifact-verification/SKILL.md	Document and implement verification steps for released artifacts: attestations, checksums/digests, and SBOM presence.
+skill	release-notes-and-versioning	Packs/copilot-release-supplychain-pack/.github/skills/release-notes-and-versioning/SKILL.md	Curate changelogs/release notes with SemVer discipline, migrations, and security notes.
+skill	reproducible-build-hardening	Packs/copilot-release-supplychain-pack/.github/skills/reproducible-build-hardening/SKILL.md	Harden builds for repeatability: pinned toolchains, deterministic archives, controlled env/time, minimal artifact surface.
+skill	sbom-generation-and-publication	Packs/copilot-release-supplychain-pack/.github/skills/sbom-generation-and-publication/SKILL.md	Generate SBOMs (CycloneDX or SPDX), link them to artifacts/versions, and publish alongside releases.
+skill	slsa-provenance-attestations	Packs/copilot-release-supplychain-pack/.github/skills/slsa-provenance-attestations/SKILL.md	Configure and verify build provenance attestations aligned to SLSA provenance expectations; prefer CI-native attestations.
+agent	ASVS Mapper	Packs/copilot-security-gatekeeper-pack/.github/agents/asvs-mapper.agent.md	Maps scoped changes to OWASP ASVS requirements and produces a concrete checklist and implementation notes.
+agent	Secure Implementer	Packs/copilot-security-gatekeeper-pack/.github/agents/secure-implementer.agent.md	Implements security mitigations with minimal diffs: authz, validation, safe errors, rate limiting, secrets hygiene, and tests.
+agent	Security Gatekeeper	Packs/copilot-security-gatekeeper-pack/.github/agents/security-gatekeeper.agent.md	Threat-models changes, maps to OWASP ASVS, enforces safe error handling, and blocks risky deps before shipping.
+agent	Security Reviewer	Packs/copilot-security-gatekeeper-pack/.github/agents/security-reviewer.agent.md	Ruthlessly reviews changes for common vuln classes and verification completeness; produces exact fixes.
+agent	Threat Modeler	Packs/copilot-security-gatekeeper-pack/.github/agents/threat-modeler.agent.md	Produces practical threat models and abuse cases for features/endpoints, with mitigations and verification notes.
+prompt	brief:asvs-checklist	Packs/copilot-security-gatekeeper-pack/.github/prompts/asvs-checklist.prompt.md	>-
+prompt	brief:dependency-risk-triage	Packs/copilot-security-gatekeeper-pack/.github/prompts/dependency-risk-triage.prompt.md	>-
+prompt	brief:secure-error-model	Packs/copilot-security-gatekeeper-pack/.github/prompts/secure-error-model.prompt.md	>-
+prompt	brief:secure-ship	Packs/copilot-security-gatekeeper-pack/.github/prompts/secure-ship.prompt.md	>-
+prompt	sec:security-brief	Packs/copilot-security-gatekeeper-pack/.github/prompts/security-brief.prompt.md	Ask for missing security requirements and constraints before proceeding.
+prompt	sec:security-review	Packs/copilot-security-gatekeeper-pack/.github/prompts/security-review.prompt.md	>-
+prompt	brief:threat-model	Packs/copilot-security-gatekeeper-pack/.github/prompts/threat-model.prompt.md	Produce a threat model + abuse cases + mitigations for the selected change.
+skill	asvs-scoped-checklist	Packs/copilot-security-gatekeeper-pack/.github/skills/asvs-scoped-checklist/SKILL.md	Create a scoped OWASP ASVS checklist for a change and map requirements to implementation and verification steps.
+skill	dependency-risk-triage	Packs/copilot-security-gatekeeper-pack/.github/skills/dependency-risk-triage/SKILL.md	Assess dependency risk (maintenance, attack surface, transitive deps) and propose mitigations (pinning, alternatives, scope reduction).
+skill	safe-errors-and-logging	Packs/copilot-security-gatekeeper-pack/.github/skills/safe-errors-and-logging/SKILL.md	Standardise safe error handling and structured logging with redaction and stable error codes.
+skill	threat-modeling-lite	Packs/copilot-security-gatekeeper-pack/.github/skills/threat-modeling-lite/SKILL.md	Practical threat modeling (assets/boundaries/STRIDE/abuse cases) with mitigation and verification notes.
+agent	Suite Chief of Staff	Packs/copilot-suite-harmoniser-pack/.github/agents/suite-chief-of-staff.agent.md	Routes work across installed packs, enforces namespacing, and avoids file collisions.
+prompt	suite:route	Packs/copilot-suite-harmoniser-pack/.github/prompts/suite/suite:route.prompt.md	Route the request to the right pack orchestrator (if installed) or produce a minimal plan.
+agent	UX Implementer	Packs/copilot-ux-agent-pack/.github/agents/ux-implementer.agent.md	Implement UX changes with minimal diffs; cover states and accessibility; keep consistency.
+agent	UXPrototyper	Packs/copilot-ux-agent-pack/.github/agents/ux-prototyper.agent.md	Turn product intent into a working prototype with strong UX, states, and accessibility.
+agent	UX Researcher	Packs/copilot-ux-agent-pack/.github/agents/ux-researcher.agent.md	Read-only analysis of codebase patterns and UX constraints; propose a clear UX contract and plan.
+agent	UX Reviewer	Packs/copilot-ux-agent-pack/.github/agents/ux-reviewer.agent.md	Review UX changes for clarity, a11y, states, copy, and consistency; produce actionable fixes.
+prompt	brief:component-spec	Packs/copilot-ux-agent-pack/.github/prompts/component-spec.prompt.md	Generate a component spec: props, variants, a11y contract, and examples.
+prompt	brief:prototype-screen	Packs/copilot-ux-agent-pack/.github/prompts/prototype-screen.prompt.md	Build a clickable prototype for a described screen/flow with strong UX states.
+prompt	brief:tokens-hardening	Packs/copilot-ux-agent-pack/.github/prompts/tokens-hardening.prompt.md	Propose/align design tokens and refactor a component to use them consistently.
+prompt	brief:ux-audit	Packs/copilot-ux-agent-pack/.github/prompts/ux-audit.prompt.md	>-
+skill	accessibility-sweep	Packs/copilot-ux-agent-pack/.github/skills/accessibility-sweep/SKILL.md	Accessibility-first sweep: semantics, keyboard flow, focus, and ARIA correctness. Use when shipping UI changes.
+skill	ux-heuristic-audit	Packs/copilot-ux-agent-pack/.github/skills/ux-heuristic-audit/SKILL.md	Heuristic UX audit workflow (including states + accessibility) with an impact/effort ranking and concrete fixes.
+skill	ux-prototype-workflow	Packs/copilot-ux-agent-pack/.github/skills/ux-prototype-workflow/SKILL.md	End-to-end workflow for turning intent into a working UI prototype with states, accessibility, and consistency.

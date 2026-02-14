@@ -1,0 +1,24 @@
+# llms index (copilot-github-bootstrap-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 18
+
+type	name	path	description
+agent	Community Health Auditor	.github/agents/community-health-auditor.agent.md	Audits repo against GitHub’s community profile checklist and closes gaps (README, LICENSE, contributing, CoC, support, etc.).
+agent	Dependabot Steward	.github/agents/dependabot-steward.agent.md	Adds/updates Dependabot config and aligns update PRs with labels/triage conventions.
+agent	GitHub Bootstrap Engineer	.github/agents/github-bootstrap-engineer.agent.md	Bootstraps .github hygiene: issue forms, PR templates, CODEOWNERS, SECURITY, CONTRIBUTING, labels guidance, and repo profile sanity checks.
+agent	Ownership Marshal	.github/agents/ownership-marshal.agent.md	Adds CODEOWNERS and review routing; ensures “require review from code owners” workflow can work.
+agent	Security Policy Editor	.github/agents/security-policy-editor.agent.md	Writes/updates SECURITY.md: how to report vulns, response expectations, supported versions, and disclosure rules.
+agent	Template Curator	.github/agents/template-curator.agent.md	Creates issue forms/templates and PR templates that force high-signal inputs and reduce maintainers’ back-and-forth.
+prompt	brief:add-issue-forms	.github/prompts/add-issue-forms.prompt.md	Add structured GitHub issue forms for bugs, features, and docs.
+prompt	brief:add-pr-template	.github/prompts/add-pr-template.prompt.md	>-
+prompt	brief:community-profile-audit	.github/prompts/community-profile-audit.prompt.md	Audit repo community health readiness and propose patches to close gaps.
+prompt	brief:dependabot-policy	.github/prompts/dependabot-policy.prompt.md	Add/adjust Dependabot update configuration and triage labels.
+prompt	brief:github-bootstrap	.github/prompts/github-bootstrap.prompt.md	>-
+prompt	brief:repo-settings-brief	.github/prompts/repo-settings-brief.prompt.md	>-
+prompt	brief:setup-codeowners	.github/prompts/setup-codeowners.prompt.md	>-
+prompt	brief:setup-security-policy	.github/prompts/setup-security-policy.prompt.md	>-
+skill	codeowners-ownership	.github/skills/codeowners-ownership/SKILL.md	Add CODEOWNERS to route reviews and clarify responsibility without creating bureaucracy.
+skill	github-community-health	.github/skills/github-community-health/SKILL.md	Bootstrap and maintain GitHub community health files and templates in supported locations.
+skill	issue-forms-and-templates	.github/skills/issue-forms-and-templates/SKILL.md	Design GitHub issue forms and templates that gather structured, actionable information.
+skill	pr-template-and-review-contract	.github/skills/pr-template-and-review-contract/SKILL.md	Create a PR template that forces verification and documents risk, scope, and docs impact.

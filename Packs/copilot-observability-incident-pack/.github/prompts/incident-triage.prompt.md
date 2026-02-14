@@ -1,7 +1,9 @@
 ---
-name: incident-triage
-description: Produce an incident response playbook for this repo/service and a live-incident checklist.
-agent: "Incident Commander Coach"
+name: "brief:incident-triage"
+description: >-
+  Produce an incident response playbook for this repo/service and a
+  live-incident checklist.
+agent: Incident Commander Coach
 ---
 
 Scope: ${selection}

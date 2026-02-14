@@ -1,0 +1,22 @@
+# llms index (copilot-security-gatekeeper-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 16
+
+type	name	path	description
+agent	ASVS Mapper	.github/agents/asvs-mapper.agent.md	Maps scoped changes to OWASP ASVS requirements and produces a concrete checklist and implementation notes.
+agent	Secure Implementer	.github/agents/secure-implementer.agent.md	Implements security mitigations with minimal diffs: authz, validation, safe errors, rate limiting, secrets hygiene, and tests.
+agent	Security Gatekeeper	.github/agents/security-gatekeeper.agent.md	Threat-models changes, maps to OWASP ASVS, enforces safe error handling, and blocks risky deps before shipping.
+agent	Security Reviewer	.github/agents/security-reviewer.agent.md	Ruthlessly reviews changes for common vuln classes and verification completeness; produces exact fixes.
+agent	Threat Modeler	.github/agents/threat-modeler.agent.md	Produces practical threat models and abuse cases for features/endpoints, with mitigations and verification notes.
+prompt	brief:asvs-checklist	.github/prompts/asvs-checklist.prompt.md	>-
+prompt	brief:dependency-risk-triage	.github/prompts/dependency-risk-triage.prompt.md	>-
+prompt	brief:secure-error-model	.github/prompts/secure-error-model.prompt.md	>-
+prompt	brief:secure-ship	.github/prompts/secure-ship.prompt.md	>-
+prompt	sec:security-brief	.github/prompts/security-brief.prompt.md	Ask for missing security requirements and constraints before proceeding.
+prompt	sec:security-review	.github/prompts/security-review.prompt.md	>-
+prompt	brief:threat-model	.github/prompts/threat-model.prompt.md	Produce a threat model + abuse cases + mitigations for the selected change.
+skill	asvs-scoped-checklist	.github/skills/asvs-scoped-checklist/SKILL.md	Create a scoped OWASP ASVS checklist for a change and map requirements to implementation and verification steps.
+skill	dependency-risk-triage	.github/skills/dependency-risk-triage/SKILL.md	Assess dependency risk (maintenance, attack surface, transitive deps) and propose mitigations (pinning, alternatives, scope reduction).
+skill	safe-errors-and-logging	.github/skills/safe-errors-and-logging/SKILL.md	Standardise safe error handling and structured logging with redaction and stable error codes.
+skill	threat-modeling-lite	.github/skills/threat-modeling-lite/SKILL.md	Practical threat modeling (assets/boundaries/STRIDE/abuse cases) with mitigation and verification notes.

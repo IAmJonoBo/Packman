@@ -1,7 +1,7 @@
 ---
-name: dora-review
+name: "brief:dora-review"
 description: Define DORA metrics data sources and how to compute/report them for this repo.
-agent: "DORA Reporter"
+agent: DORA Reporter
 ---
 
 Scope: ${selection}

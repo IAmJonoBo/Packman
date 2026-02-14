@@ -1,0 +1,24 @@
+# llms index (copilot-observability-incident-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 18
+
+type	name	path	description
+agent	DORA Reporter	.github/agents/dora-reporter.agent.md	Defines DORA metrics calculations and lightweight reporting/review routines.
+agent	Incident Commander Coach	.github/agents/incident-commander-coach.agent.md	Standardises incident roles, comms, and timeline capture; creates a lightweight incident response playbook.
+agent	Observability Lead	.github/agents/observability-lead.agent.md	End-to-end observability + incident readiness: OTel instrumentation, SLOs/alerts, incident playbooks, postmortems, and DORA metrics review.
+agent	OTel Instrumentation Engineer	.github/agents/otel-instrumentation-engineer.agent.md	Implements OpenTelemetry tracing/metrics/logging with semantic conventions, stable error attributes, and correlation.
+agent	Postmortem Editor	.github/agents/postmortem-editor.agent.md	Produces and enforces a blame-free postmortem process with high-quality action items and broad sharing.
+agent	SLO & Alert Designer	.github/agents/slo-alert-designer.agent.md	Defines SLIs/SLOs, reduces alert noise, and creates short runbooks tied to user impact.
+prompt	brief:define-slos	.github/prompts/define-slos.prompt.md	Define SLIs/SLOs for critical paths and design low-noise alerts with runbooks.
+prompt	brief:dora-review	.github/prompts/dora-review.prompt.md	Define DORA metrics data sources and how to compute/report them for this repo.
+prompt	brief:incident-triage	.github/prompts/incident-triage.prompt.md	>-
+prompt	brief:instrument-service	.github/prompts/instrument-service.prompt.md	>-
+prompt	brief:observability-brief	.github/prompts/observability-brief.prompt.md	>-
+prompt	brief:observability-ship	.github/prompts/observability-ship.prompt.md	>-
+prompt	brief:write-postmortem	.github/prompts/write-postmortem.prompt.md	Create or refine a blame-free postmortem template and action-item standards.
+skill	dora-metrics-definition	.github/skills/dora-metrics-definition/SKILL.md	Define DORA metrics for this repo (data sources, computation, and review cadence).
+skill	incident-triage-and-timeline	.github/skills/incident-triage-and-timeline/SKILL.md	Standardise incident response: roles, comms, triage checklist, and real-time timeline capture.
+skill	otel-semantic-conventions	.github/skills/otel-semantic-conventions/SKILL.md	Standardise traces/metrics/logs using OpenTelemetry semantic conventions, including error and exception attributes.
+skill	postmortems-and-action-items	.github/skills/postmortems-and-action-items/SKILL.md	Blame-free postmortems with high-quality action items; broad sharing; learning loops back into backlog.
+skill	slo-alerting-runbooks	.github/skills/slo-alerting-runbooks/SKILL.md	Define SLIs/SLOs and low-noise alerts with short runbooks tied to user impact.

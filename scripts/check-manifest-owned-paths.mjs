@@ -45,6 +45,9 @@ function runPackValidate(packPath) {
       "dist/index.js",
       "validate",
       packPath,
+      "--strict",
+      "--suite",
+      "--auto-clean",
     ],
     {
       cwd: root,

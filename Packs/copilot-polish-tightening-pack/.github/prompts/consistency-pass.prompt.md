@@ -1,7 +1,9 @@
 ---
-name: consistency-pass
-description: Unify naming, patterns, error model, configuration, and logging in the scoped area with minimal churn.
-agent: "Consistency Enforcer"
+name: "brief:consistency-pass"
+description: >-
+  Unify naming, patterns, error model, configuration, and logging in the scoped
+  area with minimal churn.
+agent: Consistency Enforcer
 ---
 
 Target: ${selection}

@@ -1,7 +1,9 @@
 ---
-name: docs-audit
-description: Audit docs for freshness, contradictions, broken links, Diátaxis correctness, and missing diagrams/glossary coverage.
-agent: "Docs Librarian"
+name: "brief:docs-audit"
+description: >-
+  Audit docs for freshness, contradictions, broken links, Diátaxis correctness,
+  and missing diagrams/glossary coverage.
+agent: Docs Librarian
 ---
 
 Target/scope: ${selection}

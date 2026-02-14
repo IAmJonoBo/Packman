@@ -1,7 +1,7 @@
 ---
-name: threat-model
+name: "brief:threat-model"
 description: Produce a threat model + abuse cases + mitigations for the selected change.
-agent: "Threat Modeler"
+agent: Threat Modeler
 ---
 
 Target: ${selection}

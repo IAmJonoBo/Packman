@@ -1,7 +1,7 @@
 ---
-name: quality-brief
+name: "qa:quality-brief"
 description: Ask for missing quality/testing constraints before proceeding.
-agent: "ask"
+agent: ask
 ---
 
 Ask me ONLY for missing info:

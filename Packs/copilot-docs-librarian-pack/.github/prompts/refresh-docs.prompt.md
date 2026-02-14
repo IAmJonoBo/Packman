@@ -1,7 +1,9 @@
 ---
-name: refresh-docs
-description: Update documentation to be current, consistent, and lint-clean; add diagrams and glossary entries as needed.
-agent: "Docs Librarian"
+name: "brief:refresh-docs"
+description: >-
+  Update documentation to be current, consistent, and lint-clean; add diagrams
+  and glossary entries as needed.
+agent: Docs Librarian
 ---
 
 Scope: ${selection}

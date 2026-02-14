@@ -7,8 +7,10 @@
   "owned_paths": [
     ".github/copilot-instructions.md",
     ".github/instructions",
+    ".github/skills",
     ".vscode/settings.json",
     "tools/validate-instructions.py"
   ],
-  "commands": []
+  "commands": [],
+  "namespaces": []
 }

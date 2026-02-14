@@ -1,0 +1,23 @@
+# llms index (copilot-quality-engineer-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 17
+
+type	name	path	description
+agent	Contract Tester	.github/agents/contract-tester.agent.md	Adds contract tests for interface boundaries (schemas/types), ensuring breaking changes are caught early.
+agent	Flake Hunter	.github/agents/flake-hunter.agent.md	Diagnoses and eliminates flaky tests; hardens locators, waits, and fixtures; improves reproducibility.
+agent	Quality Engineer	.github/agents/quality-engineer.agent.md	Plans and implements deterministic tests and test seams, prioritising critical paths and reducing flakiness.
+agent	Quality Gate Reviewer	.github/agents/quality-gate-reviewer.agent.md	Reviews changes for evidence of correctness: tests, determinism, coverage of critical paths, and maintainability.
+agent	Test Implementer	.github/agents/test-implementer.agent.md	Implements tests and fixtures with repo conventions; avoids flakiness and keeps execution fast.
+agent	Test Planner	.github/agents/test-planner.agent.md	Detects test stack, defines critical paths, and writes a minimal high-impact test plan.
+prompt	brief:add-critical-tests	.github/prompts/add-critical-tests.prompt.md	>-
+prompt	brief:contract-tests	.github/prompts/contract-tests.prompt.md	>-
+prompt	brief:fixture-kit	.github/prompts/fixture-kit.prompt.md	>-
+prompt	brief:make-tests-deterministic	.github/prompts/make-tests-deterministic.prompt.md	Remove flakiness by hardening locators, waits, fixtures, time, and randomness.
+prompt	qa:quality-brief	.github/prompts/quality-brief.prompt.md	Ask for missing quality/testing constraints before proceeding.
+prompt	qa:quality-review	.github/prompts/quality-review.prompt.md	>-
+prompt	qa:quality-ship	.github/prompts/quality-ship.prompt.md	End-to-end quality pass: brief → plan → implement → de-flake → review.
+skill	contract-testing-seams	.github/skills/contract-testing-seams/SKILL.md	Add contract tests for boundary interfaces and prevent accidental breaking changes.
+skill	critical-path-inventory	.github/skills/critical-path-inventory/SKILL.md	Define and maintain a critical path inventory (top flows) and map them to tests to prevent regressions.
+skill	deterministic-testing	.github/skills/deterministic-testing/SKILL.md	Make tests deterministic by controlling time, randomness, IO boundaries, and using stable locators and waits.
+skill	flake-triage	.github/skills/flake-triage/SKILL.md	Systematically diagnose and eliminate flaky tests and reduce future flake risk.

@@ -1,7 +1,9 @@
 ---
-name: ux-audit
-description: Heuristic + accessibility + states audit; produce ranked fixes and implement the top items.
-agent: "UX Prototyper"
+name: "brief:ux-audit"
+description: >-
+  Heuristic + accessibility + states audit; produce ranked fixes and implement
+  the top items.
+agent: UX Prototyper
 ---
 
 Target: ${selection}

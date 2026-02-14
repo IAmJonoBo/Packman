@@ -1,7 +1,7 @@
 ---
-name: polish-review
-description: Review a polish/refactor diff for value, risk, churn, and missed details.
-agent: "Polish Gate Reviewer"
+name: "brief:polish-review"
+description: "Review a polish/refactor diff for value, risk, churn, and missed details."
+agent: Polish Gate Reviewer
 ---
 
 Target: ${selection}

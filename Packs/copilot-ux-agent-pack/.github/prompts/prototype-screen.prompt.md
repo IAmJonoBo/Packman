@@ -1,7 +1,7 @@
 ---
-name: prototype-screen
+name: "brief:prototype-screen"
 description: Build a clickable prototype for a described screen/flow with strong UX states.
-agent: "UX Prototyper"
+agent: UX Prototyper
 ---
 
 Goal: Produce a working prototype (screen + components), covering states and accessibility.

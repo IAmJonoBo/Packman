@@ -1,7 +1,9 @@
 ---
-name: dependency-risk-triage
-description: Assess new/changed dependencies for security and supply-chain risk; propose mitigations.
-agent: "Security Reviewer"
+name: "brief:dependency-risk-triage"
+description: >-
+  Assess new/changed dependencies for security and supply-chain risk; propose
+  mitigations.
+agent: Security Reviewer
 ---
 
 Scope: ${selection}

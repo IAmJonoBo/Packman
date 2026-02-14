@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "sessionStart": [
+      {
+        "id": "packman-session-start-local",
+        "enabled": true,
+        "script": "hooks/scripts/session-start.sh"
+      }
+    ]
+  }
+}

@@ -1,7 +1,9 @@
 ---
-name: tokens-and-typography
-description: Define semantic tokens + typography scale, then refactor one screen/component to comply.
-agent: "Design System Engineer"
+name: "brief:tokens-and-typography"
+description: >-
+  Define semantic tokens + typography scale, then refactor one screen/component
+  to comply.
+agent: Design System Engineer
 ---
 
 Target: ${selection}

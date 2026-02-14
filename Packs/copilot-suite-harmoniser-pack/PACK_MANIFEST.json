@@ -13,5 +13,6 @@
   ],
   "commands": [
     "suite:route"
-  ]
+  ],
+  "namespaces": []
 }

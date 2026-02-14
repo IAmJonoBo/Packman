@@ -1,7 +1,7 @@
 ---
-name: tokens-hardening
+name: "brief:tokens-hardening"
 description: Propose/align design tokens and refactor a component to use them consistently.
-agent: "UX Prototyper"
+agent: UX Prototyper
 ---
 
 Target component/scope: ${selection}

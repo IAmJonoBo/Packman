@@ -1,0 +1,24 @@
+# llms index (copilot-release-supplychain-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 18
+
+type	name	path	description
+agent	Build Hardener	.github/agents/build-hardener.agent.md	Hardens builds for repeatability and supply-chain hygiene: pin toolchains, lock dependencies, reduce nondeterminism.
+agent	Provenance Attestor	.github/agents/provenance-attestor.agent.md	Configures build provenance attestations (SLSA provenance) using CI-native mechanisms (e.g., GitHub artifact attestations).
+agent	Release Notes Curator	.github/agents/release-notes-curator.agent.md	Curates changelog and release notes: highlights, breaking changes, migrations, security notes, and known issues.
+agent	Release & Supply Chain Engineer	.github/agents/release-supplychain-engineer.agent.md	Makes releases repeatable and auditable: provenance attestations, SBOMs, verification, and curated release notes.
+agent	SBOM Maintainer	.github/agents/sbom-maintainer.agent.md	Generates and publishes SBOMs (CycloneDX or SPDX) for release artifacts and ensures linkage to versions and checksums.
+agent	Verifier	.github/agents/verifier.agent.md	Adds verification steps/scripts for artifacts, attestations, and SBOM integrity and explains how to validate a release.
+prompt	brief:attest-provenance	.github/prompts/attest-provenance.prompt.md	>-
+prompt	brief:curate-release-notes	.github/prompts/curate-release-notes.prompt.md	>-
+prompt	brief:generate-sbom	.github/prompts/generate-sbom.prompt.md	>-
+prompt	brief:harden-builds	.github/prompts/harden-builds.prompt.md	>-
+prompt	brief:release-brief	.github/prompts/release-brief.prompt.md	Ask for missing release constraints before adding supply-chain gates.
+prompt	brief:release-ship	.github/prompts/release-ship.prompt.md	>-
+prompt	brief:verify-release	.github/prompts/verify-release.prompt.md	Add verification docs/scripts for artifacts, attestations, and SBOM checks.
+skill	artifact-verification	.github/skills/artifact-verification/SKILL.md	Document and implement verification steps for released artifacts: attestations, checksums/digests, and SBOM presence.
+skill	release-notes-and-versioning	.github/skills/release-notes-and-versioning/SKILL.md	Curate changelogs/release notes with SemVer discipline, migrations, and security notes.
+skill	reproducible-build-hardening	.github/skills/reproducible-build-hardening/SKILL.md	Harden builds for repeatability: pinned toolchains, deterministic archives, controlled env/time, minimal artifact surface.
+skill	sbom-generation-and-publication	.github/skills/sbom-generation-and-publication/SKILL.md	Generate SBOMs (CycloneDX or SPDX), link them to artifacts/versions, and publish alongside releases.
+skill	slsa-provenance-attestations	.github/skills/slsa-provenance-attestations/SKILL.md	Configure and verify build provenance attestations aligned to SLSA provenance expectations; prefer CI-native attestations.

@@ -1,0 +1,4 @@
+Packs/copilot-award-ui-pack
+Packs/copilot-interface-wiring-pack
+Packs/copilot-ux-agent-pack
+Packs/copilot-prompt-library-pack

@@ -56,6 +56,8 @@ type IntendedInstall = "solo" | "suite";
 interface PackManifestLike {
   intended_install?: unknown;
   owned_paths?: unknown;
+  namespaces?: unknown;
+  orchestrator_agent?: unknown;
   [key: string]: unknown;
 }
 
@@ -80,6 +82,22 @@ function splitArtifactFileName(fileName: string): {
 
 function kebabCaseFileName(fileName: string): string {
   const { stem, suffix } = splitArtifactFileName(fileName);
+  if (suffix === ".prompt.md" && stem.includes(":")) {
+    const namespacedStem = stem
+      .split(":")
+      .map((segment) =>
+        segment
+          .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+          .replace(/[^a-zA-Z0-9]+/g, "-")
+          .replace(/-{2,}/g, "-")
+          .replace(/^-+|-+$/g, "")
+          .toLowerCase(),
+      )
+      .join(":");
+
+    return `${namespacedStem}${suffix}`;
+  }
+
   const kebab = stem
     .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
     .replace(/[^a-zA-Z0-9]+/g, "-")
@@ -229,7 +247,9 @@ function inferIntendedInstall(artifacts: Artifact[]): IntendedInstall {
 function needsManifestContractAssist(manifest: PackManifestLike): boolean {
   return (
     manifest.intended_install === undefined ||
-    manifest.owned_paths === undefined
+    manifest.owned_paths === undefined ||
+    manifest.namespaces === undefined ||
+    manifest.orchestrator_agent === undefined
   );
 }
 
@@ -244,8 +264,9 @@ function manifestTemplate(
     version: "0.1.0",
     intended_install: inferIntendedInstall(artifacts),
     owned_paths: inferOwnedPaths(artifacts),
+    namespaces: [],
     commands: ["validate", "normalize", "install", "doctor"],
-    orchestrator_agent: "orchestrator.agent.md",
+    orchestrator_agent: "",
   };
 }
 
@@ -394,6 +415,14 @@ export async function normalizePack(
 
       if (nextManifest.owned_paths === undefined) {
         nextManifest.owned_paths = inferOwnedPaths(detection.artifacts);
+      }
+
+      if (nextManifest.namespaces === undefined) {
+        nextManifest.namespaces = [];
+      }
+
+      if (nextManifest.orchestrator_agent === undefined) {
+        nextManifest.orchestrator_agent = "";
       }
 
       const before = await readText(manifestPath);

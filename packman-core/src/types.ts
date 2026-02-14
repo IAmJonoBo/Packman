@@ -97,7 +97,21 @@ export interface InstallOptions {
   collisionStrategy?: "fail" | "skip" | "overwrite" | "rename";
   collisionDecisions?: Record<string, "fail" | "skip" | "overwrite" | "rename">;
   autoCleanMacOSJunk?: boolean;
+  includeCategories?: ImportCategory[];
+  includePaths?: string[];
 }
+
+export type ImportCategory =
+  | "agents"
+  | "prompts"
+  | "instructions"
+  | "skills"
+  | "settings"
+  | "hooks"
+  | "mcp"
+  | "alwaysOn"
+  | "manifest"
+  | "readme";
 
 export interface InstallCollision {
   relativePath: string;

@@ -1,0 +1,19 @@
+# llms index (copilot-project-scaffolding-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 13
+
+type	name	path	description
+agent	Project Scaffolding Architect	.github/agents/project-scaffolding-architect.agent.md	Classifies project type, produces a RepoSpec, and scaffolds a correct-by-default repo (prefer definition-as-code via projen).
+agent	Projen Synthesizer	.github/agents/projen-synthesizer.agent.md	Implements scaffolding with projen (definition-as-code) where feasible; pins toolchains; adds synth command.
+agent	RepoSpec Composer	.github/agents/repospec-composer.agent.md	Produces a RepoSpec: directory layout, toolchains, scripts, docs skeleton, CI entry points, and release surface.
+agent	Scaffold Auditor	.github/agents/scaffold-auditor.agent.md	Checks scaffold completeness, coherence, and regeneration path; identifies missing lifecycle touchpoints.
+agent	Scaffold Profile Selector	.github/agents/scaffold-profile-selector.agent.md	Chooses the right project scaffold profile based on goals, constraints, and lifecycle needs.
+prompt	brief:choose-scaffold-profile	.github/prompts/choose-scaffold-profile.prompt.md	Select a standard scaffold profile from the catalogue based on the brief.
+prompt	brief:projen-synth	.github/prompts/projen-synth.prompt.md	>-
+prompt	brief:scaffold-audit	.github/prompts/scaffold-audit.prompt.md	>-
+prompt	brief:scaffold-brief	.github/prompts/scaffold-brief.prompt.md	Capture missing constraints before scaffolding a new project.
+prompt	brief:scaffold-new	.github/prompts/scaffold-new.prompt.md	>-
+skill	projen-scaffolding	.github/skills/projen-scaffolding/SKILL.md	Uses projen as definition-as-code scaffolding; keeps .projenrc.* minimal and uses synth as the regeneration mechanism.
+skill	repospec-contract	.github/skills/repospec-contract/SKILL.md	Defines RepoSpec sections and the minimum required repo contracts (scripts, docs, CI entry points, release surface).
+skill	scaffold-profile-catalogue	.github/skills/scaffold-profile-catalogue/SKILL.md	A controlled catalogue of project-type scaffolds and the questions used to select them.

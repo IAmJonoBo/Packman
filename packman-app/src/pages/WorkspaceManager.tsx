@@ -105,6 +105,7 @@ export function WorkspaceManager({
               variant="secondary"
               onClick={pickWorkspaceParent}
               data-testid="workspace-pick-parent"
+              aria-label="Select trial workspace parent folder"
             >
               <FolderOpen className="w-4 h-4 mr-2" />
               Parent Folder
@@ -115,6 +116,7 @@ export function WorkspaceManager({
               }}
               isLoading={isBusy}
               data-testid="workspace-create-trial"
+              aria-label="Create trial workspace"
             >
               <FolderPlus className="w-4 h-4 mr-2" />
               Create
@@ -126,6 +128,7 @@ export function WorkspaceManager({
               }}
               isLoading={isBusy}
               data-testid="workspace-create-trial-import"
+              aria-label="Create trial workspace and open import view"
             >
               Create & Go to Import
             </Button>
@@ -137,13 +140,21 @@ export function WorkspaceManager({
         </div>
 
         {error && (
-          <div className="p-4 border border-status-error/40 bg-status-error/10 text-status-error rounded-lg text-sm">
+          <div
+            className="p-4 border border-status-error/40 bg-status-error/10 text-status-error rounded-lg text-sm"
+            role="alert"
+            aria-live="assertive"
+          >
             {error}
           </div>
         )}
 
         {notice && (
-          <div className="p-4 border border-status-success/40 bg-status-success/10 text-status-success rounded-lg text-sm flex items-center justify-between gap-3">
+          <div
+            className="p-4 border border-status-success/40 bg-status-success/10 text-status-success rounded-lg text-sm flex items-center justify-between gap-3"
+            role="status"
+            aria-live="polite"
+          >
             <span>{notice}</span>
             <Button size="sm" variant="ghost" onClick={() => setNotice(null)}>
               Dismiss

@@ -1,8 +1,15 @@
 ---
-name: "uplift:execute-slice"
-description: Execute one approved uplift slice with verification evidence and rollback notes.
+name: "brief:uplift:execute-slice"
+description: >-
+  Execute one approved uplift slice with verification evidence and rollback
+  notes.
 agent: gold-standards-steward
-tools: ["codebase", "search", "editFiles", "terminalLastCommand", "agent"]
+tools:
+  - codebase
+  - search
+  - editFiles
+  - terminalLastCommand
+  - agent
 ---
 
 # uplift:execute-slice

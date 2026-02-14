@@ -1,7 +1,9 @@
 ---
-name: art-direct-screen
-description: Produce 2–3 art directions, choose one with guidance, then implement an award-level screen with systemised tokens/components.
-agent: "UI Art Director"
+name: "brief:art-direct-screen"
+description: >-
+  Produce 2–3 art directions, choose one with guidance, then implement an
+  award-level screen with systemised tokens/components.
+agent: UI Art Director
 ---
 
 Target screen/flow: ${selection}

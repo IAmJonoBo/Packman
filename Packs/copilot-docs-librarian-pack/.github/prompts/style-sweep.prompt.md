@@ -1,7 +1,9 @@
 ---
-name: style-sweep
-description: Enforce Oxford English + Google dev style conventions; remove ambiguity and fix terminology.
-agent: "Style Enforcer"
+name: "brief:style-sweep"
+description: >-
+  Enforce Oxford English + Google dev style conventions; remove ambiguity and
+  fix terminology.
+agent: Style Enforcer
 ---
 
 Target: ${selection}

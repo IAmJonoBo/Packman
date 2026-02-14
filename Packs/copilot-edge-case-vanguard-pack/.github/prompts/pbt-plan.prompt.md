@@ -1,6 +1,8 @@
 ---
-name: test:pbt-plan
-description: Design property-based tests that uncover edge-case violations and produce replayable failures.
+name: "brief:test:pbt-plan"
+description: >-
+  Design property-based tests that uncover edge-case violations and produce
+  replayable failures.
 ---
 
 Create a property-based testing plan for the selected module:

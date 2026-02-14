@@ -1,0 +1,14 @@
+# llms index (copilot-edge-case-vanguard-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 8
+
+type	name	path	description
+agent	edge-case-vanguard	.github/agents/edge-case-vanguard.agent.md	Investigative edge-case specialist that discovers failure modes across code, runtime, and production operations, then proposes reversible one-slice mitigations with verification-first evidence.
+prompt	ops:chaos-experiments	.github/prompts/chaos-experiments.prompt.md	Plan controlled chaos experiments to validate resilience assumptions with strict blast-radius controls.
+prompt	audit:edge-inventory	.github/prompts/edge-inventory.prompt.md	Build a complete edge-case inventory across code, runtime, and operations with evidence-driven prioritization.
+prompt	brief:test:fuzz-plan	.github/prompts/fuzz-plan.prompt.md	>-
+prompt	ops:observability-gaps	.github/prompts/observability-gaps.prompt.md	Produce an observability gap report with concrete signal additions and alerting improvements.
+prompt	brief:fix:one-slice	.github/prompts/one-slice.prompt.md	>-
+prompt	brief:test:pbt-plan	.github/prompts/pbt-plan.prompt.md	>-
+skill	edge-case-vanguard	.github/skills/edge-case-vanguard/SKILL.md	Templates and methods for edge inventory, PBT/fuzz planning, chaos experiments, observability gap analysis, and one-slice mitigations.

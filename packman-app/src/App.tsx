@@ -9,6 +9,11 @@ import { cn } from "./lib/utils";
 
 type Page = "home" | "import" | "doctor" | "workspaces";
 
+type AppNotice = {
+  message: string;
+  tone: "success" | "error" | "info";
+};
+
 const pageVariants = {
   initial: { opacity: 0, x: -20 },
   animate: { opacity: 1, x: 0 },
@@ -23,6 +28,8 @@ const pageTransition = {
 
 function App() {
   const [page, setPage] = useState<Page>("home");
+  const [importEntryPage, setImportEntryPage] = useState<Page>("home");
+  const [notice, setNotice] = useState<AppNotice | null>(null);
   const [, setHistory] = useState<Page[]>([]);
   const navItems: Array<{ key: Page; label: string }> = [
     { key: "home", label: "Home" },
@@ -36,7 +43,20 @@ function App() {
       return;
     }
 
+    if (nextPage === "import") {
+      setImportEntryPage(page);
+    }
+
     setHistory((previous) => [...previous, page]);
+    setPage(nextPage);
+  };
+
+  const handleImportComplete = () => {
+    setNotice({
+      message: "Successfully imported. Redirecting to the next view.",
+      tone: "success",
+    });
+    const nextPage = importEntryPage === "workspaces" ? "workspaces" : "home";
     setPage(nextPage);
   };
 
@@ -77,11 +97,39 @@ function App() {
               className={cn("min-w-24")}
               onClick={() => navigateTo(item.key)}
               data-testid={`app-nav-${item.key}`}
+              aria-label={`Go to ${item.label}`}
             >
               {item.label}
             </Button>
           ))}
         </div>
+        {notice && (
+          <div
+            className={cn(
+              "max-w-5xl mx-auto mt-3 rounded-md border px-3 py-2 text-sm",
+              notice.tone === "success" &&
+                "bg-status-success/10 border-status-success/40 text-status-success",
+              notice.tone === "error" &&
+                "bg-status-error/10 border-status-error/40 text-status-error",
+              notice.tone === "info" &&
+                "bg-brand-info/10 border-brand-info/40 text-brand-info",
+            )}
+            role={notice.tone === "error" ? "alert" : "status"}
+            aria-live={notice.tone === "error" ? "assertive" : "polite"}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span>{notice.message}</span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setNotice(null)}
+                aria-label="Dismiss notification"
+              >
+                Dismiss
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       <AnimatePresence mode="wait">
@@ -108,7 +156,10 @@ function App() {
             exit={{ opacity: 0, x: -20 }}
             transition={pageTransition}
           >
-            <ImportWizard onBack={() => navigateTo("home")} />
+            <ImportWizard
+              onBack={() => navigateTo("home")}
+              onInstallComplete={handleImportComplete}
+            />
           </motion.div>
         )}
 

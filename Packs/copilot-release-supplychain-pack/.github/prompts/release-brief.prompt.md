@@ -1,7 +1,7 @@
 ---
-name: release-brief
+name: "brief:release-brief"
 description: Ask for missing release constraints before adding supply-chain gates.
-agent: "ask"
+agent: ask
 ---
 
 Ask me ONLY for missing info:

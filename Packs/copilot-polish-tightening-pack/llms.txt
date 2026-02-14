@@ -1,0 +1,23 @@
+# llms index (copilot-polish-tightening-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 17
+
+type	name	path	description
+agent	Consistency Enforcer	.github/agents/consistency-enforcer.agent.md	Enforces consistency in a scoped area: naming, error model, configuration, logging, and structure.
+agent	Nit Hunter	.github/agents/nit-hunter.agent.md	Finds high-impact paper-cuts and overlooked details that degrade UX, DX, reliability, or maintainability.
+agent	Polish Gate Reviewer	.github/agents/polish-gate-reviewer.agent.md	Reviews for value and risk: ensure improvements justify the diff, refactors are safe, and no details are missed.
+agent	Polish & Tightening Engineer	.github/agents/polish-tightening-engineer.agent.md	Hunts paper-cuts, enforces consistency, and performs safe refactors in small, reviewable slices.
+agent	Refactor Surgeon	.github/agents/refactor-surgeon.agent.md	Performs safe refactors using behaviour-preserving baby steps and small transformations, with tests proving safety.
+agent	Small-CL Slicer	.github/agents/small-cl-slicer.agent.md	Turns a large improvement into small mergeable slices; minimises reviewer load and risk.
+prompt	brief:consistency-pass	.github/prompts/consistency-pass.prompt.md	>-
+prompt	brief:nit-sweep	.github/prompts/nit-sweep.prompt.md	Identify and rank high-impact “nits that matter” in the selected area.
+prompt	brief:polish-brief	.github/prompts/polish-brief.prompt.md	Capture constraints for a polish pass to avoid unintended product changes.
+prompt	brief:polish-review	.github/prompts/polish-review.prompt.md	Review a polish/refactor diff for value, risk, churn, and missed details.
+prompt	brief:polish-ship	.github/prompts/polish-ship.prompt.md	>-
+prompt	brief:refactor-safely	.github/prompts/refactor-safely.prompt.md	>-
+prompt	brief:slice-small-cls	.github/prompts/slice-small-cls.prompt.md	>-
+skill	operational-tidiness-12factor-inspired	.github/skills/operational-tidiness-12factor-inspired/SKILL.md	Tidy operational concerns: config separation, logs as event streams, build/release/run separation (where applicable).
+skill	polish-checklist	.github/skills/polish-checklist/SKILL.md	A high-impact polish checklist for overlooked details: errors, defaults, docs, observability hooks, accessibility, and ergonomics.
+skill	refactoring-baby-steps	.github/skills/refactoring-baby-steps/SKILL.md	Perform behaviour-preserving refactors using small transformations; verify continuously; avoid rewrites.
+skill	small-change-discipline	.github/skills/small-change-discipline/SKILL.md	Keep polish and refactors in small, reviewable changes; separate refactors from behaviour changes.

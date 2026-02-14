@@ -1,7 +1,9 @@
 ---
-name: contract-tests
-description: Add contract tests for interface boundaries (schemas/types) and wire them into CI/test commands.
-agent: "Contract Tester"
+name: "brief:contract-tests"
+description: >-
+  Add contract tests for interface boundaries (schemas/types) and wire them into
+  CI/test commands.
+agent: Contract Tester
 ---
 
 Target boundary: ${selection}

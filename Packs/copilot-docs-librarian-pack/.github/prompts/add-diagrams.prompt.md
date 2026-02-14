@@ -1,7 +1,9 @@
 ---
-name: add-diagrams
-description: Add Mermaid diagrams for flows/state/sequence/architecture to cover the target documentation area.
-agent: "Diagram Curator"
+name: "brief:add-diagrams"
+description: >-
+  Add Mermaid diagrams for flows/state/sequence/architecture to cover the target
+  documentation area.
+agent: Diagram Curator
 ---
 
 Target: ${selection}

@@ -1,7 +1,9 @@
 ---
-name: lint-docs
-description: Run and fix documentation linting (Vale + markdownlint). Add configs if missing.
-agent: "Docs Lint Runner"
+name: "brief:lint-docs"
+description: >-
+  Run and fix documentation linting (Vale + markdownlint). Add configs if
+  missing.
+agent: Docs Lint Runner
 ---
 
 Do:

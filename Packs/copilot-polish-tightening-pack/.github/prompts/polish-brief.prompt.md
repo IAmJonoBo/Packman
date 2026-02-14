@@ -1,7 +1,7 @@
 ---
-name: polish-brief
+name: "brief:polish-brief"
 description: Capture constraints for a polish pass to avoid unintended product changes.
-agent: "ask"
+agent: ask
 ---
 
 Ask me ONLY for missing info:

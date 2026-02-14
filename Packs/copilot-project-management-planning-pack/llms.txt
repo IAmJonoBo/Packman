@@ -1,0 +1,20 @@
+# llms index (copilot-project-management-planning-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 14
+
+type	name	path	description
+agent	Execution Gate Reviewer	.github/agents/execution-gate-reviewer.agent.md	Performs pre-execution gate review to ensure plan feasibility, ownership clarity, and risk coverage.
+agent	Project Planning Lead	.github/agents/project-planning-lead.agent.md	Owns end-to-end project planning, variance handling, and checkpoint governance using balanced delegation.
+agent	Risk Dependency Coordinator	.github/agents/risk-dependency-coordinator.agent.md	Maintains risk register, dependency map, and variance impact analysis for replanning decisions.
+agent	Scope Clarifier	.github/agents/scope-clarifier.agent.md	Turns ambiguous goals into explicit scope, constraints, assumptions, and acceptance criteria.
+agent	Work Breakdown Planner	.github/agents/work-breakdown-planner.agent.md	Produces WBS, milestone sequencing, and thin-slice execution plans with dependency-aware ordering.
+prompt	brief:checkpoint-review	.github/prompts/checkpoint-review.prompt.md	>-
+prompt	brief:planning-brief	.github/prompts/planning-brief.prompt.md	>-
+prompt	brief:planning-replan	.github/prompts/planning-replan.prompt.md	>-
+prompt	brief:planning-ship	.github/prompts/planning-ship.prompt.md	End-to-end project planning workflow from brief to execution-gate-ready plan.
+prompt	brief:variance-triage	.github/prompts/variance-triage.prompt.md	>-
+skill	dependency-critical-path-mapping	.github/skills/dependency-critical-path-mapping/SKILL.md	Maps dependencies, identifies the critical path, and highlights schedule sensitivity.
+skill	execution-gate-checklist	.github/skills/execution-gate-checklist/SKILL.md	Defines the minimum pre-execution gates for scope, risk, ownership, and readiness.
+skill	project-plan-contract	.github/skills/project-plan-contract/SKILL.md	Defines required sections for an authoritative project plan and checkpoint governance model.
+skill	variance-and-backpedal-management	.github/skills/variance-and-backpedal-management/SKILL.md	Captures variance events and produces controlled replanning deltas with impact transparency.

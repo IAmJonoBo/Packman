@@ -1,7 +1,9 @@
 ---
-name: secure-error-model
-description: Implement/standardise a safe error model and map server errors to user-safe messages.
-agent: "Secure Implementer"
+name: "brief:secure-error-model"
+description: >-
+  Implement/standardise a safe error model and map server errors to user-safe
+  messages.
+agent: Secure Implementer
 ---
 
 Target: ${selection}

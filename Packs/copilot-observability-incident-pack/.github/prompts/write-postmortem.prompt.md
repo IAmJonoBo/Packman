@@ -1,7 +1,7 @@
 ---
-name: write-postmortem
+name: "brief:write-postmortem"
 description: Create or refine a blame-free postmortem template and action-item standards.
-agent: "Postmortem Editor"
+agent: Postmortem Editor
 ---
 
 Scope: ${selection}

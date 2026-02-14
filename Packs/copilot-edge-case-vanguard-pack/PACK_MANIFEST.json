@@ -17,11 +17,11 @@
   ],
   "orchestrator_agent": "edge-case-vanguard",
   "commands": [
-    "edge-inventory",
-    "pbt-plan",
-    "fuzz-plan",
-    "chaos-experiments",
-    "observability-gaps",
-    "one-slice"
+    "audit:edge-inventory",
+    "brief:test:pbt-plan",
+    "brief:test:fuzz-plan",
+    "ops:chaos-experiments",
+    "ops:observability-gaps",
+    "brief:fix:one-slice"
   ]
 }

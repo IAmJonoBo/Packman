@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { usePackman } from "../hooks/use-packman";
+import { AVAILABLE_IMPORT_CATEGORIES, usePackman } from "../hooks/use-packman";
 import { Button } from "../ui/Button";
 import { Card, CardContent } from "../ui/Card";
 import { Input } from "../ui/Input";
@@ -17,6 +17,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 interface ImportWizardProps {
   onBack: () => void;
+  onInstallComplete?: () => void;
 }
 
 type Step = "select" | "validate" | "config" | "plan" | "install";
@@ -26,6 +27,19 @@ type WizardIssue = {
   code: string;
   message: string;
   path?: string;
+};
+
+const GLOBAL_CATEGORY_DESTINATIONS: Record<string, string> = {
+  agents: ".github/agents",
+  prompts: ".github/prompts",
+  instructions: ".github/instructions",
+  skills: ".github/skills",
+  settings: ".vscode",
+  hooks: ".github/hooks",
+  mcp: ".vscode/mcp.json",
+  alwaysOn: "(profile root)",
+  manifest: "PACK_MANIFEST.json",
+  readme: "README.md",
 };
 
 function getWorkspaceUid(
@@ -61,7 +75,7 @@ function hasMacOsJunkIssue(value: unknown): boolean {
   return candidate.issues.some((issue) => issue?.code === "MACOS_JUNK");
 }
 
-export function ImportWizard({ onBack }: ImportWizardProps) {
+export function ImportWizard({ onBack, onInstallComplete }: ImportWizardProps) {
   const extractIssues = (value: unknown): WizardIssue[] => {
     if (!value || typeof value !== "object") {
       return [];
@@ -152,8 +166,12 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
   const {
     sourcePath,
     targetPath,
+    installTargetType,
+    globalProfilePath,
     workspaceParentPath,
     collisionStrategy,
+    selectedImportCategories,
+    selectedImportPaths,
     isBusy,
     pickSource,
     pickTarget,
@@ -171,8 +189,12 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
     planOutput,
     installOutput,
     error,
+    setInstallTargetType,
+    setSelectedImportCategories,
+    setSelectedImportPaths,
     setCollisionStrategy,
   } = usePackman();
+  const [useFileLevelSelection, setUseFileLevelSelection] = useState(false);
 
   const steps: Step[] = ["select", "validate", "config", "plan", "install"];
   const currentStepIndex = steps.indexOf(step);
@@ -188,6 +210,20 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
       });
     }
   }, [step]);
+
+  useEffect(() => {
+    if (step !== "install" || !onInstallComplete) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      onInstallComplete();
+    }, 1400);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [onInstallComplete, step]);
 
   useEffect(() => {
     if (step !== "plan") {
@@ -264,6 +300,8 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
     planOutput !== undefined &&
     !hasResultError(planOutput);
   const workspaceUid = getWorkspaceUid(targetPath);
+  const effectiveTargetPath =
+    installTargetType === "global" ? globalProfilePath : targetPath;
   const shouldOfferMacOsJunkCleanup =
     hasMacOsJunkIssue(lastOutput) || hasMacOsJunkIssue(planOutput);
   const workspaceFileMissingPrompt =
@@ -280,6 +318,26 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
     !hasMacOsJunkIssue(lastOutput);
   const workspaceFileExists =
     workspaceProbe?.ok === true && workspaceProbe.exists === true;
+  const plannedRelativePaths =
+    (() => {
+      const payload = planOutput as {
+        plans?: Array<{ operations?: Array<{ relativePath?: string }> }>;
+        output?: {
+          plans?: Array<{ operations?: Array<{ relativePath?: string }> }>;
+        };
+        data?: {
+          plans?: Array<{ operations?: Array<{ relativePath?: string }> }>;
+        };
+      } | null;
+      const plans =
+        payload?.plans ?? payload?.output?.plans ?? payload?.data?.plans ?? [];
+      const operationPaths = plans.flatMap((plan) =>
+        (plan.operations ?? [])
+          .map((operation) => operation.relativePath)
+          .filter((value): value is string => typeof value === "string"),
+      );
+      return [...new Set(operationPaths)];
+    })() ?? [];
   const validationIssues = extractIssues(lastOutput);
   const planIssues = extractIssues(planOutput);
 
@@ -360,6 +418,9 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
         className="flex items-center gap-2 mb-8 text-sm text-text-tertiary"
         data-testid="wizard-stepper"
         data-current-step={step}
+        role="status"
+        aria-live="polite"
+        aria-label={`Import step ${currentStepIndex + 1} of ${steps.length}: ${step}`}
       >
         {steps.map((s, i) => (
           <div
@@ -399,10 +460,17 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
             variant="ghost"
             onClick={prevStep}
             data-testid="wizard-header-back"
+            aria-label="Go back"
           >
             ← Back
           </Button>
         </div>
+
+        {error && (
+          <div className="sr-only" role="alert" aria-live="assertive">
+            {error}
+          </div>
+        )}
 
         {/* Step Content */}
         <div className="min-h-[300px] relative">
@@ -454,6 +522,7 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                         size="sm"
                         onClick={nextStep}
                         data-testid="wizard-continue"
+                        aria-label="Continue to validation step"
                       >
                         Continue <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
@@ -514,6 +583,7 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                         }
                       }}
                       isLoading={isBusy}
+                      aria-label="Run pack validation"
                     >
                       Run Validation
                     </Button>
@@ -640,15 +710,43 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                       </div>
                     </div>
 
+                    <label className="block space-y-2">
+                      <span className="text-text-secondary text-sm">
+                        Install Destination
+                      </span>
+                      <select
+                        className="flex h-9 w-full rounded-md border border-border-subtle bg-bg-elevated px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-info text-text-primary"
+                        value={installTargetType}
+                        onChange={(event) => {
+                          const nextTargetType = event.target.value as
+                            | "workspace"
+                            | "global";
+                          setInstallTargetType(nextTargetType);
+                        }}
+                        data-testid="wizard-target-type"
+                        aria-label="Choose install destination type"
+                      >
+                        <option value="workspace">Workspace</option>
+                        <option value="global">Global Profile</option>
+                      </select>
+                    </label>
+
                     <div className="block space-y-2">
                       <span className="text-text-secondary text-sm">
-                        Target Workspace
+                        {installTargetType === "global"
+                          ? "Global Profile Path"
+                          : "Target Workspace"}
                       </span>
                       <div className="flex gap-2">
                         <Input
-                          value={targetPath ?? ""}
+                          value={effectiveTargetPath ?? ""}
                           readOnly
                           data-testid="wizard-target-workspace"
+                          aria-label={
+                            installTargetType === "global"
+                              ? "Selected global profile path"
+                              : "Selected target workspace path"
+                          }
                         />
                         <Button variant="secondary" onClick={pickTarget}>
                           <FolderOpen className="w-4 h-4 mr-2" />
@@ -657,40 +755,89 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                       </div>
                     </div>
 
-                    <div className="block space-y-2">
-                      <span className="text-text-secondary text-sm">
-                        Trial Workspace (Recommended)
-                      </span>
-                      <div className="flex gap-2">
-                        <Input value={workspaceParentPath ?? ""} readOnly />
-                        <Button
-                          variant="secondary"
-                          onClick={pickWorkspaceParent}
-                          data-testid="wizard-pick-workspace-parent"
-                        >
-                          <FolderOpen className="w-4 h-4 mr-2" />
-                          Parent Folder
-                        </Button>
-                        <Button
-                          variant="primary"
-                          onClick={async () => {
-                            const created = await createTrialWorkspace();
-                            if (created) {
-                              nextStep();
-                            }
-                          }}
-                          isLoading={isBusy}
-                          data-testid="wizard-create-trial-workspace"
-                        >
-                          <FolderPlus className="w-4 h-4 mr-2" />
-                          Create Trial & Continue
-                        </Button>
+                    {installTargetType === "workspace" && (
+                      <div className="block space-y-2">
+                        <span className="text-text-secondary text-sm">
+                          Trial Workspace (Recommended)
+                        </span>
+                        <div className="flex gap-2">
+                          <Input
+                            value={workspaceParentPath ?? ""}
+                            readOnly
+                            aria-label="Trial workspace parent path"
+                          />
+                          <Button
+                            variant="secondary"
+                            onClick={pickWorkspaceParent}
+                            data-testid="wizard-pick-workspace-parent"
+                            aria-label="Pick trial workspace parent folder"
+                          >
+                            <FolderOpen className="w-4 h-4 mr-2" />
+                            Parent Folder
+                          </Button>
+                          <Button
+                            variant="primary"
+                            onClick={async () => {
+                              const created = await createTrialWorkspace();
+                              if (created) {
+                                nextStep();
+                              }
+                            }}
+                            isLoading={isBusy}
+                            data-testid="wizard-create-trial-workspace"
+                            aria-label="Create trial workspace and continue"
+                          >
+                            <FolderPlus className="w-4 h-4 mr-2" />
+                            Create Trial & Continue
+                          </Button>
+                        </div>
+                        <p className="text-xs text-text-tertiary">
+                          Create a clean workspace target and continue directly
+                          to plan generation.
+                        </p>
                       </div>
-                      <p className="text-xs text-text-tertiary">
-                        Create a clean workspace target and continue directly to
-                        plan generation.
-                      </p>
-                    </div>
+                    )}
+
+                    <fieldset className="block space-y-2">
+                      <legend className="text-text-secondary text-sm">
+                        Import Categories
+                      </legend>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        {AVAILABLE_IMPORT_CATEGORIES.map((category) => {
+                          const checked =
+                            selectedImportCategories.includes(category);
+                          return (
+                            <label
+                              key={category}
+                              className="flex items-center gap-2 rounded-md border border-border-subtle bg-bg-elevated px-2 py-1 text-xs text-text-primary"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={(event) => {
+                                  const isChecked = event.target.checked;
+                                  if (isChecked) {
+                                    setSelectedImportCategories([
+                                      ...selectedImportCategories,
+                                      category,
+                                    ]);
+                                    return;
+                                  }
+
+                                  setSelectedImportCategories(
+                                    selectedImportCategories.filter(
+                                      (value) => value !== category,
+                                    ),
+                                  );
+                                }}
+                                aria-label={`Include ${category} category`}
+                              />
+                              <span className="capitalize">{category}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </fieldset>
 
                     <label className="block space-y-2">
                       <span className="text-text-secondary text-sm">
@@ -761,20 +908,26 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                               : "✖ Validation not complete or has blocking issues."}
                           </li>
                           <li>
-                            {targetPath
-                              ? "✔ Target workspace selected/seeded."
-                              : "ℹ Target not selected (Packman will auto-seed one)."}
+                            {effectiveTargetPath
+                              ? installTargetType === "global"
+                                ? "✔ Global profile target selected."
+                                : "✔ Target workspace selected/seeded."
+                              : installTargetType === "global"
+                                ? "ℹ Global profile target not selected. Packman will use the default profile path."
+                                : "ℹ Target not selected (Packman will auto-seed one)."}
                           </li>
                           <li>
                             {workspaceProbe === null
                               ? "ℹ Checking workspace file..."
-                              : workspaceFileExists
-                                ? "✔ VS Code workspace file detected."
-                                : workspaceProbe?.reason === "NO_TARGET"
-                                  ? "ℹ Workspace file check deferred until target exists."
-                                  : workspaceProbe?.ok === false
-                                    ? `✖ Workspace file check failed: ${workspaceProbe.error ?? "unknown error"}`
-                                    : "✖ No VS Code workspace file found in the target folder."}
+                              : installTargetType === "global"
+                                ? "✔ Global profile target selected (workspace file not required)."
+                                : workspaceFileExists
+                                  ? "✔ VS Code workspace file detected."
+                                  : workspaceProbe?.reason === "NO_TARGET"
+                                    ? "ℹ Workspace file check deferred until target exists."
+                                    : workspaceProbe?.ok === false
+                                      ? `✖ Workspace file check failed: ${workspaceProbe.error ?? "unknown error"}`
+                                      : "✖ No VS Code workspace file found in the target folder."}
                           </li>
                         </ul>
                         {!validationHasPassed && (
@@ -825,7 +978,8 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                             )}
                           </div>
                         )}
-                        {workspaceProbe !== null &&
+                        {installTargetType === "workspace" &&
+                          workspaceProbe !== null &&
                           workspaceProbe.ok &&
                           !workspaceProbe.exists &&
                           workspaceProbe.reason !== "NO_TARGET" && (
@@ -852,6 +1006,34 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                           )}
                       </div>
 
+                      {installTargetType === "global" && (
+                        <div className="rounded-md border border-border-subtle p-3 bg-bg-elevated space-y-2">
+                          <p className="text-sm text-text-primary font-medium">
+                            Global Destination Preview
+                          </p>
+                          <p className="text-xs text-text-secondary">
+                            Selected categories install into these profile
+                            locations.
+                          </p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                            {selectedImportCategories.map((category) => (
+                              <div
+                                key={category}
+                                className="rounded border border-border-subtle p-2 bg-bg-panel"
+                              >
+                                <p className="text-text-primary capitalize">
+                                  {category}
+                                </p>
+                                <p className="text-text-tertiary font-mono break-all">
+                                  {GLOBAL_CATEGORY_DESTINATIONS[category] ??
+                                    "(auto)"}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-between gap-4">
                         <div className="text-text-secondary text-sm">
                           Generate a dry-run plan to preview changes before
@@ -871,7 +1053,7 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                         <div className="rounded-md border border-border-subtle p-3 bg-bg-elevated">
                           <p className="text-xs text-text-tertiary">Target</p>
                           <p className="text-sm text-text-primary break-all">
-                            {targetPath ?? "Not selected"}
+                            {effectiveTargetPath ?? "Not selected"}
                           </p>
                         </div>
                         <div className="rounded-md border border-border-subtle p-3 bg-bg-elevated">
@@ -892,14 +1074,14 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                         </div>
                       </div>
 
-                      {!targetPath && (
+                      {!effectiveTargetPath && (
                         <div
                           className="p-3 rounded-md border border-brand-info/30 bg-brand-info/10 text-brand-info text-sm"
                           data-testid="wizard-seeded-target-hint"
                         >
-                          No target selected. Packman will create a seeded trial
-                          workspace automatically when you generate a plan or
-                          execute install.
+                          {installTargetType === "global"
+                            ? "No global profile path selected. Packman will use the default profile location for this platform."
+                            : "No target selected. Packman will create a seeded trial workspace automatically when you generate a plan or execute install."}
                         </div>
                       )}
 
@@ -907,6 +1089,68 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                         <pre className="text-xs overflow-auto max-h-60 rounded-md border border-border-subtle p-3 bg-bg-elevated">
                           {JSON.stringify(planOutput, null, 2)}
                         </pre>
+                      )}
+
+                      {plannedRelativePaths.length > 0 && (
+                        <div className="rounded-md border border-border-subtle p-3 bg-bg-elevated space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-sm font-medium text-text-primary">
+                              File-level Selection
+                            </p>
+                            <label className="text-xs text-text-secondary flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={useFileLevelSelection}
+                                onChange={(event) => {
+                                  const enabled = event.target.checked;
+                                  setUseFileLevelSelection(enabled);
+                                  if (!enabled) {
+                                    setSelectedImportPaths([]);
+                                  } else {
+                                    setSelectedImportPaths(
+                                      plannedRelativePaths,
+                                    );
+                                  }
+                                }}
+                                aria-label="Enable file-level selection"
+                              />
+                              Choose individual files
+                            </label>
+                          </div>
+                          {useFileLevelSelection && (
+                            <div className="max-h-40 overflow-auto grid grid-cols-1 md:grid-cols-2 gap-1">
+                              {plannedRelativePaths.map((relativePath) => {
+                                const checked =
+                                  selectedImportPaths.includes(relativePath);
+                                return (
+                                  <label
+                                    key={relativePath}
+                                    className="flex items-center gap-2 text-xs text-text-secondary"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={checked}
+                                      onChange={(event) => {
+                                        setSelectedImportPaths((previous) => {
+                                          if (event.target.checked) {
+                                            return [...previous, relativePath];
+                                          }
+                                          return previous.filter(
+                                            (value) => value !== relativePath,
+                                          );
+                                        });
+                                      }}
+                                      aria-label={`Include file ${relativePath}`}
+                                    />
+                                    <span className="font-mono break-all">
+                                      {relativePath}
+                                    </span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       )}
 
                       {planIssues.length > 0 && (
@@ -1043,15 +1287,27 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                   </div>
                   <h3 className="text-2xl font-bold">Installation Complete!</h3>
                   <p className="text-text-secondary">
-                    Pack has been installed into your target workspace.
+                    Pack has been installed into your
+                    {installTargetType === "global"
+                      ? " global profile."
+                      : " target workspace."}
                   </p>
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className="text-xs text-text-tertiary"
+                  >
+                    Successfully imported. Redirecting you now.
+                  </div>
 
                   <div className="mx-auto max-w-2xl text-left rounded-md border border-border-subtle p-4 bg-bg-elevated">
                     <p className="text-sm text-text-secondary">
-                      Target workspace
+                      {installTargetType === "global"
+                        ? "Global profile target"
+                        : "Target workspace"}
                     </p>
                     <p className="text-sm text-text-primary break-all">
-                      {targetPath ?? "Unknown"}
+                      {effectiveTargetPath ?? "Unknown"}
                     </p>
                     <p className="mt-2 text-sm text-text-secondary">
                       Files touched: {touchedFiles}
@@ -1071,10 +1327,14 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                       What to do next
                     </p>
                     <ul className="text-sm text-text-secondary list-disc pl-5 space-y-1">
-                      <li>Open the target workspace in VS Code.</li>
+                      <li>
+                        {installTargetType === "global"
+                          ? "Open the profile folder to review installed files."
+                          : "Open the target workspace in VS Code."}
+                      </li>
                       <li>
                         Check installed artifacts under `.github`, `.claude`,
-                        `.agents`, and `.vscode` in that workspace.
+                        `.agents`, and `.vscode` in that target.
                       </li>
                       <li>
                         If VS Code was already open, reload the window once so
@@ -1114,14 +1374,16 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                     </Button>
                     <Button
                       onClick={() => {
-                        if (targetPath) {
-                          void openWorkspaceInFinder(targetPath);
+                        if (effectiveTargetPath) {
+                          void openWorkspaceInFinder(effectiveTargetPath);
                         }
                       }}
-                      disabled={!targetPath}
+                      disabled={!effectiveTargetPath}
                       data-testid="wizard-open-workspace"
                     >
-                      Open in VS Code
+                      {installTargetType === "global"
+                        ? "Open Profile Folder"
+                        : "Open in VS Code"}
                     </Button>
                   </div>
                 </div>

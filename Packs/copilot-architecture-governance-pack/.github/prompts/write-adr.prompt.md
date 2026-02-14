@@ -1,7 +1,9 @@
 ---
-name: write-adr
-description: Write/update a Nygard-style ADR for the selected change and update the ADR index.
-agent: "ADR Writer"
+name: "brief:write-adr"
+description: >-
+  Write/update a Nygard-style ADR for the selected change and update the ADR
+  index.
+agent: ADR Writer
 ---
 
 Target: ${selection}

@@ -1,7 +1,9 @@
 ---
-name: attest-provenance
-description: Add build provenance attestations for the selected build/release workflow (prefer GitHub artifact attestations).
-agent: "Provenance Attestor"
+name: "brief:attest-provenance"
+description: >-
+  Add build provenance attestations for the selected build/release workflow
+  (prefer GitHub artifact attestations).
+agent: Provenance Attestor
 ---
 
 Target workflow/file: ${selection}

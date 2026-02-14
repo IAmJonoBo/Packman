@@ -1,7 +1,9 @@
 ---
-name: scaffold-audit
-description: Audit an existing scaffold for missing lifecycle touchpoints and coherence; propose fixes.
-agent: "Scaffold Auditor"
+name: "brief:scaffold-audit"
+description: >-
+  Audit an existing scaffold for missing lifecycle touchpoints and coherence;
+  propose fixes.
+agent: Scaffold Auditor
 ---
 
 Target: ${selection}

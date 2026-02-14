@@ -1,0 +1,19 @@
+# llms index (copilot-interface-wiring-pack)
+generated_at: 2026-02-14T04:57:32.002Z
+root_count: 1
+entry_count: 13
+
+type	name	path	description
+agent	API Contract Analyst	.github/agents/api-contract-analyst.agent.md	Read-only analysis of API/interface contracts and their mapping to UI state and error handling.
+agent	Integration Reviewer	.github/agents/integration-reviewer.agent.md	Review wiring changes for correctness, state coverage, error mapping, security basics, and maintainability.
+agent	Integration Tester	.github/agents/integration-tester.agent.md	Add test seams (mocks/fakes) and an integration test for the critical path; cover key error cases.
+agent	Interface Wire‑Up	.github/agents/interface-wireup.agent.md	End-to-end wiring of UI to backend interfaces using contract-first patterns, explicit UX states, and test seams.
+agent	UI Integrator	.github/agents/ui-integrator.agent.md	Implement typed client seam and wire UI to backend interface with explicit states and consistent patterns.
+prompt	brief:add-mocks	.github/prompts/add-mocks.prompt.md	Add deterministic mocks/fakes for an interface boundary for dev and tests.
+prompt	brief:api-contract	.github/prompts/api-contract.prompt.md	>-
+prompt	brief:generate-typed-client	.github/prompts/generate-typed-client.prompt.md	>-
+prompt	brief:integration-test	.github/prompts/integration-test.prompt.md	>-
+prompt	brief:wire-up-feature	.github/prompts/wire-up-feature.prompt.md	>-
+skill	contract-first-integration	.github/skills/contract-first-integration/SKILL.md	Create/validate API contracts and error taxonomies before wiring UI, ensuring explicit mappings and type safety.
+skill	integration-testing-seams	.github/skills/integration-testing-seams/SKILL.md	Set up mocks/fixtures and add integration tests for wired features (happy path + key errors).
+skill	ui-backend-wiring-workflow	.github/skills/ui-backend-wiring-workflow/SKILL.md	End-to-end workflow for wiring UI to backend interfaces with explicit state matrices, retries, and cancellation.

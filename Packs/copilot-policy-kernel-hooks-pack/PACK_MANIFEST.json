@@ -1,0 +1,14 @@
+{
+  "id": "copilot-policy-kernel-hooks",
+  "name": "Copilot Policy Kernel Hooks Pack",
+  "version": "0.1.0",
+  "intended_install": "suite",
+  "orchestrator_agent": "",
+  "owned_paths": [
+    ".github/hooks",
+    ".claude/settings.json",
+    ".claude/settings.local.json"
+  ],
+  "commands": [],
+  "namespaces": []
+}

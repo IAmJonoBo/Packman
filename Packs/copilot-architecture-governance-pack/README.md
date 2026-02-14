@@ -8,6 +8,16 @@ Describe the purpose of this pack.
 
 suite
 
+## Install links
+
+- VS Code Web sample: [Open sample artifact](https://vscode.dev/github/IAmJonoBo/Packman/blob/main/Packs/copilot-architecture-governance-pack/.github/prompts/architecture-brief.prompt.md)
+- Raw sample: [Download raw artifact](https://raw.githubusercontent.com/IAmJonoBo/Packman/main/Packs/copilot-architecture-governance-pack/.github/prompts/architecture-brief.prompt.md)
+
+## Install commands
+
+- Workspace target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-architecture-governance-pack --to /path/to/repo --mode fail --json`
+- Global profile target: `pnpm --filter packman-cli exec node dist/index.js install ./Packs/copilot-architecture-governance-pack --target-type global --to /path/to/profile --mode fail --json`
+
 ## Key prompts
 
 - .github/prompts/architecture-brief.prompt.md

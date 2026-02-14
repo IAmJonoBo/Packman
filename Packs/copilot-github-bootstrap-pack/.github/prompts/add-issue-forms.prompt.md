@@ -1,7 +1,7 @@
 ---
-name: add-issue-forms
-description: Add structured GitHub issue forms for bugs, features, and docs.
-agent: "Template Curator"
+name: "brief:add-issue-forms"
+description: "Add structured GitHub issue forms for bugs, features, and docs."
+agent: Template Curator
 ---
 
 Target: ${selection}
