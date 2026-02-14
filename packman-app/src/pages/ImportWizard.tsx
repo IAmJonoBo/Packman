@@ -21,6 +21,13 @@ interface ImportWizardProps {
 
 type Step = "select" | "validate" | "config" | "plan" | "install";
 
+type WizardIssue = {
+  severity: "error" | "warning" | "info";
+  code: string;
+  message: string;
+  path?: string;
+};
+
 function hasMacOsJunkIssue(value: unknown): boolean {
   if (!value || typeof value !== "object") {
     return false;
@@ -38,6 +45,59 @@ function hasMacOsJunkIssue(value: unknown): boolean {
 }
 
 export function ImportWizard({ onBack }: ImportWizardProps) {
+  const extractIssues = (value: unknown): WizardIssue[] => {
+    if (!value || typeof value !== "object") {
+      return [];
+    }
+
+    const candidate = value as {
+      issues?: Array<{
+        severity?: "error" | "warning" | "info";
+        code?: string;
+        message?: string;
+        path?: string;
+      }>;
+    };
+
+    if (!Array.isArray(candidate.issues)) {
+      return [];
+    }
+
+    return candidate.issues
+      .filter(
+        (
+          issue,
+        ): issue is Required<Pick<WizardIssue, "code" | "message">> &
+          Omit<WizardIssue, "code" | "message"> =>
+          typeof issue?.code === "string" && typeof issue?.message === "string",
+      )
+      .map((issue) => ({
+        severity: issue.severity ?? "info",
+        code: issue.code,
+        message: issue.message,
+        path: issue.path,
+      }));
+  };
+
+  const issueGuidance = (issue: WizardIssue): string | null => {
+    switch (issue.code) {
+      case "MANIFEST_OWNED_PATHS_COVERAGE":
+      case "MANIFEST_OWNED_PATHS_RECOMMENDED":
+        return "Run Normalize to auto-fill manifest contract coverage, then re-run validation.";
+      case "SUITE_OWNED_PATHS_REQUIRE_SUITE_MODE":
+      case "MANIFEST_INTENT_PATH_CONFLICT":
+        return "Use suite mode for suite-owned artifacts or adjust intended_install and owned paths.";
+      case "COLLISION_FAILSAFE":
+        return "Choose skip, overwrite, or rename in Collision Strategy before installation.";
+      case "MACOS_JUNK":
+        return "Use Auto-clean Apple junk and retry validation.";
+      case "WORKSPACE_FILE_MISSING":
+        return "Create a target VS Code workspace file and regenerate the plan.";
+      default:
+        return null;
+    }
+  };
+
   const hasResultError = (value: unknown): boolean => {
     if (!value || typeof value !== "object") {
       return false;
@@ -83,6 +143,7 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
     pickWorkspaceParent,
     createTrialWorkspace,
     validatePack,
+    normalizePack,
     cleanSourceMacOsJunk,
     createTargetWorkspaceFile,
     probeTargetWorkspaceFile,
@@ -187,6 +248,75 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
     !hasMacOsJunkIssue(lastOutput);
   const workspaceFileExists =
     workspaceProbe?.ok === true && workspaceProbe.exists === true;
+  const validationIssues = extractIssues(lastOutput);
+  const planIssues = extractIssues(planOutput);
+
+  const runIssueQuickAction = async (
+    issue: WizardIssue,
+    scope: "validate" | "plan",
+  ) => {
+    if (
+      issue.code === "MANIFEST_OWNED_PATHS_COVERAGE" ||
+      issue.code === "MANIFEST_OWNED_PATHS_RECOMMENDED" ||
+      issue.code === "SUITE_OWNED_PATHS_REQUIRE_SUITE_MODE" ||
+      issue.code === "MANIFEST_INTENT_PATH_CONFLICT"
+    ) {
+      const normalized = await normalizePack();
+      const normalizeFailed = hasResultError(normalized);
+      if (!normalizeFailed) {
+        await validatePack();
+      }
+      return;
+    }
+
+    if (issue.code === "MACOS_JUNK") {
+      const cleaned = await cleanSourceMacOsJunk();
+      const cleanFailed = hasResultError(cleaned);
+      if (!cleanFailed) {
+        await validatePack();
+      }
+      return;
+    }
+
+    if (issue.code === "WORKSPACE_FILE_MISSING") {
+      const created = await createTargetWorkspaceFile();
+      const failed = hasResultError(created);
+      if (!failed) {
+        const probe = await probeTargetWorkspaceFile();
+        setWorkspaceProbe(probe);
+        await installPlan();
+      }
+      return;
+    }
+
+    if (scope === "plan") {
+      await installPlan();
+      return;
+    }
+
+    await validatePack();
+  };
+
+  const quickActionLabel = (issue: WizardIssue, scope: "validate" | "plan") => {
+    if (
+      issue.code === "MANIFEST_OWNED_PATHS_COVERAGE" ||
+      issue.code === "MANIFEST_OWNED_PATHS_RECOMMENDED" ||
+      issue.code === "SUITE_OWNED_PATHS_REQUIRE_SUITE_MODE" ||
+      issue.code === "MANIFEST_INTENT_PATH_CONFLICT"
+    ) {
+      return "Normalize + Revalidate";
+    }
+
+    if (issue.code === "MACOS_JUNK") {
+      return "Auto-clean + Revalidate";
+    }
+
+    if (issue.code === "WORKSPACE_FILE_MISSING") {
+      return "Create Workspace File + Retry";
+    }
+
+    return scope === "plan" ? "Regenerate Plan" : "Re-run Validation";
+  };
 
   return (
     <PageLayout
@@ -329,6 +459,20 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                       Back
                     </Button>
                     <Button
+                      variant="secondary"
+                      data-testid="wizard-run-normalize"
+                      onClick={async () => {
+                        const normalized = await normalizePack();
+                        const normalizeFailed = hasResultError(normalized);
+                        if (!normalizeFailed) {
+                          await validatePack();
+                        }
+                      }}
+                      isLoading={isBusy}
+                    >
+                      Normalize Pack
+                    </Button>
+                    <Button
                       data-testid="wizard-run-validation"
                       onClick={async () => {
                         const result = await validatePack();
@@ -374,6 +518,69 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                       data-testid="wizard-validation-output"
                     >
                       <pre>{JSON.stringify(lastOutput, null, 2)}</pre>
+                    </div>
+                  )}
+
+                  {validationIssues.length > 0 && (
+                    <div
+                      className="mt-4 p-4 rounded-md border border-border-subtle bg-bg-elevated space-y-3"
+                      data-testid="wizard-validation-issues"
+                    >
+                      <p className="text-sm font-medium text-text-primary">
+                        Detected Issues
+                      </p>
+                      <ul className="space-y-2 text-xs">
+                        {validationIssues.map((issue, index) => (
+                          <li
+                            key={`${issue.code}-${index}`}
+                            className="rounded border border-border-subtle p-2"
+                          >
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-text-primary font-semibold">
+                                {issue.code}
+                              </span>
+                              <span
+                                className={cn(
+                                  "px-2 py-0.5 rounded text-[10px] uppercase",
+                                  issue.severity === "error"
+                                    ? "bg-status-error/20 text-status-error"
+                                    : issue.severity === "warning"
+                                      ? "bg-status-warning/20 text-status-warning"
+                                      : "bg-brand-info/20 text-brand-info",
+                                )}
+                              >
+                                {issue.severity}
+                              </span>
+                            </div>
+                            <p className="text-text-secondary mt-1">
+                              {issue.message}
+                            </p>
+                            {issue.path && (
+                              <p className="text-text-tertiary mt-1">
+                                Path: {issue.path}
+                              </p>
+                            )}
+                            {issueGuidance(issue) && (
+                              <p className="text-brand-info mt-1">
+                                Next step: {issueGuidance(issue)}
+                              </p>
+                            )}
+                            <div className="mt-2">
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                isLoading={isBusy}
+                                onClick={async () => {
+                                  await runIssueQuickAction(issue, "validate");
+                                }}
+                                data-testid={`wizard-issue-action-${issue.code}-${index}`}
+                              >
+                                {quickActionLabel(issue, "validate")}
+                              </Button>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
                 </div>
@@ -538,6 +745,22 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                               size="sm"
                               isLoading={isBusy}
                               onClick={async () => {
+                                const normalized = await normalizePack();
+                                const normalizeFailed =
+                                  hasResultError(normalized);
+                                if (!normalizeFailed) {
+                                  await validatePack();
+                                }
+                              }}
+                              data-testid="wizard-checklist-run-normalize"
+                            >
+                              Normalize Pack
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              isLoading={isBusy}
+                              onClick={async () => {
                                 await validatePack();
                               }}
                               data-testid="wizard-checklist-run-validation"
@@ -645,6 +868,50 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                         <pre className="text-xs overflow-auto max-h-60 rounded-md border border-border-subtle p-3 bg-bg-elevated">
                           {JSON.stringify(planOutput, null, 2)}
                         </pre>
+                      )}
+
+                      {planIssues.length > 0 && (
+                        <div
+                          className="rounded-md border border-border-subtle p-3 bg-bg-elevated space-y-2"
+                          data-testid="wizard-plan-issues"
+                        >
+                          <p className="text-sm font-medium text-text-primary">
+                            Plan Issues
+                          </p>
+                          <ul className="space-y-2 text-xs">
+                            {planIssues.map((issue, index) => (
+                              <li
+                                key={`${issue.code}-${index}`}
+                                className="rounded border border-border-subtle p-2"
+                              >
+                                <p className="text-text-primary font-semibold">
+                                  {issue.code}
+                                </p>
+                                <p className="text-text-secondary">
+                                  {issue.message}
+                                </p>
+                                {issueGuidance(issue) && (
+                                  <p className="text-brand-info mt-1">
+                                    Next step: {issueGuidance(issue)}
+                                  </p>
+                                )}
+                                <div className="mt-2">
+                                  <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    isLoading={isBusy}
+                                    onClick={async () => {
+                                      await runIssueQuickAction(issue, "plan");
+                                    }}
+                                    data-testid={`wizard-plan-issue-action-${issue.code}-${index}`}
+                                  >
+                                    {quickActionLabel(issue, "plan")}
+                                  </Button>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       )}
 
                       {workspaceFileMissingPrompt && (

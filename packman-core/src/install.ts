@@ -7,6 +7,7 @@ import { detectPack } from "./detect.js";
 import { resolvePackSource } from "./source-resolver.js";
 import { mergeSettings } from "./settings-merge.js";
 import { validatePack } from "./validate.js";
+import { isSuiteOwnedPath } from "./artifact-policy.js";
 import type {
   InstallCollision,
   InstallOptions,
@@ -190,10 +191,8 @@ export async function installPack(
   const collisionStrategy = options.collisionStrategy ?? "fail";
   const collisionDecisions = options.collisionDecisions ?? {};
   const plan = await buildInstallPlan(sourcePath, options.targetPath);
-  const hasSuiteOwnedFiles = plan.operations.some(
-    (operation) =>
-      operation.relativePath === ".github/copilot-instructions.md" ||
-      operation.relativePath === ".vscode/settings.json",
+  const hasSuiteOwnedFiles = plan.operations.some((operation) =>
+    isSuiteOwnedPath(operation.relativePath),
   );
   const effectiveSuite = options.suite ?? hasSuiteOwnedFiles;
 
@@ -247,11 +246,7 @@ export async function installPack(
       continue;
     }
 
-    if (
-      (relativePath === ".github/copilot-instructions.md" ||
-        relativePath === ".vscode/settings.json") &&
-      !effectiveSuite
-    ) {
+    if (isSuiteOwnedPath(relativePath) && !effectiveSuite) {
       issues.push({
         severity: "error",
         code: "SUITE_ONLY_FILE",
@@ -384,9 +379,8 @@ export async function installPacks(
 
   for (const packRoot of packRoots) {
     const detection = await detectPack(packRoot);
-    const ownsSuiteFile = detection.artifacts.some(
-      (artifact) =>
-        artifact.type === "copilotInstructions" || artifact.type === "settings",
+    const ownsSuiteFile = detection.artifacts.some((artifact) =>
+      isSuiteOwnedPath(artifact.relativePath),
     );
     detectedRoots.push({ root: packRoot, ownsSuiteFile });
     if (ownsSuiteFile) {

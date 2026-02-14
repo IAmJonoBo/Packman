@@ -40,6 +40,37 @@ describe("installPack collisions", () => {
     await rm(target, { recursive: true, force: true });
   });
 
+  it("auto-enables suite handling for root AGENTS.md", async () => {
+    const source = await mkdtemp(
+      path.join(tmpdir(), "packman-install-source-"),
+    );
+    const target = await mkdtemp(
+      path.join(tmpdir(), "packman-install-target-"),
+    );
+
+    await writeFile(
+      path.join(source, "AGENTS.md"),
+      "# AGENTS\n\nAlways-on guidance\n",
+      "utf8",
+    );
+
+    const result = await installPack(source, {
+      targetPath: target,
+      targetType: "workspace",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(
+      result.issues.some((issue) => issue.code === "SUITE_ONLY_FILE"),
+    ).toBe(false);
+
+    const written = await readFile(path.join(target, "AGENTS.md"), "utf8");
+    expect(written).toContain("Always-on guidance");
+
+    await rm(source, { recursive: true, force: true });
+    await rm(target, { recursive: true, force: true });
+  });
+
   it("returns install plan with collisions on dry-run", async () => {
     const source = await mkdtemp(
       path.join(tmpdir(), "packman-install-source-"),

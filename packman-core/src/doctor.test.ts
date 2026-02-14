@@ -30,4 +30,37 @@ describe("doctorTarget", () => {
 
     await rm(root, { recursive: true, force: true });
   });
+
+  it("detects expanded suite-owned files", async () => {
+    const root = await mkdtemp(path.join(tmpdir(), "packman-doctor-"));
+    await mkdir(path.join(root, ".github/hooks"), { recursive: true });
+    await mkdir(path.join(root, ".vscode"), { recursive: true });
+    await writeFile(path.join(root, "AGENTS.md"), "# AGENTS\n", "utf8");
+    await writeFile(
+      path.join(root, ".github/hooks", "post-tool-use.json"),
+      JSON.stringify({ hooks: {} }, null, 2),
+      "utf8",
+    );
+    await writeFile(
+      path.join(root, ".vscode", "mcp.json"),
+      JSON.stringify({ servers: {} }, null, 2),
+      "utf8",
+    );
+
+    const result = await doctorTarget(root);
+    const suiteInfos = result.issues.filter(
+      (issue) => issue.code === "SUITE_OWNED_PRESENT",
+    );
+
+    expect(suiteInfos.length).toBeGreaterThanOrEqual(3);
+    expect(suiteInfos.some((issue) => issue.path === "AGENTS.md")).toBe(true);
+    expect(suiteInfos.some((issue) => issue.path === ".vscode/mcp.json")).toBe(
+      true,
+    );
+    expect(suiteInfos.some((issue) => issue.path === ".github/hooks")).toBe(
+      true,
+    );
+
+    await rm(root, { recursive: true, force: true });
+  });
 });

@@ -41,7 +41,7 @@ interface PackmanAppE2EBridge {
   setSourcePath: (path: string | null) => void;
   setTargetPath: (path: string | null) => void;
   setMockResponse: (
-    command: "validate" | "install" | "doctor",
+    command: "validate" | "install" | "doctor" | "normalize",
     response: unknown,
   ) => void;
   reset: () => void;
@@ -61,7 +61,9 @@ declare global {
 const e2eState: {
   sourcePath: string | null;
   targetPath: string | null;
-  mockResponses: Partial<Record<"validate" | "install" | "doctor", unknown>>;
+  mockResponses: Partial<
+    Record<"validate" | "install" | "doctor" | "normalize", unknown>
+  >;
 } = {
   sourcePath: null,
   targetPath: null,
@@ -142,6 +144,34 @@ function parseCommandFailure(
   };
 
   const issues = Array.isArray(candidate.issues) ? candidate.issues : [];
+  const hasSuiteRequired = issues.some(
+    (issue) => issue?.code === "SUITE_OWNED_PATHS_REQUIRE_SUITE_MODE",
+  );
+  if (hasSuiteRequired) {
+    return "Suite-owned artifacts were detected (for example hooks, MCP config, or always-on instruction files). Run Normalize, then validate/install in suite mode or remove suite-owned paths from this pack.";
+  }
+
+  const hasManifestCoverageGap = issues.some(
+    (issue) => issue?.code === "MANIFEST_OWNED_PATHS_COVERAGE",
+  );
+  if (hasManifestCoverageGap) {
+    return "PACK_MANIFEST.json owned_paths does not cover all detected artifacts. Run Normalize to auto-fill owned_paths, then re-validate.";
+  }
+
+  const hasManifestIntentConflict = issues.some(
+    (issue) => issue?.code === "MANIFEST_INTENT_PATH_CONFLICT",
+  );
+  if (hasManifestIntentConflict) {
+    return "Manifest intended_install conflicts with suite-owned artifact paths. Update intended_install or remove suite-owned files, then re-validate.";
+  }
+
+  const hasCollisionFailSafe = issues.some(
+    (issue) => issue?.code === "COLLISION_FAILSAFE",
+  );
+  if (hasCollisionFailSafe) {
+    return "Install plan found collisions. Choose skip/overwrite/rename in Collision Strategy and regenerate the plan.";
+  }
+
   const hasPackNotDetected = issues.some(
     (issue) => issue?.code === "PACK_NOT_DETECTED",
   );
@@ -150,7 +180,7 @@ function parseCommandFailure(
     const appearsToBeCatalogRoot =
       normalized.endsWith("/packs") || normalized.endsWith("/packs/");
     if (appearsToBeCatalogRoot) {
-      return "No installable pack roots were discovered under this catalog path. Confirm the folder contains pack directories with .github prompts/instructions/agents content.";
+      return "No installable pack roots were discovered under this catalog path. Confirm pack directories include supported artifact roots such as .github/.claude/.agents/.vscode and optional AGENTS.md/CLAUDE.md files.";
     }
 
     return "No installable pack content was found in the selected source. Select a pack directory or a parent directory that contains one or more packs.";
@@ -429,6 +459,38 @@ export function usePackman() {
       setLastOutput(result);
       return result;
       // Simplify error handling: check result structure if needed
+    } catch (err) {
+      setError(String(err));
+      return null;
+    } finally {
+      setIsBusy(false);
+    }
+  }, [sourcePath]);
+
+  const normalizePack = useCallback(async () => {
+    if (!sourcePath) {
+      setError("Select source folder first");
+      return null;
+    }
+
+    try {
+      setIsBusy(true);
+      setError(null);
+
+      const mockedNormalize = e2eState.mockResponses.normalize;
+      if (mockedNormalize !== undefined) {
+        setLastOutput(mockedNormalize);
+        return mockedNormalize;
+      }
+
+      const args = [sourcePath, "--apply", "--json"];
+      const result = await api.runPackmanCommand("normalize", args);
+      const failure = parseCommandFailure(result, sourcePath);
+      if (failure) {
+        setError(failure);
+      }
+      setLastOutput(result);
+      return result;
     } catch (err) {
       setError(String(err));
       return null;
@@ -732,6 +794,7 @@ export function usePackman() {
     cleanupTrialWorkspace,
     refreshRecentTrialWorkspaces,
     validatePack,
+    normalizePack,
     cleanSourceMacOsJunk,
     createTargetWorkspaceFile,
     probeTargetWorkspaceFile,

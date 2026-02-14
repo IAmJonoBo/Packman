@@ -3,6 +3,7 @@ import fg from "fast-glob";
 import { parseFrontmatter } from "./frontmatter.js";
 import { readText, exists } from "./fs-utils.js";
 import { hasErrors } from "./report.js";
+import { SUITE_OWNED_PATH_PREFIXES } from "./artifact-policy.js";
 import type { DoctorResult, Issue } from "./types.js";
 
 export async function doctorTarget(targetPath: string): Promise<DoctorResult> {
@@ -10,10 +11,7 @@ export async function doctorTarget(targetPath: string): Promise<DoctorResult> {
   const issues: Issue[] = [];
   const recommendations: string[] = [];
 
-  const suiteOwnedPaths = [
-    ".github/copilot-instructions.md",
-    ".vscode/settings.json",
-  ];
+  const suiteOwnedPaths = [...SUITE_OWNED_PATH_PREFIXES];
   for (const suitePath of suiteOwnedPaths) {
     const absolutePath = path.join(targetPath, suitePath);
     if (await exists(absolutePath)) {
@@ -153,7 +151,7 @@ export async function doctorTarget(targetPath: string): Promise<DoctorResult> {
   }
 
   recommendations.push(
-    "Switch to suite mode when managing shared .github/copilot-instructions.md and .vscode/settings.json.",
+    "Switch to suite mode when managing suite-owned files (copilot instructions, VS Code settings/MCP, hooks, or root always-on instruction files).",
   );
   recommendations.push(
     "Install suite harmoniser pack for explicit collision policies.",

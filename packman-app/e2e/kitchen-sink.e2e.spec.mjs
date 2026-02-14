@@ -37,6 +37,16 @@ async function seedBridge(page, sourcePackPath, scratchTargetPath) {
           },
         ],
       });
+      window.__PACKMAN_APP_E2E__?.setMockResponse("normalize", {
+        ok: true,
+        command: "normalize",
+        changes: [
+          {
+            action: "update",
+            toPath: "PACK_MANIFEST.json",
+          },
+        ],
+      });
     },
     { source: sourcePackPath, target: scratchTargetPath },
   );
@@ -97,12 +107,25 @@ async function runImportFlow(page) {
   await click(page, '[data-testid="wizard-continue"]');
 
   await expectVisible(page, '[data-testid="wizard-step-validate"]');
+
+  await page.evaluate(() => {
+    window.__PACKMAN_APP_E2E__?.setMockResponse("validate", {
+      ok: false,
+      issues: [
+        {
+          severity: "error",
+          code: "MANIFEST_OWNED_PATHS_COVERAGE",
+          message: "mock manifest owned_paths coverage gap",
+        },
+      ],
+    });
+  });
   await click(page, '[data-testid="wizard-run-validation"]');
-  await expectVisible(page, '[data-testid="wizard-validation-output"]');
-  const validationOutput = await page
-    .locator('[data-testid="wizard-validation-output"]')
-    .innerText();
-  assert.match(validationOutput, /Validation failed \(mock\)/);
+  await expectVisible(page, '[data-testid="wizard-validation-issues"]');
+  await expectVisible(
+    page,
+    '[data-testid="wizard-issue-action-MANIFEST_OWNED_PATHS_COVERAGE-0"]',
+  );
 
   await page.evaluate(() => {
     window.__PACKMAN_APP_E2E__?.setMockResponse("validate", {
@@ -110,6 +133,67 @@ async function runImportFlow(page) {
       command: "validate",
     });
   });
+  await click(
+    page,
+    '[data-testid="wizard-issue-action-MANIFEST_OWNED_PATHS_COVERAGE-0"]',
+  );
+
+  const remainingValidationIssues = await page
+    .locator('[data-testid="wizard-validation-issues"]')
+    .count();
+  assert.equal(remainingValidationIssues, 0);
+
+  await page.evaluate(() => {
+    window.__PACKMAN_APP_E2E__?.setMockResponse("validate", {
+      ok: false,
+      issues: [
+        {
+          severity: "error",
+          code: "MANIFEST_OWNED_PATHS_COVERAGE",
+          message: "mock manifest owned_paths coverage gap",
+        },
+      ],
+    });
+  });
+  await click(page, '[data-testid="wizard-run-validation"]');
+  await expectVisible(page, '[data-testid="wizard-validation-output"]');
+  const manifestCoverageMessage = await page
+    .locator('[data-testid="wizard-validation-output"]')
+    .innerText();
+  assert.match(manifestCoverageMessage, /MANIFEST_OWNED_PATHS_COVERAGE/);
+
+  await page.evaluate(() => {
+    window.__PACKMAN_APP_E2E__?.setMockResponse("validate", {
+      ok: false,
+      issues: [
+        {
+          severity: "error",
+          code: "SUITE_OWNED_PATHS_REQUIRE_SUITE_MODE",
+          message: "mock suite mode required",
+        },
+      ],
+    });
+  });
+  await click(page, '[data-testid="wizard-run-validation"]');
+  await expectVisible(page, '[data-testid="wizard-validation-output"]');
+  const suiteMessage = await page
+    .locator('[data-testid="wizard-validation-output"]')
+    .innerText();
+  assert.match(suiteMessage, /SUITE_OWNED_PATHS_REQUIRE_SUITE_MODE/);
+
+  await page.evaluate(() => {
+    window.__PACKMAN_APP_E2E__?.setMockResponse("validate", {
+      ok: true,
+      command: "validate",
+    });
+  });
+  await click(page, '[data-testid="wizard-run-normalize"]');
+  await expectVisible(page, '[data-testid="wizard-validation-output"]');
+  const normalizeOutput = await page
+    .locator('[data-testid="wizard-validation-output"]')
+    .innerText();
+  assert.match(normalizeOutput, /"command":\s*"validate"/);
+
   await click(page, '[data-testid="wizard-run-validation"]');
 
   await expectVisible(page, '[data-testid="wizard-step-config"]');
@@ -135,7 +219,47 @@ async function runImportFlow(page) {
   await expectVisible(page, '[data-testid="wizard-step-plan"]');
   await expectVisible(page, '[data-testid="wizard-plan-summary"]');
   await expectVisible(page, '[data-testid="wizard-execute-install"][disabled]');
+
+  await page.evaluate(() => {
+    window.__PACKMAN_APP_E2E__?.setMockResponse("install", {
+      ok: false,
+      issues: [
+        {
+          severity: "error",
+          code: "COLLISION_FAILSAFE",
+          message: "mock collision failsafe",
+        },
+      ],
+    });
+  });
   await click(page, '[data-testid="wizard-generate-plan"]');
+  await expectVisible(page, '[data-testid="wizard-plan-issues"]');
+  await expectVisible(
+    page,
+    '[data-testid="wizard-plan-issue-action-COLLISION_FAILSAFE-0"]',
+  );
+
+  await page.evaluate(() => {
+    window.__PACKMAN_APP_E2E__?.setMockResponse("install", {
+      ok: true,
+      filesTouched: [
+        ".github/prompts/example.prompt.md",
+        ".github/instructions/example.instructions.md",
+      ],
+      plans: [
+        {
+          collisions: [
+            { relativePath: ".github/prompts/example.prompt.md" },
+            { relativePath: ".github/instructions/example.instructions.md" },
+          ],
+        },
+      ],
+    });
+  });
+  await click(
+    page,
+    '[data-testid="wizard-plan-issue-action-COLLISION_FAILSAFE-0"]',
+  );
 
   await page
     .locator('[data-testid="wizard-execute-install"]:not([disabled])')

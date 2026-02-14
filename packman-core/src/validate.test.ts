@@ -300,4 +300,43 @@ describe("validatePack", () => {
 
     await rm(root, { recursive: true, force: true });
   });
+
+  it("requires suite mode for hook and mcp suite-owned artifacts", async () => {
+    const root = await mkdtemp(path.join(tmpdir(), "packman-validate-suite-"));
+    await mkdir(path.join(root, ".github/hooks"), { recursive: true });
+    await mkdir(path.join(root, ".vscode"), { recursive: true });
+    await writeFile(
+      path.join(root, ".github/hooks", "post-tool-use.json"),
+      JSON.stringify({ hooks: { PostToolUse: [] } }, null, 2),
+      "utf8",
+    );
+    await writeFile(
+      path.join(root, ".vscode", "mcp.json"),
+      JSON.stringify({ servers: {} }, null, 2),
+      "utf8",
+    );
+
+    const withoutSuite = await validatePack(root, {
+      strict: true,
+      suiteMode: false,
+    });
+    expect(withoutSuite.ok).toBe(false);
+    expect(
+      withoutSuite.issues.some(
+        (issue) => issue.code === "SUITE_OWNED_PATHS_REQUIRE_SUITE_MODE",
+      ),
+    ).toBe(true);
+
+    const withSuite = await validatePack(root, {
+      strict: true,
+      suiteMode: true,
+    });
+    expect(
+      withSuite.issues.some(
+        (issue) => issue.code === "SUITE_OWNED_PATHS_REQUIRE_SUITE_MODE",
+      ),
+    ).toBe(false);
+
+    await rm(root, { recursive: true, force: true });
+  });
 });

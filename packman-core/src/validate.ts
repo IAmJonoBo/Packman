@@ -6,6 +6,11 @@ import { isStringArray, parseFrontmatter } from "./frontmatter.js";
 import { readJson } from "./fs-utils.js";
 import { parseArtifacts } from "./parse.js";
 import { hasErrors } from "./report.js";
+import {
+  isSuiteOwnedPath,
+  normalizeOwnedPath,
+  pathCoveredByOwnedPath,
+} from "./artifact-policy.js";
 import type {
   Issue,
   FrontmatterData,
@@ -41,19 +46,6 @@ interface PackManifest {
 }
 
 const VALID_INTENDED_INSTALL = new Set(["solo", "suite", "solo|suite"]);
-
-const SUITE_OWNED_PATH_PREFIXES = [
-  ".github/copilot-instructions.md",
-  ".vscode/settings.json",
-  ".github/hooks",
-  ".vscode/mcp.json",
-  "AGENTS.md",
-  "CLAUDE.md",
-  "CLAUDE.local.md",
-  ".claude/CLAUDE.md",
-  ".claude/settings.json",
-  ".claude/settings.local.json",
-];
 
 const BUILTIN_MANIFEST_COMMANDS = new Set([
   "build",
@@ -98,36 +90,6 @@ function splitRulePaths(value: unknown): string[] {
 
 function isClaudeRulePath(relativePath: string): boolean {
   return relativePath.startsWith(".claude/rules/");
-}
-
-function normalizeOwnedPath(input: string): string {
-  return input
-    .trim()
-    .replaceAll("\\", "/")
-    .replace(/^\.\//, "")
-    .replace(/\/+$/, "");
-}
-
-function pathCoveredByOwnedPath(
-  artifactPath: string,
-  ownedPath: string,
-): boolean {
-  const normalizedArtifactPath = normalizeOwnedPath(artifactPath);
-  const normalizedOwnedPath = normalizeOwnedPath(ownedPath);
-  if (!normalizedOwnedPath) {
-    return false;
-  }
-
-  return (
-    normalizedArtifactPath === normalizedOwnedPath ||
-    normalizedArtifactPath.startsWith(`${normalizedOwnedPath}/`)
-  );
-}
-
-function isSuiteOwnedPath(relativePath: string): boolean {
-  return SUITE_OWNED_PATH_PREFIXES.some((prefix) =>
-    pathCoveredByOwnedPath(relativePath, prefix),
-  );
 }
 
 function validateNameDesc(
@@ -499,10 +461,7 @@ export async function validatePack(
       validateNameDesc(frontmatter, artifact.relativePath, issues);
     }
 
-    if (
-      artifact.type === "copilotInstructions" ||
-      artifact.type === "settings"
-    ) {
+    if (isSuiteOwnedPath(artifact.relativePath)) {
       hasSuiteOwner = true;
     }
   }
@@ -542,7 +501,7 @@ export async function validatePack(
       severity: "error",
       code: "SUITE_OWNED_PATHS_REQUIRE_SUITE_MODE",
       message:
-        "Pack includes suite-owned paths (.github/copilot-instructions.md or .vscode/settings.json); install requires --suite",
+        "Pack includes suite-owned paths and requires suite mode for install planning/application",
       path: rootPath,
     });
   }
