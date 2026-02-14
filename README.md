@@ -16,6 +16,7 @@ Monorepo for Packman (core library, CLI, and Tauri app) and the canonical pack c
 - Build all: `pnpm build`
 - Generate root launchers only: `pnpm run launchers`
 - Run tests: `pnpm test`
+- Governance manifest ownership sweep: `pnpm run governance:manifest-owned-paths`
 - CLI validate: `pnpm --filter packman-cli exec node dist/index.js validate ./Packs --strict`
 - CLI validate zip with auto-clean: `pnpm --filter packman-cli exec node dist/index.js validate ./pack.zip --strict --auto-clean`
 - CLI normalize: `pnpm --filter packman-cli exec node dist/index.js normalize ./Packs --apply`

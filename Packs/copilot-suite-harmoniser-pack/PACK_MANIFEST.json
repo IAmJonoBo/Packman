@@ -5,10 +5,13 @@
   "intended_install": "suite",
   "orchestrator_agent": "Suite Chief of Staff",
   "owned_paths": [
+    "AGENTS.md",
     ".github/copilot-instructions.md",
     ".vscode/settings.json",
     ".github/agents",
     ".github/prompts"
   ],
-  "commands": ["suite:route"]
+  "commands": [
+    "suite:route"
+  ]
 }

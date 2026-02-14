@@ -1,0 +1,27 @@
+{
+  "id": "copilot-edge-case-vanguard",
+  "name": "Copilot Edge Case Vanguard Pack",
+  "version": "0.1.0",
+  "intended_install": "solo|suite",
+  "owned_paths": [
+    ".github/agents",
+    ".github/prompts",
+    ".github/skills",
+    "README.md"
+  ],
+  "namespaces": [
+    "audit",
+    "test",
+    "ops",
+    "fix"
+  ],
+  "orchestrator_agent": "edge-case-vanguard",
+  "commands": [
+    "edge-inventory",
+    "pbt-plan",
+    "fuzz-plan",
+    "chaos-experiments",
+    "observability-gaps",
+    "one-slice"
+  ]
+}

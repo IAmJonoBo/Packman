@@ -5,10 +5,16 @@
   "intended_install": "suite",
   "orchestrator_agent": "Project Planning Lead",
   "owned_paths": [
+    "AGENTS.md",
     ".github/copilot-instructions.md",
     ".vscode/settings.json",
     ".github/agents",
-    ".github/prompts"
+    ".github/prompts",
+    ".github/skills"
   ],
-  "commands": ["planning-brief", "planning-ship", "planning-replan"]
+  "commands": [
+    "planning-brief",
+    "planning-ship",
+    "planning-replan"
+  ]
 }

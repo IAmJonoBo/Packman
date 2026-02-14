@@ -23,6 +23,7 @@
     "pack:planning:validate": "pnpm --filter packman-cli exec node dist/index.js validate ./Packs/copilot-project-management-planning-pack --strict --suite",
     "pack:planning:e2e": "sh ./scripts/pack-planning-e2e.sh",
     "governance:routes": "node ./scripts/check-route-ownership.mjs",
+    "governance:manifest-owned-paths": "node ./scripts/check-manifest-owned-paths.mjs",
     "governance:sync-mirrors": "node ./scripts/sync-mirrors.mjs",
     "governance:mirrors": "node ./scripts/check-mirror-drift.mjs",
     "governance:packs:e2e": "pnpm --filter packman-cli run build && pnpm --filter packman-cli exec node dist/index.js validate ./Packs --strict --suite"
