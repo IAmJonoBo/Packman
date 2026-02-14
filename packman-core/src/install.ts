@@ -38,6 +38,8 @@ const COPY_PATTERNS = [
   "PACK_MANIFEST.json",
   "README.md",
 ];
+const BACKUP_DIRECTORY_RELATIVE_PATH = path.join(".packman", "backups");
+const MAX_BACKUP_ARCHIVES = 20;
 
 async function ensureParent(filePath: string): Promise<void> {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -63,8 +65,41 @@ async function backupFiles(
   }
 
   const content = await zip.generateAsync({ type: "nodebuffer" });
-  const backupPath = path.join(targetRoot, `.packman-backup-${Date.now()}.zip`);
+  const backupDirectory = path.join(targetRoot, BACKUP_DIRECTORY_RELATIVE_PATH);
+  await fs.mkdir(backupDirectory, { recursive: true });
+  const backupPath = path.join(
+    backupDirectory,
+    `packman-backup-${Date.now()}.zip`,
+  );
   await fs.writeFile(backupPath, content);
+
+  const entries = await fs.readdir(backupDirectory, { withFileTypes: true });
+  const backupFilesWithTime = await Promise.all(
+    entries
+      .filter(
+        (entry) =>
+          entry.isFile() &&
+          entry.name.startsWith("packman-backup-") &&
+          entry.name.endsWith(".zip"),
+      )
+      .map(async (entry) => {
+        const absolutePath = path.join(backupDirectory, entry.name);
+        const stat = await fs.stat(absolutePath);
+        return {
+          absolutePath,
+          modifiedTime: stat.mtimeMs,
+        };
+      }),
+  );
+
+  backupFilesWithTime.sort(
+    (left, right) => right.modifiedTime - left.modifiedTime,
+  );
+  const staleBackups = backupFilesWithTime.slice(MAX_BACKUP_ARCHIVES);
+  await Promise.all(
+    staleBackups.map((backup) => fs.rm(backup.absolutePath, { force: true })),
+  );
+
   return backupPath;
 }
 
@@ -217,18 +252,17 @@ export async function installPack(
   const filesToTouch = [...new Set(matches)];
   const touched: string[] = [];
 
-  const backupZipPath = await backupFiles(options.targetPath, filesToTouch);
-
   if (options.dryRun) {
     return {
       ok: true,
       issues,
       filesTouched: filesToTouch,
-      backupZipPath,
       plans: [plan],
       elapsedMs: Date.now() - started,
     };
   }
+
+  const backupZipPath = await backupFiles(options.targetPath, filesToTouch);
 
   for (const relativePath of filesToTouch) {
     const sourceFile = path.join(sourcePath, relativePath);

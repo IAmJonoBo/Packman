@@ -33,6 +33,31 @@ Monorepo for Packman (core library, CLI, and Tauri app) and the canonical pack c
 - Tauri release build (raw): `pnpm --filter packman-app tauri build`
 - App UI E2E smoke (Playwright): `pnpm --filter packman-app run test:e2e`
 
+## Common snags and fixes
+
+- Tauri icon error (`icon.png is not RGBA`): ensure `packman-app/src-tauri/icons/icon.png` has an alpha channel. On macOS, verify with:
+  - `sips -g format -g space -g hasAlpha packman-app/src-tauri/icons/icon.png`
+  - Expected: `format: png`, `hasAlpha: yes`
+- Core package filter mismatch: `packman-core` is published as `@packman/core`.
+  - Use: `pnpm --filter @packman/core run build`
+  - Use: `pnpm --filter @packman/core run test`
+- Trial workspace appears missing in UI:
+  - Use Workspace Manager `Refresh` after creating or cleaning trial folders.
+  - Trial workspace history is local to the app profile and prunes invalid paths.
+- Plan fails due to workspace file:
+  - Ensure target folder contains a `.code-workspace` file.
+  - In Import Wizard plan step, use `Create VS Code Workspace File` and regenerate plan.
+- Large source catalog slows plan/validate:
+  - Prefer selecting a specific pack folder instead of a large catalog root when possible.
+
+## Release readiness checklist
+
+- `pnpm run build`
+- `pnpm run test`
+- `pnpm run governance:manifest-owned-paths`
+- `pnpm --filter packman-app tauri dev` (smoke start)
+- `pnpm --filter packman-app run tauri:build:safe` (bundle verification)
+
 ## App workflow highlights
 
 - Use **Workspace Manager** to create `packman-trial-*` workspaces before import/install.

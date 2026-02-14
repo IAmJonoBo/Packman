@@ -17,7 +17,7 @@ const program = new Command();
 
 program
   .name("packman")
-  .description("Manage your dev tools and packs with cyberpunk precision.")
+  .description("Manage workspace packs with clear, reliable automation.")
   .version("0.1.0");
 
 // --- UTILS ---

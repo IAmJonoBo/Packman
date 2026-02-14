@@ -16,6 +16,13 @@ interface WorkspaceManagerProps {
   onNavigateImport: () => void;
 }
 
+function getWorkspaceUid(workspacePath: string): string {
+  const normalized = workspacePath.replace(/\\/g, "/");
+  const leaf = normalized.split("/").filter(Boolean).pop() ?? workspacePath;
+  const match = /^packman-trial-(.+)$/.exec(leaf);
+  return match?.[1] ?? leaf;
+}
+
 export function WorkspaceManager({
   onBack,
   onNavigateImport,
@@ -43,10 +50,13 @@ export function WorkspaceManager({
     void refreshRecentTrialWorkspaces();
   }, [refreshRecentTrialWorkspaces]);
 
-  const handleCreateTrialWorkspace = async () => {
+  const handleCreateTrialWorkspace = async (navigateToImport = false) => {
     const created = await createTrialWorkspace();
     if (created) {
       setNotice("Trial workspace created and selected as install target.");
+      if (navigateToImport) {
+        onNavigateImport();
+      }
     }
   };
 
@@ -100,12 +110,24 @@ export function WorkspaceManager({
               Parent Folder
             </Button>
             <Button
-              onClick={handleCreateTrialWorkspace}
+              onClick={() => {
+                void handleCreateTrialWorkspace(false);
+              }}
               isLoading={isBusy}
               data-testid="workspace-create-trial"
             >
               <FolderPlus className="w-4 h-4 mr-2" />
               Create
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                void handleCreateTrialWorkspace(true);
+              }}
+              isLoading={isBusy}
+              data-testid="workspace-create-trial-import"
+            >
+              Create & Go to Import
             </Button>
           </div>
           <p className="text-xs text-text-tertiary">
@@ -160,17 +182,22 @@ export function WorkspaceManager({
           <h3 className="text-lg font-medium">Recent Trial Workspaces</h3>
           {recentTrialWorkspaces.length === 0 ? (
             <p className="text-sm text-text-tertiary">
-              No trial workspaces yet. Create one to start testing safely.
+              No trial workspaces yet. Create one to test changes without
+              touching your main projects.
             </p>
           ) : (
             <div className="space-y-2" data-testid="workspace-recent-list">
               {recentTrialWorkspaces.map((workspacePath) => {
                 const selected = targetPath === workspacePath;
+                const workspaceUid = getWorkspaceUid(workspacePath);
                 return (
                   <div
                     key={workspacePath}
                     className="rounded-md border border-border-subtle p-3 bg-bg-elevated"
                   >
+                    <p className="text-xs text-text-tertiary">
+                      UID: {workspaceUid}
+                    </p>
                     <p className="text-sm text-text-primary break-all">
                       {workspacePath}
                     </p>

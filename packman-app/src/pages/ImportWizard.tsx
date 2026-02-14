@@ -28,6 +28,23 @@ type WizardIssue = {
   path?: string;
 };
 
+function getWorkspaceUid(
+  workspacePath: string | null | undefined,
+): string | null {
+  if (!workspacePath) {
+    return null;
+  }
+
+  const normalized = workspacePath.replace(/\\/g, "/");
+  const leaf = normalized.split("/").filter(Boolean).pop();
+  if (!leaf) {
+    return null;
+  }
+
+  const match = /^packman-trial-(.+)$/.exec(leaf);
+  return match?.[1] ?? leaf;
+}
+
 function hasMacOsJunkIssue(value: unknown): boolean {
   if (!value || typeof value !== "object") {
     return false;
@@ -88,11 +105,11 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
       case "MANIFEST_INTENT_PATH_CONFLICT":
         return "Use suite mode for suite-owned artifacts or adjust intended_install and owned paths.";
       case "COLLISION_FAILSAFE":
-        return "Choose skip, overwrite, or rename in Collision Strategy before installation.";
+        return "File conflicts were found. Choose how conflicts should be handled and regenerate the plan.";
       case "MACOS_JUNK":
-        return "Use Auto-clean Apple junk and retry validation.";
+        return "Remove macOS temporary files and retry validation.";
       case "WORKSPACE_FILE_MISSING":
-        return "Create a target VS Code workspace file and regenerate the plan.";
+        return "Create a VS Code workspace file in the selected target folder, then regenerate the plan.";
       default:
         return null;
     }
@@ -228,10 +245,25 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
         payload?.data?.filesTouched;
       return files?.length ?? 0;
     })() ?? 0;
+  const backupZipPath =
+    (() => {
+      const payload = installOutput as {
+        backupZipPath?: string;
+        output?: { backupZipPath?: string };
+        data?: { backupZipPath?: string };
+      } | null;
+      return (
+        payload?.backupZipPath ??
+        payload?.output?.backupZipPath ??
+        payload?.data?.backupZipPath ??
+        null
+      );
+    })() ?? null;
   const planReady =
     planOutput !== null &&
     planOutput !== undefined &&
     !hasResultError(planOutput);
+  const workspaceUid = getWorkspaceUid(targetPath);
   const shouldOfferMacOsJunkCleanup =
     hasMacOsJunkIssue(lastOutput) || hasMacOsJunkIssue(planOutput);
   const workspaceFileMissingPrompt =
@@ -498,7 +530,7 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                         }}
                         isLoading={isBusy}
                       >
-                        Auto-clean Apple junk
+                        Remove macOS temp files
                       </Button>
                     )}
                   </div>
@@ -641,23 +673,28 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                         </Button>
                         <Button
                           variant="primary"
-                          onClick={createTrialWorkspace}
+                          onClick={async () => {
+                            const created = await createTrialWorkspace();
+                            if (created) {
+                              nextStep();
+                            }
+                          }}
                           isLoading={isBusy}
                           data-testid="wizard-create-trial-workspace"
                         >
                           <FolderPlus className="w-4 h-4 mr-2" />
-                          Create Trial
+                          Create Trial & Continue
                         </Button>
                       </div>
                       <p className="text-xs text-text-tertiary">
-                        Create a clean workspace copy target to avoid modifying
-                        your existing projects.
+                        Create a clean workspace target and continue directly to
+                        plan generation.
                       </p>
                     </div>
 
                     <label className="block space-y-2">
                       <span className="text-text-secondary text-sm">
-                        Collision Strategy
+                        File Conflict Handling
                       </span>
                       <select
                         className="flex h-9 w-full rounded-md border border-border-subtle bg-bg-elevated px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-info text-text-primary"
@@ -673,10 +710,12 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                           )
                         }
                       >
-                        <option value="fail">Fail on Collision</option>
-                        <option value="skip">Skip Existing</option>
-                        <option value="overwrite">Overwrite</option>
-                        <option value="rename">Rename New</option>
+                        <option value="fail">Stop and ask me to resolve</option>
+                        <option value="skip">Keep existing file</option>
+                        <option value="overwrite">Replace existing file</option>
+                        <option value="rename">
+                          Keep both (rename incoming)
+                        </option>
                       </select>
                     </label>
                   </div>
@@ -735,7 +774,7 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                                   ? "ℹ Workspace file check deferred until target exists."
                                   : workspaceProbe?.ok === false
                                     ? `✖ Workspace file check failed: ${workspaceProbe.error ?? "unknown error"}`
-                                    : "✖ No VS Code workspace file found in target."}
+                                    : "✖ No VS Code workspace file found in the target folder."}
                           </li>
                         </ul>
                         {!validationHasPassed && (
@@ -781,7 +820,7 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                                 }}
                                 data-testid="wizard-checklist-auto-clean"
                               >
-                                Auto-clean Apple junk
+                                Remove macOS temp files
                               </Button>
                             )}
                           </div>
@@ -948,6 +987,24 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                           {error}
                         </div>
                       )}
+
+                      <div className="p-3 rounded-md border border-border-subtle bg-bg-elevated text-xs text-text-secondary space-y-1">
+                        <p className="text-text-primary font-medium">
+                          Common snags and quick fixes
+                        </p>
+                        <p>
+                          • Large source catalogs can slow validation and
+                          planning. Selecting a specific pack folder is faster.
+                        </p>
+                        <p>
+                          • If planning fails, ensure the target has a
+                          `.code-workspace` file.
+                        </p>
+                        <p>
+                          • If validation reports macOS junk files, remove temp
+                          files and run validation again.
+                        </p>
+                      </div>
                     </CardContent>
                   </Card>
                   <div className="flex justify-end gap-2">
@@ -999,6 +1056,37 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                     <p className="mt-2 text-sm text-text-secondary">
                       Files touched: {touchedFiles}
                     </p>
+                    <p className="mt-2 text-xs text-text-tertiary">
+                      Workspace UID: {workspaceUid ?? "n/a"}
+                    </p>
+                    {backupZipPath && (
+                      <p className="mt-2 text-xs text-text-tertiary break-all">
+                        Safety backup: {backupZipPath}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mx-auto max-w-2xl text-left rounded-md border border-brand-info/30 p-4 bg-brand-info/10 space-y-2">
+                    <p className="text-sm font-medium text-text-primary">
+                      What to do next
+                    </p>
+                    <ul className="text-sm text-text-secondary list-disc pl-5 space-y-1">
+                      <li>Open the target workspace in VS Code.</li>
+                      <li>
+                        Check installed artifacts under `.github`, `.claude`,
+                        `.agents`, and `.vscode` in that workspace.
+                      </li>
+                      <li>
+                        If VS Code was already open, reload the window once so
+                        new prompts/instructions are picked up.
+                      </li>
+                      {backupZipPath && (
+                        <li>
+                          Keep the backup ZIP until you verify behavior, then
+                          remove old backups when no longer needed.
+                        </li>
+                      )}
+                    </ul>
                   </div>
 
                   {installOutput !== null && installOutput !== undefined && (
@@ -1033,7 +1121,7 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                       disabled={!targetPath}
                       data-testid="wizard-open-workspace"
                     >
-                      Open Workspace
+                      Open in VS Code
                     </Button>
                   </div>
                 </div>

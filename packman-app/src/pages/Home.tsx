@@ -16,7 +16,7 @@ export function Home({ onNavigate }: HomeProps) {
   return (
     <PageLayout
       title="Packman"
-      subtitle="Manage your dev tools and packs with cyberpunk precision."
+      subtitle="Install and manage workspace packs with safe, repeatable workflows."
     >
       <div
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8"

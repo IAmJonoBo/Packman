@@ -1,8 +1,13 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { api } from "../lib/api";
 
 const RECENT_TRIAL_WORKSPACES_KEY = "packman.recentTrialWorkspaces.v1";
 const MAX_RECENT_TRIAL_WORKSPACES = 12;
+
+function normalizeRecentTrialWorkspaceList(paths: string[]): string[] {
+  const unique = [...new Set(paths.filter((value) => value.length > 0))];
+  return unique.slice(0, MAX_RECENT_TRIAL_WORKSPACES);
+}
 
 function readRecentTrialWorkspaces(): string[] {
   if (typeof window === "undefined") {
@@ -20,7 +25,9 @@ function readRecentTrialWorkspaces(): string[] {
       return [];
     }
 
-    return parsed.filter((value): value is string => typeof value === "string");
+    return normalizeRecentTrialWorkspaceList(
+      parsed.filter((value): value is string => typeof value === "string"),
+    );
   } catch {
     return [];
   }
@@ -33,7 +40,7 @@ function writeRecentTrialWorkspaces(paths: string[]): void {
 
   window.localStorage.setItem(
     RECENT_TRIAL_WORKSPACES_KEY,
-    JSON.stringify(paths.slice(0, MAX_RECENT_TRIAL_WORKSPACES)),
+    JSON.stringify(normalizeRecentTrialWorkspaceList(paths)),
   );
 }
 
@@ -238,6 +245,11 @@ export function usePackman() {
   const [recentTrialWorkspaces, setRecentTrialWorkspaces] = useState<string[]>(
     () => readRecentTrialWorkspaces(),
   );
+  const recentTrialWorkspacesRef = useRef<string[]>(recentTrialWorkspaces);
+
+  useEffect(() => {
+    recentTrialWorkspacesRef.current = recentTrialWorkspaces;
+  }, [recentTrialWorkspaces]);
 
   useEffect(() => {
     if (workspaceParentPath) {
@@ -268,18 +280,22 @@ export function usePackman() {
 
   const pushRecentTrialWorkspace = useCallback((workspacePath: string) => {
     setRecentTrialWorkspaces((previous) => {
-      const next = [
+      const next = normalizeRecentTrialWorkspaceList([
         workspacePath,
         ...previous.filter((item) => item !== workspacePath),
-      ];
+      ]);
+      recentTrialWorkspacesRef.current = next;
       writeRecentTrialWorkspaces(next);
-      return next.slice(0, MAX_RECENT_TRIAL_WORKSPACES);
+      return next;
     });
   }, []);
 
   const dropRecentTrialWorkspace = useCallback((workspacePath: string) => {
     setRecentTrialWorkspaces((previous) => {
-      const next = previous.filter((item) => item !== workspacePath);
+      const next = normalizeRecentTrialWorkspaceList(
+        previous.filter((item) => item !== workspacePath),
+      );
+      recentTrialWorkspacesRef.current = next;
       writeRecentTrialWorkspaces(next);
       return next;
     });
@@ -419,8 +435,11 @@ export function usePackman() {
   );
 
   const refreshRecentTrialWorkspaces = useCallback(async () => {
+    const current = normalizeRecentTrialWorkspaceList(
+      recentTrialWorkspacesRef.current,
+    );
     const existing: string[] = [];
-    for (const workspacePath of recentTrialWorkspaces) {
+    for (const workspacePath of current) {
       try {
         const ok = await api.workspacePathExists(workspacePath);
         if (ok) {
@@ -430,9 +449,11 @@ export function usePackman() {
         // ignore missing path checks
       }
     }
-    setRecentTrialWorkspaces(existing);
-    writeRecentTrialWorkspaces(existing);
-  }, [recentTrialWorkspaces]);
+    const next = normalizeRecentTrialWorkspaceList(existing);
+    recentTrialWorkspacesRef.current = next;
+    setRecentTrialWorkspaces(next);
+    writeRecentTrialWorkspaces(next);
+  }, []);
 
   const validatePack = useCallback(async () => {
     if (!sourcePath) {
