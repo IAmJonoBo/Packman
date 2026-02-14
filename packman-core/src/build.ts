@@ -77,6 +77,12 @@ function toTargetPath(sourcePath: string, target: ExportTarget): string | undefi
       : "instructions/copilot-instructions.md";
   }
 
+  if (normalized === ".github/copilot-instructions.md") {
+    return target === "workspace"
+      ? ".github/copilot-instructions.md"
+      : "instructions/copilot-instructions.md";
+  }
+
   const mappings: Array<[string, string]> = [
     ["agents", target === "workspace" ? ".github/agents" : "agents"],
     ["prompts", target === "workspace" ? ".github/prompts" : "prompts"],
@@ -85,6 +91,13 @@ function toTargetPath(sourcePath: string, target: ExportTarget): string | undefi
       target === "workspace" ? ".github/instructions" : "instructions",
     ],
     ["skills", target === "workspace" ? ".github/skills" : "skills"],
+    [".github/agents", target === "workspace" ? ".github/agents" : "agents"],
+    [".github/prompts", target === "workspace" ? ".github/prompts" : "prompts"],
+    [
+      ".github/instructions",
+      target === "workspace" ? ".github/instructions" : "instructions",
+    ],
+    [".github/skills", target === "workspace" ? ".github/skills" : "skills"],
   ];
 
   for (const [sourcePrefix, targetPrefix] of mappings) {

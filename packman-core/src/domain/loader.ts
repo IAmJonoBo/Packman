@@ -217,55 +217,6 @@ export function validateCollectionSchema(
   };
 }
 
-async function readLegacyCollection(
-  collectionId: string,
-  collectionDir: string,
-): Promise<CollectionSchemaValidation> {
-  const packsFile = path.join(collectionDir, "packs.txt");
-  if (!(await exists(packsFile))) {
-    return {
-      ok: false,
-      issues: [
-        issue(
-          "error",
-          "COLLECTION_DESCRIPTOR_MISSING",
-          "Collection must provide collection.json or fallback packs.txt",
-          toPosixPath(path.relative(process.cwd(), collectionDir)),
-        ),
-      ],
-    };
-  }
-
-  const raw = await readText(packsFile);
-  const packRoots = raw
-    .split(/\r?\n/g)
-    .map((line) => line.trim())
-    .filter((line) => line && !line.startsWith("#"))
-    .sort((left, right) => left.localeCompare(right));
-
-  return {
-    ok: true,
-    collection: {
-      id: collectionId,
-      name: toDisplayNameFromId(collectionId),
-      maturity: DEFAULT_COLLECTION_MATURITY,
-      tags: [...DEFAULT_COLLECTION_TAGS],
-      intendedStacks: [...DEFAULT_COLLECTION_STACKS],
-      packRoots,
-      collections: [],
-      sourcePath: toPosixPath(path.relative(process.cwd(), packsFile)),
-    },
-    issues: [
-      issue(
-        "info",
-        "COLLECTION_LEGACY_FALLBACK",
-        "Collection loaded from legacy packs.txt fallback",
-        toPosixPath(path.relative(process.cwd(), packsFile)),
-      ),
-    ],
-  };
-}
-
 async function loadCollections(
   rootPath: string,
   strictCollections: boolean,
@@ -305,7 +256,17 @@ async function loadCollections(
         validation = validateCollectionSchema(descriptor, descriptorRelPath);
       }
     } else {
-      validation = await readLegacyCollection(entry.name, collectionDir);
+      validation = {
+        ok: false,
+        issues: [
+          issue(
+            "error",
+            "COLLECTION_DESCRIPTOR_MISSING",
+            "Collection must provide collection.json",
+            toPosixPath(path.relative(rootPath, collectionDir)),
+          ),
+        ],
+      };
     }
 
     issues.push(...validation.issues);

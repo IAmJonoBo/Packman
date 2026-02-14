@@ -37,7 +37,7 @@ describe("domain loader", () => {
     ).toBe(true);
   });
 
-  it("loads canonical layout with collections fallback and generated plugins graph", async () => {
+  it("loads canonical layout with collection.json and generated plugins graph", async () => {
     const root = await mkdtemp(path.join(tmpdir(), "packman-domain-canonical-"));
 
     await mkdir(path.join(root, "agents"), { recursive: true });
@@ -83,10 +83,18 @@ describe("domain loader", () => {
       "utf8",
     );
 
-    await mkdir(path.join(root, "collections", "legacy"), { recursive: true });
+    await mkdir(path.join(root, "collections", "quality"), { recursive: true });
     await writeFile(
-      path.join(root, "collections", "legacy", "packs.txt"),
-      "Packs/copilot-quality-engineer-pack\n",
+      path.join(root, "collections", "quality", "collection.json"),
+      JSON.stringify(
+        {
+          id: "quality",
+          name: "Quality",
+          packRoots: ["Packs/copilot-quality-engineer-pack"],
+        },
+        null,
+        2,
+      ),
       "utf8",
     );
 
@@ -99,10 +107,10 @@ describe("domain loader", () => {
     expect(graph.skills).toHaveLength(1);
     expect(graph.collections.map((entry) => entry.id)).toEqual([
       "gold",
-      "legacy",
+      "quality",
     ]);
     expect(graph.plugins.id).toBe("plugins");
-    expect(graph.plugins.collections).toEqual(["gold", "legacy"]);
+    expect(graph.plugins.collections).toEqual(["gold", "quality"]);
     expect(graph.plugins.packRoots).toEqual([
       "Packs/copilot-quality-engineer-pack",
       "Packs/copilot-ux-agent-pack",

@@ -3,7 +3,6 @@ import path from "node:path";
 
 const root = process.cwd();
 const packsRoot = path.join(root, "Packs");
-const mirrorRoots = new Set(["INSTRUCTIONS AND RULES", "PROMPT FILES"]);
 
 function rel(inputPath) {
   return inputPath.split(path.sep).join("/");
@@ -22,7 +21,6 @@ async function listCanonicalPackRoots() {
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
-    if (mirrorRoots.has(entry.name)) continue;
     if (entry.name === "docs") continue;
     if (!entry.name.endsWith("-pack")) continue;
 

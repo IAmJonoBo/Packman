@@ -6,10 +6,6 @@ const canonicalRouteOwners = [
   "Packs/copilot-suite-harmoniser-pack/.github/prompts/suite/suite:route.prompt.md",
   "Packs/copilot-prompt-library-pack/.github/prompts/suite/suite:route.prompt.md",
 ];
-const legacyMirrorRoots = [
-  "Packs/PROMPT FILES",
-  "Packs/INSTRUCTIONS AND RULES",
-];
 
 function rel(p) {
   return p.split(path.sep).join("/");
@@ -35,19 +31,6 @@ async function collectPromptFiles(dir) {
 }
 
 async function main() {
-  for (const legacyDir of legacyMirrorRoots) {
-    const exists = await fs
-      .stat(path.join(root, legacyDir))
-      .then(() => true)
-      .catch(() => false);
-    if (!exists) {
-      console.error(
-        `Missing expected interface mirror directory: ${legacyDir}`,
-      );
-      process.exit(1);
-    }
-  }
-
   const promptFiles = await collectPromptFiles(path.join(root, "Packs"));
   const routeOwners = [];
 
@@ -61,16 +44,7 @@ async function main() {
     }
   }
 
-  const canonicalOwners = routeOwners.filter(
-    (file) =>
-      !file.startsWith("Packs/PROMPT FILES/") &&
-      !file.startsWith("Packs/INSTRUCTIONS AND RULES/"),
-  );
-  const mirrorOwners = routeOwners.filter(
-    (file) =>
-      file.startsWith("Packs/PROMPT FILES/") ||
-      file.startsWith("Packs/INSTRUCTIONS AND RULES/"),
-  );
+  const canonicalOwners = [...routeOwners];
 
   const missing = canonicalRouteOwners.filter(
     (file) => !canonicalOwners.includes(file),
@@ -83,51 +57,10 @@ async function main() {
   const primaryMissing =
     typeof primaryOwner === "string" && !canonicalOwners.includes(primaryOwner);
 
-  const mirrorDrift = [];
-  for (const mirrorFile of mirrorOwners) {
-    const canonicalFile = mirrorFile
-      .replace("Packs/PROMPT FILES/", "Packs/")
-      .replace("Packs/INSTRUCTIONS AND RULES/", "Packs/");
-
-    if (!canonicalRouteOwners.includes(canonicalFile)) {
-      mirrorDrift.push({
-        kind: "unmapped",
-        mirrorFile,
-        canonicalFile,
-      });
-      continue;
-    }
-
-    const [mirrorContent, canonicalContent] = await Promise.all([
-      fs.readFile(path.join(root, mirrorFile), "utf8"),
-      fs
-        .readFile(path.join(root, canonicalFile), "utf8")
-        .catch(() => undefined),
-    ]);
-
-    if (typeof canonicalContent !== "string") {
-      mirrorDrift.push({
-        kind: "missing-canonical",
-        mirrorFile,
-        canonicalFile,
-      });
-      continue;
-    }
-
-    if (mirrorContent !== canonicalContent) {
-      mirrorDrift.push({
-        kind: "content-mismatch",
-        mirrorFile,
-        canonicalFile,
-      });
-    }
-  }
-
   if (
     missing.length > 0 ||
     unexpected.length > 0 ||
-    primaryMissing ||
-    mirrorDrift.length > 0
+    primaryMissing
   ) {
     console.error("Route ownership check failed.");
     if (missing.length > 0) {
@@ -140,14 +73,6 @@ async function main() {
     }
     if (primaryMissing) {
       console.error(`Primary route owner missing: ${primaryOwner}`);
-    }
-    if (mirrorDrift.length > 0) {
-      console.error("Mirror route owner drift detected:");
-      for (const issue of mirrorDrift) {
-        console.error(
-          `- ${issue.kind}: ${issue.mirrorFile} -> ${issue.canonicalFile}`,
-        );
-      }
     }
     process.exit(1);
   }

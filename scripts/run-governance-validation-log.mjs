@@ -32,11 +32,6 @@ const checks = [
     command: "pnpm",
     args: ["run", "governance:routes"],
   },
-  {
-    label: "mirror-drift",
-    command: "pnpm",
-    args: ["run", "governance:mirrors"],
-  },
 ];
 
 function hr() {

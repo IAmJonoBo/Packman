@@ -869,8 +869,14 @@ program
       }
 
       try {
+        const hasCanonicalLayout =
+          existsSync(path.join(sourcePath, "agents")) ||
+          existsSync(path.join(sourcePath, "prompts")) ||
+          existsSync(path.join(sourcePath, "instructions")) ||
+          existsSync(path.join(sourcePath, "skills"));
+
         const graph = await loadRegistryGraph(sourcePath, {
-          layout: "canonical",
+          layout: hasCanonicalLayout ? "canonical" : "workspace",
           strictCollections: false,
         });
 

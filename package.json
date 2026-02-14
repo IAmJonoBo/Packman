@@ -28,9 +28,7 @@
     "governance:install-links-report": "node ./scripts/generate-install-links-report.mjs",
     "governance:suite-index": "node ./scripts/generate-suite-collections-index.mjs",
     "governance:validation-log": "node ./scripts/run-governance-validation-log.mjs",
-    "governance:sync-mirrors": "node ./scripts/sync-mirrors.mjs",
-    "governance:mirrors": "node ./scripts/check-mirror-drift.mjs",
-    "governance:reorg-exports": "node ./scripts/reorg-build-exports.mjs",
+    "governance:reorg-exports": "node ./scripts/reorg-build-exports.mjs ./Packs/copilot-suite-harmoniser-pack",
     "governance:packs:e2e": "pnpm --filter packman-cli run build && pnpm --filter packman-cli exec node dist/index.js validate ./Packs --strict --suite"
   }
 }

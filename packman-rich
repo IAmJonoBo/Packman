@@ -31,7 +31,7 @@ if [ ! -d "$ROOT_DIR/packman-py/packman_py" ]; then
 	exit 3
 fi
 
-if [ -n "${PYTHONPATH-}" ]; then
+if [ -n "${PYTHONPATH:-}" ]; then
 	export PYTHONPATH="$ROOT_DIR/packman-py:$PYTHONPATH"
 else
 	export PYTHONPATH="$ROOT_DIR/packman-py"

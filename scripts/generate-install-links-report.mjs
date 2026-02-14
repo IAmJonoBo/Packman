@@ -3,7 +3,6 @@ import path from "node:path";
 
 const root = process.cwd();
 const packsRoot = path.join(root, "Packs");
-const mirrorRoots = new Set(["INSTRUCTIONS AND RULES", "PROMPT FILES"]);
 
 const repoOwner = process.env.PACKMAN_REPO_OWNER ?? "IAmJonoBo";
 const repoName = process.env.PACKMAN_REPO_NAME ?? "Packman";
@@ -26,7 +25,6 @@ async function getCanonicalPackRoots() {
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
-    if (mirrorRoots.has(entry.name)) continue;
     if (entry.name === "docs") continue;
     if (!entry.name.endsWith("-pack")) continue;
 

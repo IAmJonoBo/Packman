@@ -5,7 +5,7 @@ Collections are deterministic bundles of packs for one-shot installation.
 ## Location
 
 - `Packs/collections/<collection>/README.md`
-- optional machine-readable list (`packs.txt` or JSON) in the same directory
+- required machine-readable descriptor (`collection.json`) in the same directory
 
 ## Required content
 
