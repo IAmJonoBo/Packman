@@ -19,10 +19,12 @@ Monorepo for Packman (core library, CLI, and Tauri app) and the canonical pack c
 - CLI validate: `pnpm --filter packman-cli exec node dist/index.js validate ./Packs --strict`
 - CLI validate zip with auto-clean: `pnpm --filter packman-cli exec node dist/index.js validate ./pack.zip --strict --auto-clean`
 - CLI normalize: `pnpm --filter packman-cli exec node dist/index.js normalize ./Packs --apply`
+- Normalize auto-fills missing `PACK_MANIFEST.json` contract fields (`intended_install`, `owned_paths`) based on detected artifacts.
 - CLI install dry-run: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --to /path/to/repo --mode fail --dry-run --json`
 - CLI install with skip collisions: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --to /path/to/repo --mode skip --json`
 - CLI install with rename collisions: `pnpm --filter packman-cli exec node dist/index.js install ./Packs --to /path/to/repo --mode rename --json`
 - Suite-owned paths (`.github/copilot-instructions.md`, `.vscode/settings.json`) are auto-handled during validate/install; no extra flag required for standard flows.
+- If a pack defines `PACK_MANIFEST.json`, strict validation enforces `owned_paths` coverage and `intended_install` consistency.
 - CLI doctor: `pnpm --filter packman-cli exec node dist/index.js doctor /path/to/repo`
 - CLI readiness: `pnpm --filter packman-cli exec node dist/index.js readiness /path/to/repo`
 - Tauri dev: `pnpm --filter packman-app tauri dev`
@@ -56,3 +58,21 @@ Launcher behavior notes:
 ## Pack catalog
 
 See `Packs/README.md`.
+
+## AI customization scaffold (workspace root)
+
+The repository now includes a ready-to-use directory scaffold aligned with the VS Code customization overview and Claude-compatible paths:
+
+- `.github/instructions/`
+- `.github/prompts/`
+- `.github/agents/`
+- `.github/skills/`
+- `.github/hooks/`
+- `.claude/rules/`
+- `.claude/agents/`
+- `.claude/skills/`
+- `.agents/skills/`
+- `.vscode/` (for `settings.json` / `mcp.json`)
+- `AGENTS.md` and `CLAUDE.md` placeholders at workspace root
+
+Pack detection/install now supports these locations for future expansion.

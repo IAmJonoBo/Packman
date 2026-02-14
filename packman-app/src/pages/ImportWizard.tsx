@@ -511,7 +511,7 @@ export function ImportWizard({ onBack }: ImportWizardProps) {
                           </li>
                           <li>
                             {validationHasPassed
-                              ? "✔ Validation passed with no blockers."
+                              ? "✔ Validation passed (including manifest ownership checks when present)."
                               : "✖ Validation not complete or has blocking issues."}
                           </li>
                           <li>

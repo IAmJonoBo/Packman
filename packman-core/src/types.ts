@@ -15,7 +15,10 @@ export interface Artifact {
     | "agent"
     | "skill"
     | "copilotInstructions"
+    | "alwaysOnInstruction"
     | "settings"
+    | "hookConfig"
+    | "mcpConfig"
     | "manifest";
   absolutePath: string;
   relativePath: string;

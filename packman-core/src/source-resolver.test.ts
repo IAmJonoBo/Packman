@@ -36,4 +36,25 @@ describe("resolvePackRoots", () => {
 
     await rm(source, { recursive: true, force: true });
   });
+
+  it("discovers pack roots from Claude-compatible rule locations", async () => {
+    const source = await mkdtemp(
+      path.join(tmpdir(), "packman-resolve-source-"),
+    );
+    const nestedPack = path.join(source, "Packs", "copilot-claude-pack");
+
+    await mkdir(path.join(nestedPack, ".claude", "rules"), {
+      recursive: true,
+    });
+    await writeFile(
+      path.join(nestedPack, ".claude", "rules", "python.md"),
+      `---\nname: python rules\ndescription: rules\npaths:\n  - \"**/*.py\"\n---\nBody\n`,
+      "utf8",
+    );
+
+    const roots = await resolvePackRoots(source);
+    expect(roots).toContain(nestedPack);
+
+    await rm(source, { recursive: true, force: true });
+  });
 });

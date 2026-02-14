@@ -2,9 +2,16 @@ import path from "node:path";
 import { promises as fs } from "node:fs";
 import matter from "gray-matter";
 import { detectPack } from "./detect.js";
-import { writeJson, writeText, readText, exists } from "./fs-utils.js";
+import {
+  writeJson,
+  writeText,
+  readText,
+  readJson,
+  exists,
+} from "./fs-utils.js";
 import { parseFrontmatter } from "./frontmatter.js";
 import type {
+  Artifact,
   FileChange,
   Issue,
   NormalizeOptions,
@@ -30,6 +37,27 @@ const PROMPT_NAMESPACES = [
 ];
 
 const SUFFIXES = [".prompt.md", ".agent.md", ".instructions.md"];
+
+const SUITE_OWNED_PATH_PREFIXES = [
+  ".github/copilot-instructions.md",
+  ".vscode/settings.json",
+  ".github/hooks",
+  ".vscode/mcp.json",
+  "AGENTS.md",
+  "CLAUDE.md",
+  "CLAUDE.local.md",
+  ".claude/CLAUDE.md",
+  ".claude/settings.json",
+  ".claude/settings.local.json",
+];
+
+type IntendedInstall = "solo" | "suite";
+
+interface PackManifestLike {
+  intended_install?: unknown;
+  owned_paths?: unknown;
+  [key: string]: unknown;
+}
 
 function splitArtifactFileName(fileName: string): {
   stem: string;
@@ -104,19 +132,118 @@ async function treeForDir(
   return lines;
 }
 
-function manifestTemplate(rootPath: string): Record<string, unknown> {
+function normalizeOwnedPath(input: string): string {
+  return input
+    .trim()
+    .replaceAll("\\", "/")
+    .replace(/^\.\//, "")
+    .replace(/\/+$/, "");
+}
+
+function pathCoveredByOwnedPath(
+  artifactPath: string,
+  ownedPath: string,
+): boolean {
+  const normalizedArtifactPath = normalizeOwnedPath(artifactPath);
+  const normalizedOwnedPath = normalizeOwnedPath(ownedPath);
+  if (!normalizedOwnedPath) {
+    return false;
+  }
+
+  return (
+    normalizedArtifactPath === normalizedOwnedPath ||
+    normalizedArtifactPath.startsWith(`${normalizedOwnedPath}/`)
+  );
+}
+
+function isSuiteOwnedPath(relativePath: string): boolean {
+  return SUITE_OWNED_PATH_PREFIXES.some((prefix) =>
+    pathCoveredByOwnedPath(relativePath, prefix),
+  );
+}
+
+function toOwnedPath(relativePath: string): string {
+  const normalizedPath = normalizeOwnedPath(relativePath);
+
+  if (normalizedPath.startsWith(".github/prompts/")) {
+    return ".github/prompts";
+  }
+
+  if (normalizedPath.startsWith(".github/agents/")) {
+    return ".github/agents";
+  }
+
+  if (normalizedPath.startsWith(".github/instructions/")) {
+    return ".github/instructions";
+  }
+
+  if (normalizedPath.startsWith(".github/skills/")) {
+    return ".github/skills";
+  }
+
+  if (normalizedPath.startsWith(".github/hooks/")) {
+    return ".github/hooks";
+  }
+
+  if (normalizedPath.startsWith(".claude/rules/")) {
+    return ".claude/rules";
+  }
+
+  if (normalizedPath.startsWith(".claude/agents/")) {
+    return ".claude/agents";
+  }
+
+  if (normalizedPath.startsWith(".claude/skills/")) {
+    return ".claude/skills";
+  }
+
+  if (normalizedPath.startsWith(".agents/skills/")) {
+    return ".agents/skills";
+  }
+
+  return normalizedPath;
+}
+
+function inferOwnedPaths(artifacts: Artifact[]): string[] {
+  const owned = new Set<string>();
+  for (const artifact of artifacts) {
+    if (artifact.type === "manifest") {
+      continue;
+    }
+
+    owned.add(toOwnedPath(artifact.relativePath));
+  }
+
+  return [...owned].sort((a, b) => a.localeCompare(b));
+}
+
+function inferIntendedInstall(artifacts: Artifact[]): IntendedInstall {
+  const hasSuiteOwnedArtifact = artifacts.some(
+    (artifact) =>
+      artifact.type !== "manifest" && isSuiteOwnedPath(artifact.relativePath),
+  );
+
+  return hasSuiteOwnedArtifact ? "suite" : "solo";
+}
+
+function needsManifestContractAssist(manifest: PackManifestLike): boolean {
+  return (
+    manifest.intended_install === undefined ||
+    manifest.owned_paths === undefined
+  );
+}
+
+function manifestTemplate(
+  rootPath: string,
+  artifacts: Artifact[],
+): Record<string, unknown> {
   const packName = path.basename(rootPath);
   return {
     id: packName,
     name: packName,
     version: "0.1.0",
-    intended_install: "solo",
-    owned_paths: [
-      ".github/prompts",
-      ".github/agents",
-      ".github/instructions",
-      ".github/skills",
-    ],
+    intended_install: inferIntendedInstall(artifacts),
+    owned_paths: inferOwnedPaths(artifacts),
     commands: ["validate", "normalize", "install", "doctor"],
     orchestrator_agent: "orchestrator.agent.md",
   };
@@ -245,7 +372,7 @@ export async function normalizePack(
 
   const manifestPath = path.join(rootPath, "PACK_MANIFEST.json");
   if (!(await exists(manifestPath))) {
-    const manifest = manifestTemplate(rootPath);
+    const manifest = manifestTemplate(rootPath, detection.artifacts);
     changes.push({
       action: "create",
       toPath: manifestPath,
@@ -253,6 +380,34 @@ export async function normalizePack(
     });
     if (options.apply) {
       await writeJson(manifestPath, manifest);
+    }
+  } else {
+    const manifest = (await readJson<PackManifestLike>(manifestPath)) ?? {};
+    if (needsManifestContractAssist(manifest)) {
+      const nextManifest: PackManifestLike = { ...manifest };
+
+      if (nextManifest.intended_install === undefined) {
+        nextManifest.intended_install = inferIntendedInstall(
+          detection.artifacts,
+        );
+      }
+
+      if (nextManifest.owned_paths === undefined) {
+        nextManifest.owned_paths = inferOwnedPaths(detection.artifacts);
+      }
+
+      const before = await readText(manifestPath);
+      const after = `${JSON.stringify(nextManifest, null, 2)}\n`;
+      changes.push({
+        action: "update",
+        toPath: manifestPath,
+        before,
+        after,
+      });
+
+      if (options.apply) {
+        await writeJson(manifestPath, nextManifest);
+      }
     }
   }
 

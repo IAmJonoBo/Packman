@@ -7,6 +7,29 @@ Pack library (repo-local Copilot customisations; no extensions).
 - **Solo**: install one pack into a repo.
 - **Suite**: install multiple packs; include `copilot-suite-harmoniser-pack` to avoid collisions.
 
+## Pack ownership contract (recommended)
+
+When a pack includes `PACK_MANIFEST.json`, Packman enforces ownership and intent semantics:
+
+- `intended_install`: `solo`, `suite`, or `solo|suite`
+- `owned_paths`: list of repo-relative paths owned by the pack
+- `commands`: prompt aliases or built-in commands exposed by the pack
+
+### Validation behavior
+
+- `owned_paths` must be an array of strings when provided.
+- Every detected artifact in the pack (except `PACK_MANIFEST.json`) must be covered by one of the `owned_paths` entries.
+- `intended_install: "solo"` must not include suite-owned paths (for example `.github/copilot-instructions.md`, `.vscode/settings.json`, `.github/hooks`, `.vscode/mcp.json`, root `AGENTS.md` / `CLAUDE.md`, and Claude settings files).
+- `intended_install: "suite"` without any suite-owned paths emits a warning.
+- In strict validation mode, missing `intended_install` or `owned_paths` emits warnings to help migrate older packs.
+
+### Authoring guidance
+
+- Keep packs modular: include only files each pack truly owns.
+- Use suite-level paths only for foundation/harmoniser-style packs.
+- Use feature packs for prompts, agents, skills, and optional scoped instructions.
+- Run `packman normalize <pack> --apply` to scaffold missing `intended_install` / `owned_paths` from current pack artifacts.
+
 | Folder                                 | Purpose                                                  |
 | -------------------------------------- | -------------------------------------------------------- |
 | `copilot-architecture-governance-pack` | Copilot Architecture + Governance Pack (drop-in)         |

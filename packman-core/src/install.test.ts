@@ -492,4 +492,71 @@ describe("installPack collisions", () => {
     await rm(source, { recursive: true, force: true });
     await rm(target, { recursive: true, force: true });
   });
+
+  it("installs MCP config, hook config, and skill resources", async () => {
+    const source = await mkdtemp(
+      path.join(tmpdir(), "packman-install-source-"),
+    );
+    const target = await mkdtemp(
+      path.join(tmpdir(), "packman-install-target-"),
+    );
+
+    await mkdir(path.join(source, ".vscode"), { recursive: true });
+    await mkdir(path.join(source, ".github/hooks"), { recursive: true });
+    await mkdir(path.join(source, ".github/skills/release-check/examples"), {
+      recursive: true,
+    });
+
+    await writeFile(
+      path.join(source, ".vscode", "mcp.json"),
+      JSON.stringify(
+        { servers: { github: { type: "stdio", command: "npx" } } },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+    await writeFile(
+      path.join(source, ".github/hooks", "post-tool-use.json"),
+      JSON.stringify({ hooks: { PostToolUse: [] } }, null, 2),
+      "utf8",
+    );
+    await writeFile(
+      path.join(source, ".github/skills/release-check", "SKILL.md"),
+      `---\nname: release-check\ndescription: validate release readiness\n---\nBody\n`,
+      "utf8",
+    );
+    await writeFile(
+      path.join(source, ".github/skills/release-check/examples", "sample.txt"),
+      "example",
+      "utf8",
+    );
+
+    const result = await installPack(source, {
+      targetPath: target,
+      targetType: "workspace",
+    });
+
+    expect(result.ok).toBe(true);
+
+    const mcp = await readFile(
+      path.join(target, ".vscode", "mcp.json"),
+      "utf8",
+    );
+    const hook = await readFile(
+      path.join(target, ".github/hooks", "post-tool-use.json"),
+      "utf8",
+    );
+    const skillResource = await readFile(
+      path.join(target, ".github/skills/release-check/examples", "sample.txt"),
+      "utf8",
+    );
+
+    expect(mcp).toContain("github");
+    expect(hook).toContain("PostToolUse");
+    expect(skillResource).toContain("example");
+
+    await rm(source, { recursive: true, force: true });
+    await rm(target, { recursive: true, force: true });
+  });
 });

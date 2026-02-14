@@ -35,8 +35,25 @@ export const DEFAULT_ALLOWED_SUBAGENTS = [
 ] as const;
 
 interface PackManifest {
+  intended_install?: unknown;
+  owned_paths?: unknown;
   commands?: unknown;
 }
+
+const VALID_INTENDED_INSTALL = new Set(["solo", "suite", "solo|suite"]);
+
+const SUITE_OWNED_PATH_PREFIXES = [
+  ".github/copilot-instructions.md",
+  ".vscode/settings.json",
+  ".github/hooks",
+  ".vscode/mcp.json",
+  "AGENTS.md",
+  "CLAUDE.md",
+  "CLAUDE.local.md",
+  ".claude/CLAUDE.md",
+  ".claude/settings.json",
+  ".claude/settings.local.json",
+];
 
 const BUILTIN_MANIFEST_COMMANDS = new Set([
   "build",
@@ -62,6 +79,55 @@ function splitApplyTo(value: unknown): string[] {
     .split(",")
     .map((glob) => glob.trim())
     .filter((glob) => glob.length > 0);
+}
+
+function splitRulePaths(value: unknown): string[] {
+  if (value === undefined) {
+    return ["**"];
+  }
+
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((entry): entry is string => typeof entry === "string")
+    .map((glob) => glob.trim())
+    .filter((glob) => glob.length > 0);
+}
+
+function isClaudeRulePath(relativePath: string): boolean {
+  return relativePath.startsWith(".claude/rules/");
+}
+
+function normalizeOwnedPath(input: string): string {
+  return input
+    .trim()
+    .replaceAll("\\", "/")
+    .replace(/^\.\//, "")
+    .replace(/\/+$/, "");
+}
+
+function pathCoveredByOwnedPath(
+  artifactPath: string,
+  ownedPath: string,
+): boolean {
+  const normalizedArtifactPath = normalizeOwnedPath(artifactPath);
+  const normalizedOwnedPath = normalizeOwnedPath(ownedPath);
+  if (!normalizedOwnedPath) {
+    return false;
+  }
+
+  return (
+    normalizedArtifactPath === normalizedOwnedPath ||
+    normalizedArtifactPath.startsWith(`${normalizedOwnedPath}/`)
+  );
+}
+
+function isSuiteOwnedPath(relativePath: string): boolean {
+  return SUITE_OWNED_PATH_PREFIXES.some((prefix) =>
+    pathCoveredByOwnedPath(relativePath, prefix),
+  );
 }
 
 function validateNameDesc(
@@ -343,18 +409,33 @@ export async function validatePack(
     }
 
     if (artifact.type === "instruction") {
-      if (!hasField(frontmatter.applyTo)) {
-        issues.push({
-          severity: "error",
-          code: "INSTRUCTION_APPLYTO_REQUIRED",
-          message: "Instruction file requires applyTo in frontmatter",
-          path: artifact.relativePath,
-        });
-      } else if (splitApplyTo(frontmatter.applyTo).length === 0) {
+      if (isClaudeRulePath(artifact.relativePath)) {
+        const paths = splitRulePaths(frontmatter.paths);
+        if (paths.length === 0) {
+          issues.push({
+            severity: "error",
+            code: "CLAUDE_RULE_PATHS_INVALID",
+            message:
+              "Claude rule frontmatter paths must be an array of one or more globs",
+            path: artifact.relativePath,
+          });
+        }
+      } else if (
+        frontmatter.applyTo !== undefined &&
+        splitApplyTo(frontmatter.applyTo).length === 0
+      ) {
         issues.push({
           severity: "error",
           code: "INSTRUCTION_APPLYTO_INVALID",
           message: "Instruction applyTo must contain at least one glob",
+          path: artifact.relativePath,
+        });
+      } else if (frontmatter.applyTo === undefined && options.strict) {
+        issues.push({
+          severity: "warning",
+          code: "INSTRUCTION_APPLYTO_RECOMMENDED",
+          message:
+            "Instruction file is missing applyTo; it will only apply when manually referenced",
           path: artifact.relativePath,
         });
       }
@@ -468,40 +549,153 @@ export async function validatePack(
 
   if (detection.manifestPath) {
     const manifest = await readJson<PackManifest>(detection.manifestPath);
-    if (manifest && manifest.commands !== undefined) {
-      if (!Array.isArray(manifest.commands)) {
+    if (manifest) {
+      if (manifest.intended_install === undefined && options.strict) {
         issues.push({
-          severity: "error",
-          code: "MANIFEST_COMMANDS_TYPE",
-          message: "PACK_MANIFEST.json commands must be an array of strings",
+          severity: "warning",
+          code: "MANIFEST_INTENDED_INSTALL_RECOMMENDED",
+          message:
+            "PACK_MANIFEST.json should declare intended_install (solo, suite, or solo|suite)",
           path: path.relative(rootPath, detection.manifestPath),
         });
-      } else {
-        const manifestCommands = manifest.commands.filter(
-          (value): value is string => typeof value === "string",
-        );
-        if (manifestCommands.length !== manifest.commands.length) {
+      }
+
+      if (manifest.owned_paths === undefined && options.strict) {
+        issues.push({
+          severity: "warning",
+          code: "MANIFEST_OWNED_PATHS_RECOMMENDED",
+          message:
+            "PACK_MANIFEST.json should declare owned_paths to document and enforce pack ownership",
+          path: path.relative(rootPath, detection.manifestPath),
+        });
+      }
+
+      const intendedInstall =
+        typeof manifest.intended_install === "string"
+          ? manifest.intended_install
+          : undefined;
+      const hasIntendedInstall = manifest.intended_install !== undefined;
+      const intendedInstallValid =
+        intendedInstall !== undefined &&
+        VALID_INTENDED_INSTALL.has(intendedInstall);
+
+      if (hasIntendedInstall && !intendedInstallValid) {
+        issues.push({
+          severity: "error",
+          code: "MANIFEST_INTENDED_INSTALL_INVALID",
+          message:
+            "PACK_MANIFEST.json intended_install must be one of: solo, suite, solo|suite",
+          path: path.relative(rootPath, detection.manifestPath),
+        });
+      }
+
+      let normalizedOwnedPaths: string[] = [];
+      if (manifest.owned_paths !== undefined) {
+        if (!isStringArray(manifest.owned_paths)) {
           issues.push({
             severity: "error",
-            code: "MANIFEST_COMMANDS_TYPE",
-            message: "PACK_MANIFEST.json commands must contain only strings",
+            code: "MANIFEST_OWNED_PATHS_TYPE",
+            message:
+              "PACK_MANIFEST.json owned_paths must be an array of strings",
+            path: path.relative(rootPath, detection.manifestPath),
+          });
+        } else {
+          normalizedOwnedPaths = manifest.owned_paths.map(normalizeOwnedPath);
+
+          for (const artifact of detection.artifacts) {
+            if (artifact.type === "manifest") {
+              continue;
+            }
+
+            const covered = normalizedOwnedPaths.some((ownedPath) =>
+              pathCoveredByOwnedPath(artifact.relativePath, ownedPath),
+            );
+            if (!covered) {
+              issues.push({
+                severity: "error",
+                code: "MANIFEST_OWNED_PATHS_COVERAGE",
+                message: `Artifact path '${artifact.relativePath}' is not covered by PACK_MANIFEST.json owned_paths`,
+                path: artifact.relativePath,
+                details: {
+                  ownedPaths: normalizedOwnedPaths,
+                },
+              });
+            }
+          }
+        }
+      }
+
+      if (intendedInstallValid && intendedInstall === "solo") {
+        const suiteOwnedArtifacts = detection.artifacts.filter(
+          (artifact) =>
+            artifact.type !== "manifest" &&
+            isSuiteOwnedPath(artifact.relativePath),
+        );
+
+        for (const artifact of suiteOwnedArtifacts) {
+          issues.push({
+            severity: "error",
+            code: "MANIFEST_INTENT_PATH_CONFLICT",
+            message:
+              "Pack intended for solo install cannot own suite-level paths",
+            path: artifact.relativePath,
+          });
+        }
+      }
+
+      if (intendedInstallValid && intendedInstall === "suite") {
+        const hasSuiteOwnedArtifacts = detection.artifacts.some(
+          (artifact) =>
+            artifact.type !== "manifest" &&
+            isSuiteOwnedPath(artifact.relativePath),
+        );
+
+        if (!hasSuiteOwnedArtifacts) {
+          issues.push({
+            severity: "warning",
+            code: "MANIFEST_INTENT_NO_SUITE_PATHS",
+            message:
+              "Pack declares intended_install as suite but does not include suite-level owned paths",
             path: path.relative(rootPath, detection.manifestPath),
           });
         }
+      }
 
-        const promptAliases = collectPromptCommandAliases(parsedArtifacts);
-        for (const command of manifestCommands) {
-          if (BUILTIN_MANIFEST_COMMANDS.has(command)) {
-            continue;
-          }
-
-          if (!promptAliases.has(command)) {
+      if (manifest.commands !== undefined) {
+        if (!Array.isArray(manifest.commands)) {
+          issues.push({
+            severity: "error",
+            code: "MANIFEST_COMMANDS_TYPE",
+            message: "PACK_MANIFEST.json commands must be an array of strings",
+            path: path.relative(rootPath, detection.manifestPath),
+          });
+        } else {
+          const manifestCommands = manifest.commands.filter(
+            (value): value is string => typeof value === "string",
+          );
+          if (manifestCommands.length !== manifest.commands.length) {
             issues.push({
-              severity: options.strict ? "error" : "warning",
-              code: "MANIFEST_COMMAND_MISSING_PROMPT",
-              message: `Manifest command '${command}' has no matching prompt name`,
+              severity: "error",
+              code: "MANIFEST_COMMANDS_TYPE",
+              message: "PACK_MANIFEST.json commands must contain only strings",
               path: path.relative(rootPath, detection.manifestPath),
             });
+          }
+
+          const promptAliases = collectPromptCommandAliases(parsedArtifacts);
+          for (const command of manifestCommands) {
+            if (BUILTIN_MANIFEST_COMMANDS.has(command)) {
+              continue;
+            }
+
+            if (!promptAliases.has(command)) {
+              issues.push({
+                severity: options.strict ? "error" : "warning",
+                code: "MANIFEST_COMMAND_MISSING_PROMPT",
+                message: `Manifest command '${command}' has no matching prompt name`,
+                path: path.relative(rootPath, detection.manifestPath),
+              });
+            }
           }
         }
       }

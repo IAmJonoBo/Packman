@@ -15,7 +15,15 @@ export async function parseArtifacts(
   const parsed: ParsedArtifact[] = [];
 
   for (const artifact of artifacts) {
-    if (!FRONTMATTER_TYPES.includes(artifact.type)) {
+    const shouldParseFrontmatter =
+      FRONTMATTER_TYPES.includes(artifact.type) ||
+      (artifact.type === "alwaysOnInstruction" &&
+        (artifact.relativePath === "AGENTS.md" ||
+          artifact.relativePath === "CLAUDE.md" ||
+          artifact.relativePath === "CLAUDE.local.md" ||
+          artifact.relativePath === ".claude/CLAUDE.md"));
+
+    if (!shouldParseFrontmatter) {
       parsed.push({ ...artifact });
       continue;
     }

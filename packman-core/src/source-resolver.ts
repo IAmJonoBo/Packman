@@ -59,10 +59,12 @@ function sortRoots(roots: string[]): string[] {
 
 function candidateRootFromArtifactPath(artifactPath: string): string {
   const normalized = artifactPath.replaceAll("\\", "/");
-  const githubMarker = "/.github/";
-  const markerIndex = normalized.indexOf(githubMarker);
-  if (markerIndex >= 0) {
-    return normalized.slice(0, markerIndex);
+  const rootMarkers = ["/.github/", "/.claude/", "/.agents/", "/.vscode/"];
+  for (const marker of rootMarkers) {
+    const markerIndex = normalized.indexOf(marker);
+    if (markerIndex >= 0) {
+      return normalized.slice(0, markerIndex);
+    }
   }
 
   if (normalized.endsWith("/PACK_MANIFEST.json")) {
@@ -83,6 +85,19 @@ async function discoverPackRootsRecursively(
       "**/.github/instructions/**/*.instructions.md",
       "**/.github/skills/**/SKILL.md",
       "**/.github/copilot-instructions.md",
+      "**/AGENTS.md",
+      "**/CLAUDE.md",
+      "**/CLAUDE.local.md",
+      "**/.claude/CLAUDE.md",
+      "**/.claude/rules/**/*.md",
+      "**/.claude/agents/**/*.md",
+      "**/.claude/skills/**/SKILL.md",
+      "**/.agents/skills/**/SKILL.md",
+      "**/.github/hooks/*.json",
+      "**/.claude/settings.json",
+      "**/.claude/settings.local.json",
+      "**/.vscode/settings.json",
+      "**/.vscode/mcp.json",
     ],
     {
       cwd: rootPath,

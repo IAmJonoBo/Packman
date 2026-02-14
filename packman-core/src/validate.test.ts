@@ -129,4 +129,175 @@ describe("validatePack", () => {
 
     await rm(root, { recursive: true, force: true });
   });
+
+  it("accepts Claude rules without explicit paths", async () => {
+    const root = await mkdtemp(path.join(tmpdir(), "packman-validate-claude-"));
+    await mkdir(path.join(root, ".claude/rules"), { recursive: true });
+    await writeFile(
+      path.join(root, ".claude/rules", "general.md"),
+      `---\nname: Claude rules\ndescription: defaults\n---\nBody\n`,
+      "utf8",
+    );
+
+    const result = await validatePack(root, { strict: true, suiteMode: false });
+    expect(result.ok).toBe(true);
+    expect(
+      result.issues.some((issue) => issue.code === "CLAUDE_RULE_PATHS_INVALID"),
+    ).toBe(false);
+
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("fails Claude rules when paths is invalid", async () => {
+    const root = await mkdtemp(path.join(tmpdir(), "packman-validate-claude-"));
+    await mkdir(path.join(root, ".claude/rules"), { recursive: true });
+    await writeFile(
+      path.join(root, ".claude/rules", "general.md"),
+      `---\nname: Claude rules\ndescription: invalid\npaths: \"**/*.py\"\n---\nBody\n`,
+      "utf8",
+    );
+
+    const result = await validatePack(root, { strict: true, suiteMode: false });
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some((issue) => issue.code === "CLAUDE_RULE_PATHS_INVALID"),
+    ).toBe(true);
+
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("errors when manifest owned_paths does not cover detected artifacts", async () => {
+    const root = await mkdtemp(
+      path.join(tmpdir(), "packman-validate-manifest-"),
+    );
+    await mkdir(path.join(root, ".github/prompts"), { recursive: true });
+    await writeFile(
+      path.join(root, ".github/prompts", "brief.prompt.md"),
+      `---\nname: brief:covered\ndescription: desc\n---\nBody\n`,
+      "utf8",
+    );
+    await writeFile(
+      path.join(root, "PACK_MANIFEST.json"),
+      JSON.stringify(
+        {
+          intended_install: "solo|suite",
+          owned_paths: [".github/agents"],
+          commands: ["brief:covered"],
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+
+    const result = await validatePack(root, { strict: true, suiteMode: false });
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some(
+        (issue) => issue.code === "MANIFEST_OWNED_PATHS_COVERAGE",
+      ),
+    ).toBe(true);
+
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("errors when intended_install is solo but suite-owned paths exist", async () => {
+    const root = await mkdtemp(
+      path.join(tmpdir(), "packman-validate-manifest-"),
+    );
+    await mkdir(path.join(root, ".github"), { recursive: true });
+    await writeFile(
+      path.join(root, ".github", "copilot-instructions.md"),
+      "# instructions\n",
+      "utf8",
+    );
+    await writeFile(
+      path.join(root, "PACK_MANIFEST.json"),
+      JSON.stringify(
+        {
+          intended_install: "solo",
+          owned_paths: [".github/copilot-instructions.md"],
+          commands: [],
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+
+    const result = await validatePack(root, { strict: true, suiteMode: true });
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some(
+        (issue) => issue.code === "MANIFEST_INTENT_PATH_CONFLICT",
+      ),
+    ).toBe(true);
+
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("warns when intended_install is suite but no suite-owned paths exist", async () => {
+    const root = await mkdtemp(
+      path.join(tmpdir(), "packman-validate-manifest-"),
+    );
+    await mkdir(path.join(root, ".github/prompts"), { recursive: true });
+    await writeFile(
+      path.join(root, ".github/prompts", "brief.prompt.md"),
+      `---\nname: brief:covered\ndescription: desc\n---\nBody\n`,
+      "utf8",
+    );
+    await writeFile(
+      path.join(root, "PACK_MANIFEST.json"),
+      JSON.stringify(
+        {
+          intended_install: "suite",
+          owned_paths: [".github/prompts"],
+          commands: ["brief:covered"],
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+
+    const result = await validatePack(root, { strict: true, suiteMode: true });
+    expect(
+      result.issues.some(
+        (issue) => issue.code === "MANIFEST_INTENT_NO_SUITE_PATHS",
+      ),
+    ).toBe(true);
+
+    await rm(root, { recursive: true, force: true });
+  });
+
+  it("warns in strict mode when manifest omits intended_install and owned_paths", async () => {
+    const root = await mkdtemp(
+      path.join(tmpdir(), "packman-validate-manifest-"),
+    );
+    await mkdir(path.join(root, ".github/prompts"), { recursive: true });
+    await writeFile(
+      path.join(root, ".github/prompts", "brief.prompt.md"),
+      `---\nname: brief:covered\ndescription: desc\n---\nBody\n`,
+      "utf8",
+    );
+    await writeFile(
+      path.join(root, "PACK_MANIFEST.json"),
+      JSON.stringify({ commands: ["brief:covered"] }, null, 2),
+      "utf8",
+    );
+
+    const result = await validatePack(root, { strict: true, suiteMode: false });
+    expect(
+      result.issues.some(
+        (issue) => issue.code === "MANIFEST_INTENDED_INSTALL_RECOMMENDED",
+      ),
+    ).toBe(true);
+    expect(
+      result.issues.some(
+        (issue) => issue.code === "MANIFEST_OWNED_PATHS_RECOMMENDED",
+      ),
+    ).toBe(true);
+
+    await rm(root, { recursive: true, force: true });
+  });
 });
