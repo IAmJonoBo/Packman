@@ -3,10 +3,21 @@ import path from "node:path";
 import { promises as fs } from "node:fs";
 import { existsSync } from "node:fs";
 import {
+  analyzeRepo,
+  applyMigration,
+  buildCollection,
+  buildProfile,
+  buildWorkspace,
+  doctorTarget,
+  loadRegistryGraph,
   validatePack,
   installPacks,
   normalizePack,
+  planMigration,
+  readinessReport,
   resolvePackSource,
+  type ExportBuilderOptions,
+  type ExportTarget,
   type ImportCategory,
   type NormalizeResult,
   type Issue,
@@ -79,6 +90,7 @@ async function runWithSpinner<T>(
 
 interface SourceSetValidationResult extends ValidationResult {
   roots: string[];
+  validationReports: Array<{ root: string; report: string }>;
 }
 
 interface ValidationSourceOptions {
@@ -129,7 +141,7 @@ async function resolveBatchRoots(
   if (catalogRoots.length > 0) {
     return {
       roots: catalogRoots,
-      cleanup: async () => {},
+      cleanup: async () => { },
     };
   }
 
@@ -168,6 +180,7 @@ async function validateSourceSet(
         ok: false,
         issues,
         parsedArtifacts: [],
+        validationReports: [],
         elapsedMs: Date.now() - started,
         roots: [],
       };
@@ -175,6 +188,7 @@ async function validateSourceSet(
 
     const issues: Issue[] = [];
     const parsedArtifacts: ValidationResult["parsedArtifacts"] = [];
+    const validationReports: Array<{ root: string; report: string }> = [];
 
     for (const root of resolved.roots) {
       const result = await validatePack(root, {
@@ -183,6 +197,12 @@ async function validateSourceSet(
       });
       issues.push(...result.issues);
       parsedArtifacts.push(...result.parsedArtifacts);
+      if (result.validationReport) {
+        validationReports.push({
+          root,
+          report: result.validationReport,
+        });
+      }
     }
 
     const ok = !issues.some((issue) => issue.severity === "error");
@@ -190,6 +210,7 @@ async function validateSourceSet(
       ok,
       issues,
       parsedArtifacts,
+      validationReports,
       elapsedMs: Date.now() - started,
       roots: resolved.roots,
     };
@@ -377,11 +398,19 @@ program
 
         if (result.ok) {
           format.success(`Pack valid!`);
+          for (const report of result.validationReports) {
+            format.info(`Validation gates report for ${rel(path.relative(cwd, report.root))}:`);
+            console.log(report.report.trim());
+          }
           // We could look up the manifest artifact if we really wanted the name
           // const manifest = result.parsedArtifacts.find(a => a.type === 'manifest');
         } else {
           format.error("Validation failed with issues:");
           format.issues(result.issues);
+          for (const report of result.validationReports) {
+            format.info(`Validation gates report for ${rel(path.relative(cwd, report.root))}:`);
+            console.log(report.report.trim());
+          }
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           process.exitCode = 1;
@@ -766,35 +795,250 @@ program
   );
 
 program
+  .command("readiness")
+  .description("Check workspace readiness for pack discovery settings.")
+  .argument("[path]", "Target workspace path", ".")
+  .option("--json", "Output report as JSON")
+  .action(async (pathInput: string, options: { json?: boolean }) => {
+    const cwd = getCwd();
+    const targetPath = path.resolve(cwd, pathInput);
+
+    try {
+      const result = await readinessReport(targetPath);
+      if (options.json) {
+        format.json(result);
+        return;
+      }
+
+      format.header(`Readiness: ${targetPath}`);
+      if (result.ok) {
+        format.success("Workspace readiness is complete.");
+      } else {
+        format.warning("Workspace readiness has missing recommended settings.");
+        format.issues(result.issues);
+      }
+    } catch (error) {
+      if (options.json) {
+        format.json({ error: String(error) });
+      } else {
+        format.error(`Readiness check failed: ${error}`);
+      }
+      process.exitCode = 1;
+    }
+  });
+
+program
+  .command("export")
+  .description("Build deterministic export manifests for workspace/profile/collection targets.")
+  .argument("[path]", "Canonical taxonomy root path", ".")
+  .option("--target <target>", "Export target (workspace, profile)", "workspace")
+  .option("--collection <id>", "Collection id to export")
+  .option("--collision-policy <policy>", "Collision policy (error, first, last)", "error")
+  .option("--no-copilot-instructions", "Exclude instructions/copilot-instructions.md")
+  .option("--out <path>", "Write manifest JSON to file")
+  .option("--json", "Output report as JSON")
+  .action(
+    async (
+      inputPath: string,
+      options: {
+        target: string;
+        collection?: string;
+        collisionPolicy: string;
+        copilotInstructions?: boolean;
+        out?: string;
+        json?: boolean;
+      },
+    ) => {
+      const cwd = getCwd();
+      const sourcePath = path.resolve(cwd, inputPath);
+
+      const TargetSchema = z.enum(["workspace", "profile"]);
+      const targetResult = TargetSchema.safeParse(options.target);
+      if (!targetResult.success) {
+        format.error("Invalid target. Must be one of: workspace, profile.");
+        process.exitCode = 1;
+        return;
+      }
+
+      const CollisionSchema = z.enum(["error", "first", "last"]);
+      const collisionResult = CollisionSchema.safeParse(options.collisionPolicy);
+      if (!collisionResult.success) {
+        format.error("Invalid collision policy. Must be one of: error, first, last.");
+        process.exitCode = 1;
+        return;
+      }
+
+      try {
+        const graph = await loadRegistryGraph(sourcePath, {
+          layout: "canonical",
+          strictCollections: false,
+        });
+
+        const builderOptions: ExportBuilderOptions = {
+          collisionPolicy: collisionResult.data,
+          includeCopilotInstructions: options.copilotInstructions,
+        };
+
+        const target = targetResult.data as ExportTarget;
+        const manifest = options.collection
+          ? buildCollection(graph, options.collection, target, builderOptions)
+          : target === "workspace"
+            ? buildWorkspace(graph, builderOptions)
+            : buildProfile(graph, builderOptions);
+
+        const payload = {
+          ok:
+            !graph.issues.some((issue) => issue.severity === "error") &&
+            !manifest.collisions.some((issue) => issue.severity === "error"),
+          sourcePath,
+          graphIssues: graph.issues,
+          manifest,
+        };
+
+        if (options.out) {
+          const outPath = path.resolve(cwd, options.out);
+          await fs.mkdir(path.dirname(outPath), { recursive: true });
+          await fs.writeFile(outPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+        }
+
+        if (options.json) {
+          format.json(payload);
+        } else {
+          format.header("Export manifest");
+          format.info(`Target: ${manifest.target}`);
+          format.info(`Entries: ${manifest.entries.length}`);
+          if (manifest.collection) {
+            format.info(`Collection: ${manifest.collection}`);
+          }
+          if (manifest.collisions.length > 0) {
+            format.warning(`Collisions: ${manifest.collisions.length}`);
+            format.issues(manifest.collisions);
+          }
+          if (graph.issues.length > 0) {
+            format.warning(`Graph issues: ${graph.issues.length}`);
+            format.issues(graph.issues);
+          }
+          if (options.out) {
+            format.success(`Wrote manifest to ${format.path(path.resolve(cwd, options.out))}`);
+          }
+        }
+
+        if (!payload.ok) {
+          process.exitCode = 1;
+        }
+      } catch (error) {
+        if (options.json) {
+          format.json({ error: String(error) });
+        } else {
+          format.error(`Export failed: ${error}`);
+        }
+        process.exitCode = 1;
+      }
+    },
+  );
+
+program
+  .command("migrate")
+  .description("Analyze and plan canonical migration, optionally writing plan artifacts.")
+  .argument("[path]", "Source path to analyze", ".")
+  .option("--apply", "Write REORG_PLAN.md and MIGRATION_MAP.csv")
+  .option("--backup", "Create backup of touched files when applying")
+  .option("--json", "Output report as JSON")
+  .action(
+    async (
+      inputPath: string,
+      options: { apply?: boolean; backup?: boolean; json?: boolean },
+    ) => {
+      const cwd = getCwd();
+      const sourcePath = path.resolve(cwd, inputPath);
+
+      try {
+        const findings = await analyzeRepo(sourcePath);
+        const plan = planMigration(findings);
+        const applyResult = await applyMigration(plan, {
+          rootPath: sourcePath,
+          dryRun: !options.apply,
+          backup: Boolean(options.backup),
+        });
+
+        const payload = {
+          ok: applyResult.ok,
+          sourcePath,
+          findingCount: findings.length,
+          actionCount: plan.actions.length,
+          plan,
+          applyResult,
+        };
+
+        if (options.json) {
+          format.json(payload);
+        } else {
+          format.header("Migration planning");
+          format.info(`Findings: ${findings.length}`);
+          format.info(`Actions: ${plan.actions.length}`);
+          if (options.apply) {
+            format.success("Wrote migration plan artifacts.");
+            if (applyResult.backupPath) {
+              format.info(`Backup: ${applyResult.backupPath}`);
+            }
+          } else {
+            format.info("Dry-run mode; no files changed.");
+          }
+          format.issues(applyResult.issues);
+        }
+
+        if (!payload.ok) {
+          process.exitCode = 1;
+        }
+      } catch (error) {
+        if (options.json) {
+          format.json({ error: String(error) });
+        } else {
+          format.error(`Migration failed: ${error}`);
+        }
+        process.exitCode = 1;
+      }
+    },
+  );
+
+program
   .command("doctor")
   .description("Check system health and prerequisites.")
   .argument("[path]", "Target path to check", ".")
-  .action(async (pathInput) => {
-    format.header("System Doctor");
+  .option("--json", "Output report as JSON")
+  .action(async (pathInput: string, options: { json?: boolean }) => {
+    const cwd = getCwd();
+    const targetPath = path.resolve(cwd, pathInput);
 
-    const check = async (label: string, task: () => Promise<boolean>) => {
-      const spinner = ora(label).start();
-      try {
-        const ok = await task();
-        if (ok) spinner.succeed(label);
-        else spinner.fail(label);
-        return ok;
-      } catch (e) {
-        spinner.fail(`${label} (${e})`);
-        return false;
+    try {
+      const result = await doctorTarget(targetPath);
+      if (options.json) {
+        format.json(result);
+        return;
       }
-    };
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    await check("Node.js Environment", async () => !!process.versions.node);
-    await check("Tauri Environment", async () => {
-      // Mock check
-      return true;
-    });
+      format.header(`Doctor: ${targetPath}`);
+      if (result.ok) {
+        format.success("No blocking issues detected.");
+      } else {
+        format.error("Doctor found issues.");
+      }
+      format.issues(result.issues);
+      for (const recommendation of result.recommendations) {
+        format.info(recommendation);
+      }
 
-    console.log("");
-    format.info("Doctor check complete.");
+      if (!result.ok) {
+        process.exitCode = 1;
+      }
+    } catch (error) {
+      if (options.json) {
+        format.json({ error: String(error) });
+      } else {
+        format.error(`Doctor failed: ${error}`);
+      }
+      process.exitCode = 1;
+    }
   });
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -4,6 +4,7 @@ import { parseFrontmatter } from "./frontmatter.js";
 import { readText, exists } from "./fs-utils.js";
 import { hasErrors } from "./report.js";
 import { SUITE_OWNED_PATH_PREFIXES } from "./artifact-policy.js";
+import { loadRegistryGraph } from "./domain/loader.js";
 import type { DoctorResult, Issue } from "./types.js";
 
 export async function doctorTarget(targetPath: string): Promise<DoctorResult> {
@@ -132,6 +133,36 @@ export async function doctorTarget(targetPath: string): Promise<DoctorResult> {
     }
   }
 
+  const hasCanonicalTaxonomyRoot =
+    (await exists(path.join(targetPath, "agents"))) ||
+    (await exists(path.join(targetPath, "prompts"))) ||
+    (await exists(path.join(targetPath, "instructions"))) ||
+    (await exists(path.join(targetPath, "skills"))) ||
+    (await exists(path.join(targetPath, "collections")));
+
+  if (hasCanonicalTaxonomyRoot) {
+    const graph = await loadRegistryGraph(targetPath, {
+      layout: "canonical",
+      strictCollections: false,
+    });
+    for (const graphIssue of graph.issues) {
+      if (
+        graphIssue.code.startsWith("COLLECTION_") &&
+        (graphIssue.severity === "error" || graphIssue.severity === "warning")
+      ) {
+        issues.push({
+          severity: graphIssue.severity,
+          code: "COLLECTION_GRAPH_ISSUE",
+          message: graphIssue.message,
+          path: graphIssue.path,
+          details: {
+            sourceCode: graphIssue.code,
+          },
+        });
+      }
+    }
+  }
+
   if (issues.some((issue) => issue.code === "PROMPT_DUPLICATE_NAME")) {
     recommendations.push(
       "Rename prompt names via namespace prefixes (e.g., sec:, qa:, brief:).",
@@ -147,6 +178,12 @@ export async function doctorTarget(targetPath: string): Promise<DoctorResult> {
   if (issues.some((issue) => issue.code === "INSTRUCTION_APPLYTO_OVERLAP")) {
     recommendations.push(
       "Define explicit ownership for overlapping applyTo globs.",
+    );
+  }
+
+  if (issues.some((issue) => issue.code === "COLLECTION_GRAPH_ISSUE")) {
+    recommendations.push(
+      "Resolve collection descriptor issues before collection/profile export builds.",
     );
   }
 

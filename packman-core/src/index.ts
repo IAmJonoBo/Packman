@@ -11,3 +11,6 @@ export * from "./build.js";
 export * from "./settings-merge.js";
 export * from "./report.js";
 export * from "./source-resolver.js";
+export * from "./domain/index.js";
+export * from "./migration.js";
+export * from "./validation-gates.js";

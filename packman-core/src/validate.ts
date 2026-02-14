@@ -3,9 +3,15 @@ import { promises as fs } from "node:fs";
 import fg from "fast-glob";
 import { detectMacOsJunk, detectPack } from "./detect.js";
 import { isStringArray, parseFrontmatter } from "./frontmatter.js";
-import { readJson } from "./fs-utils.js";
+import { exists, readJson } from "./fs-utils.js";
 import { parseArtifacts } from "./parse.js";
 import { hasErrors } from "./report.js";
+import { loadRegistryGraph } from "./domain/loader.js";
+import { buildProfile, buildWorkspace } from "./build.js";
+import {
+  evaluateValidationGates,
+  renderValidationReport,
+} from "./validation-gates.js";
 import {
   isSuiteOwnedPath,
   normalizeOwnedPath,
@@ -90,6 +96,16 @@ function splitRulePaths(value: unknown): string[] {
 
 function isClaudeRulePath(relativePath: string): boolean {
   return relativePath.startsWith(".claude/rules/");
+}
+
+async function hasCanonicalTaxonomyRoot(rootPath: string): Promise<boolean> {
+  const roots = ["agents", "prompts", "instructions", "skills", "collections"];
+  for (const segment of roots) {
+    if (await exists(path.join(rootPath, segment))) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function validateNameDesc(
@@ -304,6 +320,7 @@ export async function validatePack(
 ): Promise<ValidationResult> {
   const started = Date.now();
   const issues: Issue[] = [];
+  let validationReport: string | undefined;
 
   const detection = await detectPack(rootPath);
   const parsedArtifacts = await parseArtifacts(detection.artifacts);
@@ -661,10 +678,45 @@ export async function validatePack(
     }
   }
 
+  if (await hasCanonicalTaxonomyRoot(rootPath)) {
+    const graph = await loadRegistryGraph(rootPath, {
+      layout: "canonical",
+      strictCollections: false,
+    });
+
+    for (const graphIssue of graph.issues) {
+      if (graphIssue.severity === "error" || graphIssue.severity === "warning") {
+        issues.push({
+          severity: graphIssue.severity,
+          code: graphIssue.code,
+          message: graphIssue.message,
+          path: graphIssue.path,
+          details: {
+            source: "registry-graph",
+          },
+        });
+      }
+    }
+
+    const manifests = [buildWorkspace(graph), buildProfile(graph)];
+    const gateResult = evaluateValidationGates(graph, manifests);
+
+    validationReport = renderValidationReport(gateResult, manifests);
+
+    if (!gateResult.ok) {
+      issues.push({
+        severity: "error",
+        code: "VALIDATION_GATES_FAILED",
+        message: "Validation gates failed. See validationReport for details.",
+      });
+    }
+  }
+
   return {
     ok: !hasErrors(issues),
     issues,
     parsedArtifacts,
+    validationReport,
     elapsedMs: Date.now() - started,
   };
 }

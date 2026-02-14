@@ -1,0 +1,95 @@
+{
+  "id": "design-ux-power-suite",
+  "name": "Design Ux Power Suite",
+  "maturity": "stable",
+  "tags": [
+    "curated",
+    "plugin"
+  ],
+  "intendedStacks": [
+    "github-copilot",
+    "vscode"
+  ],
+  "packRoots": [
+    "Packs/copilot-award-ui-pack",
+    "Packs/copilot-interface-wiring-pack",
+    "Packs/copilot-ux-agent-pack",
+    "Packs/copilot-prompt-library-pack"
+  ],
+  "references": {
+    "agents": [
+      "Packs/copilot-award-ui-pack/.github/agents/art-direction-planner.agent.md",
+      "Packs/copilot-award-ui-pack/.github/agents/design-system-engineer.agent.md",
+      "Packs/copilot-award-ui-pack/.github/agents/pixel-qa-reviewer.agent.md",
+      "Packs/copilot-award-ui-pack/.github/agents/screen-composer.agent.md",
+      "Packs/copilot-award-ui-pack/.github/agents/ui-art-director.agent.md",
+      "Packs/copilot-interface-wiring-pack/.github/agents/api-contract-analyst.agent.md",
+      "Packs/copilot-interface-wiring-pack/.github/agents/integration-reviewer.agent.md",
+      "Packs/copilot-interface-wiring-pack/.github/agents/integration-tester.agent.md",
+      "Packs/copilot-interface-wiring-pack/.github/agents/interface-wireup.agent.md",
+      "Packs/copilot-interface-wiring-pack/.github/agents/ui-integrator.agent.md",
+      "Packs/copilot-ux-agent-pack/.github/agents/ux-implementer.agent.md",
+      "Packs/copilot-ux-agent-pack/.github/agents/ux-prototyper.agent.md",
+      "Packs/copilot-ux-agent-pack/.github/agents/ux-researcher.agent.md",
+      "Packs/copilot-ux-agent-pack/.github/agents/ux-reviewer.agent.md"
+    ],
+    "prompts": [
+      "Packs/copilot-award-ui-pack/.github/prompts/art-direct-screen.prompt.md",
+      "Packs/copilot-award-ui-pack/.github/prompts/design-system-blueprint.prompt.md",
+      "Packs/copilot-award-ui-pack/.github/prompts/layout-grid.prompt.md",
+      "Packs/copilot-award-ui-pack/.github/prompts/pixel-perfect-review.prompt.md",
+      "Packs/copilot-award-ui-pack/.github/prompts/tokens-and-typography.prompt.md",
+      "Packs/copilot-award-ui-pack/.github/prompts/ui-brief.prompt.md",
+      "Packs/copilot-interface-wiring-pack/.github/prompts/add-mocks.prompt.md",
+      "Packs/copilot-interface-wiring-pack/.github/prompts/api-contract.prompt.md",
+      "Packs/copilot-interface-wiring-pack/.github/prompts/generate-typed-client.prompt.md",
+      "Packs/copilot-interface-wiring-pack/.github/prompts/integration-test.prompt.md",
+      "Packs/copilot-interface-wiring-pack/.github/prompts/wire-up-feature.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/audit/audit-repo-health.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/audit/audit-security-basics.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/audit/audit-ui-a11y.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/brief/brief-acceptance.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/brief/brief-clarify.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/gh/gh-bootstrap.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/gov/gov-ship.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/obs/obs-ship.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/polish/polish-ship.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/qa/qa-ship.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/rel/rel-ship.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/scaffold/scaffold-new.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/sec/sec-ship.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/ship/ship-pr-ready.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/ship/ship-small-slice-plan.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/suite/suite:route.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/ui/ui-award.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/ui/ui-prototype.prompt.md",
+      "Packs/copilot-prompt-library-pack/.github/prompts/ui/ui-wiring.prompt.md",
+      "Packs/copilot-ux-agent-pack/.github/prompts/component-spec.prompt.md",
+      "Packs/copilot-ux-agent-pack/.github/prompts/prototype-screen.prompt.md",
+      "Packs/copilot-ux-agent-pack/.github/prompts/tokens-hardening.prompt.md",
+      "Packs/copilot-ux-agent-pack/.github/prompts/ux-audit.prompt.md"
+    ],
+    "instructions": [
+      "Packs/copilot-award-ui-pack/.github/copilot-instructions.md",
+      "Packs/copilot-award-ui-pack/AGENTS.md",
+      "Packs/copilot-interface-wiring-pack/.github/copilot-instructions.md",
+      "Packs/copilot-interface-wiring-pack/AGENTS.md",
+      "Packs/copilot-prompt-library-pack/.github/copilot-instructions.md",
+      "Packs/copilot-prompt-library-pack/AGENTS.md",
+      "Packs/copilot-ux-agent-pack/.github/copilot-instructions.md",
+      "Packs/copilot-ux-agent-pack/AGENTS.md"
+    ],
+    "skills": [
+      "Packs/copilot-award-ui-pack/.github/skills/art-direction-intake-and-options/SKILL.md",
+      "Packs/copilot-award-ui-pack/.github/skills/design-tokens-and-typography/SKILL.md",
+      "Packs/copilot-award-ui-pack/.github/skills/layout-composition-grid/SKILL.md",
+      "Packs/copilot-award-ui-pack/.github/skills/pixel-perfect-qa/SKILL.md",
+      "Packs/copilot-interface-wiring-pack/.github/skills/contract-first-integration/SKILL.md",
+      "Packs/copilot-interface-wiring-pack/.github/skills/integration-testing-seams/SKILL.md",
+      "Packs/copilot-interface-wiring-pack/.github/skills/ui-backend-wiring-workflow/SKILL.md",
+      "Packs/copilot-ux-agent-pack/.github/skills/accessibility-sweep/SKILL.md",
+      "Packs/copilot-ux-agent-pack/.github/skills/ux-heuristic-audit/SKILL.md",
+      "Packs/copilot-ux-agent-pack/.github/skills/ux-prototype-workflow/SKILL.md"
+    ]
+  }
+}

@@ -10,16 +10,16 @@ export interface Issue {
 
 export interface Artifact {
   type:
-    | "prompt"
-    | "instruction"
-    | "agent"
-    | "skill"
-    | "copilotInstructions"
-    | "alwaysOnInstruction"
-    | "settings"
-    | "hookConfig"
-    | "mcpConfig"
-    | "manifest";
+  | "prompt"
+  | "instruction"
+  | "agent"
+  | "skill"
+  | "copilotInstructions"
+  | "alwaysOnInstruction"
+  | "settings"
+  | "hookConfig"
+  | "mcpConfig"
+  | "manifest";
   absolutePath: string;
   relativePath: string;
 }
@@ -58,6 +58,7 @@ export interface ValidationResult {
   ok: boolean;
   issues: Issue[];
   parsedArtifacts: ParsedArtifact[];
+  validationReport?: string;
   elapsedMs: number;
 }
 
@@ -172,4 +173,130 @@ export interface OperationReport<TPayload> {
   input: Record<string, unknown>;
   output: TPayload;
   issues: Issue[];
+}
+
+export type ItemType =
+  | "agent"
+  | "prompt"
+  | "instruction"
+  | "skill"
+  | "copilotInstructions";
+
+export interface Item {
+  type: ItemType;
+  sourcePath: string;
+  name: string;
+  frontmatter?: FrontmatterData;
+}
+
+export interface Skill {
+  name: string;
+  rootPath: string;
+  skillPath: string;
+  assetPaths: string[];
+}
+
+export interface Collection {
+  id: string;
+  name: string;
+  maturity: string;
+  tags: string[];
+  intendedStacks: string[];
+  packRoots: string[];
+  collections: string[];
+  sourcePath?: string;
+}
+
+export interface RegistryGraph {
+  rootPath: string;
+  items: Item[];
+  skills: Skill[];
+  collections: Collection[];
+  plugins: Collection;
+  issues: Issue[];
+}
+
+export interface CollectionSchemaValidation {
+  ok: boolean;
+  collection?: Collection;
+  issues: Issue[];
+}
+
+export interface RegistryGraphOptions {
+  layout?: "canonical" | "workspace";
+  includePluginsCollection?: boolean;
+  strictCollections?: boolean;
+}
+
+export type ExportTarget = "workspace" | "profile";
+
+export interface ExportManifestEntry {
+  sourcePath: string;
+  targetPath: string;
+  itemType: ItemType | "skillAsset";
+}
+
+export interface ExportManifest {
+  target: ExportTarget;
+  collection?: string;
+  entries: ExportManifestEntry[];
+  collisions: Issue[];
+}
+
+export interface ExportBuilderOptions {
+  includeCopilotInstructions?: boolean;
+  collisionPolicy?: "error" | "first" | "last";
+}
+
+export interface Finding {
+  code:
+  | "MULTI_UNIT_FILE"
+  | "STANDARDS_EMBEDDED"
+  | "DUPLICATED_PROCEDURE"
+  | "MANUAL_REVIEW";
+  path: string;
+  severity: Severity;
+  message: string;
+  confidence: "high" | "medium" | "low";
+  details?: Record<string, unknown>;
+}
+
+export interface MigrationAction {
+  oldPath: string;
+  newPath: string;
+  action: "split" | "extract-instruction" | "extract-skill" | "manual-review" | "keep";
+  notes: string;
+}
+
+export interface MigrationPlan {
+  findings: Finding[];
+  actions: MigrationAction[];
+  reorgPlanMarkdown: string;
+  migrationMapCsv: string;
+}
+
+export interface ApplyMigrationOptions {
+  rootPath: string;
+  dryRun?: boolean;
+  backup?: boolean;
+}
+
+export interface ApplyMigrationResult {
+  ok: boolean;
+  dryRun: boolean;
+  backupPath?: string;
+  filesWritten: string[];
+  issues: Issue[];
+}
+
+export interface ValidationGateResult {
+  id: "gate1" | "gate2" | "gate3" | "gate4" | "gate5";
+  name: string;
+  pass: boolean;
+  details: string[];
+}
+
+export interface ValidationGateReport {
+  ok: boolean;
+  gates: ValidationGateResult[];
 }

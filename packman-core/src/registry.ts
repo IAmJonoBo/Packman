@@ -1,7 +1,6 @@
 import path from "node:path";
-import fg from "fast-glob";
-import { parseFrontmatter } from "./frontmatter.js";
-import { readText, writeJson, writeText } from "./fs-utils.js";
+import { writeJson, writeText } from "./fs-utils.js";
+import { loadRegistryGraph } from "./domain/loader.js";
 import type { RegistryResult } from "./types.js";
 
 interface PromptEntry {
@@ -30,95 +29,73 @@ export async function generateRegistry(
 ): Promise<RegistryResult> {
   const started = Date.now();
 
+  const graph = await loadRegistryGraph(targetPath, {
+    layout: "workspace",
+    includePluginsCollection: false,
+  });
+
   const prompts: PromptEntry[] = [];
   const instructions: InstructionEntry[] = [];
   const agents: AgentEntry[] = [];
 
-  const promptFiles = await fg(".github/prompts/**/*.prompt.md", {
-    cwd: targetPath,
-    absolute: true,
-    dot: true,
-  });
-  for (const promptFile of promptFiles) {
-    const raw = await readText(promptFile);
-    const parsed = parseFrontmatter(raw);
-    prompts.push({
-      name:
-        typeof parsed.frontmatter.name === "string"
-          ? parsed.frontmatter.name
-          : path.basename(promptFile),
-      path: path.relative(targetPath, promptFile),
-      agent:
-        typeof parsed.frontmatter.agent === "string"
-          ? parsed.frontmatter.agent
-          : undefined,
-      tools: Array.isArray(parsed.frontmatter.tools)
-        ? parsed.frontmatter.tools.filter(
+  for (const item of graph.items) {
+    if (item.type === "prompt") {
+      prompts.push({
+        name: item.name || path.basename(item.sourcePath),
+        path: item.sourcePath,
+        agent:
+          typeof item.frontmatter?.agent === "string"
+            ? item.frontmatter.agent
+            : undefined,
+        tools: Array.isArray(item.frontmatter?.tools)
+          ? item.frontmatter.tools.filter(
             (tool): tool is string => typeof tool === "string",
           )
-        : undefined,
-    });
-  }
+          : undefined,
+      });
+      continue;
+    }
 
-  const instructionFiles = await fg(
-    ".github/instructions/**/*.instructions.md",
-    {
-      cwd: targetPath,
-      absolute: true,
-      dot: true,
-    },
-  );
-
-  for (const instructionFile of instructionFiles) {
-    const raw = await readText(instructionFile);
-    const parsed = parseFrontmatter(raw);
-    const applyTo =
-      typeof parsed.frontmatter.applyTo === "string"
-        ? parsed.frontmatter.applyTo
+    if (item.type === "instruction") {
+      const applyTo =
+        typeof item.frontmatter?.applyTo === "string"
+          ? item.frontmatter.applyTo
             .split(",")
             .map((glob) => glob.trim())
             .filter(Boolean)
-        : [];
+          : [];
 
-    instructions.push({
-      path: path.relative(targetPath, instructionFile),
-      applyTo,
-      name:
-        typeof parsed.frontmatter.name === "string"
-          ? parsed.frontmatter.name
-          : undefined,
-      description:
-        typeof parsed.frontmatter.description === "string"
-          ? parsed.frontmatter.description
-          : undefined,
-    });
-  }
+      instructions.push({
+        path: item.sourcePath,
+        applyTo,
+        name:
+          typeof item.frontmatter?.name === "string"
+            ? item.frontmatter.name
+            : undefined,
+        description:
+          typeof item.frontmatter?.description === "string"
+            ? item.frontmatter.description
+            : undefined,
+      });
+      continue;
+    }
 
-  const agentFiles = await fg(".github/agents/**/*.agent.md", {
-    cwd: targetPath,
-    absolute: true,
-    dot: true,
-  });
-  for (const agentFile of agentFiles) {
-    const raw = await readText(agentFile);
-    const parsed = parseFrontmatter(raw);
-    agents.push({
-      name:
-        typeof parsed.frontmatter.name === "string"
-          ? parsed.frontmatter.name
-          : path.basename(agentFile),
-      path: path.relative(targetPath, agentFile),
-      tools: Array.isArray(parsed.frontmatter.tools)
-        ? parsed.frontmatter.tools.filter(
+    if (item.type === "agent") {
+      agents.push({
+        name: item.name || path.basename(item.sourcePath),
+        path: item.sourcePath,
+        tools: Array.isArray(item.frontmatter?.tools)
+          ? item.frontmatter.tools.filter(
             (tool): tool is string => typeof tool === "string",
           )
-        : undefined,
-      handoffs: Array.isArray(parsed.frontmatter.handoffs)
-        ? parsed.frontmatter.handoffs.filter(
+          : undefined,
+        handoffs: Array.isArray(item.frontmatter?.handoffs)
+          ? item.frontmatter.handoffs.filter(
             (handoff): handoff is string => typeof handoff === "string",
           )
-        : undefined,
-    });
+          : undefined,
+      });
+    }
   }
 
   const coverageMap = instructions.map((entry) => ({
@@ -145,10 +122,10 @@ export async function generateRegistry(
         `- ${prompt.name} (${prompt.path})${prompt.agent ? ` -> ${prompt.agent}` : ""}`,
     )
     .join("\n")}\n\n## Instructions\n${instructions
-    .map((inst) => `- ${inst.path}: ${inst.applyTo.join(", ") || "(none)"}`)
-    .join(
-      "\n",
-    )}\n\n## Agents\n${agents.map((agent) => `- ${agent.name} (${agent.path})`).join("\n")}\n`;
+      .map((inst) => `- ${inst.path}: ${inst.applyTo.join(", ") || "(none)"}`)
+      .join(
+        "\n",
+      )}\n\n## Agents\n${agents.map((agent) => `- ${agent.name} (${agent.path})`).join("\n")}\n`;
 
   await writeText(registryMdPath, markdown);
 

@@ -37,6 +37,16 @@ registry.md
 Packs/registry.json
 Packs/registry.md
 
+# generated export byproducts (keep distributable zip packs)
+build/docs/
+build/staging/
+build/**/*.md
+build/**/*.json
+!build/**/*.zip
+
+# hook runtime outputs
+artifacts/packman/
+
 # temp / logs
 # temp / logs
 *.log
